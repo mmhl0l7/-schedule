@@ -154,7 +154,7 @@
       background: #fff;
       width: 100%;
       max-width: 500px;
-      max-height: 80vh;
+      max-height: 85vh;
       border-top-left-radius: 24px;
       border-top-right-radius: 24px;
       padding: 16px;
@@ -188,6 +188,123 @@
       color: #888;
       cursor: pointer;
       padding: 0 4px;
+    }
+
+    /* 管理詳細モーダル専用のスタイル */
+    .manage-modal-title-area {
+      margin-bottom: 14px;
+    }
+    .manage-modal-main-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #222;
+      margin-top: 2px;
+    }
+    .manage-section-title {
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--deep-color);
+      margin: 12px 0 6px 0;
+    }
+    .manage-sub-label {
+      font-size: 10px;
+      color: #666;
+      margin-bottom: 6px;
+    }
+    .manage-row-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+    }
+    .manage-row-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #333;
+    }
+    .manage-row-left input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--main-color);
+    }
+    .manage-counter-wrap {
+      display: flex;
+      align-items: center;
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .manage-counter-btn {
+      background: #f1f3f5;
+      border: none;
+      width: 26px;
+      height: 26px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 12px;
+      color: #555;
+    }
+    .manage-counter-num {
+      width: 28px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: #333;
+    }
+    .manage-add-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .manage-add-input {
+      flex: 1;
+      padding: 6px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 11px;
+    }
+    .manage-add-btn {
+      background: #f8f9fa;
+      border: 1px solid #ccc;
+      color: #333;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .manage-save-btn {
+      background: #4db6ac;
+      color: #fff;
+      border: none;
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 14px;
+    }
+    .manage-clear-btn {
+      background: #fff;
+      color: #666;
+      border: 1px solid #ccc;
+      width: 100%;
+      padding: 8px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 12px;
+      cursor: pointer;
+      margin-top: 8px;
     }
 
     .footer-admin-area { text-align: center; margin: 30px 0 15px 0; }
@@ -315,6 +432,40 @@
   </div>
 </div>
 
+<!-- 管理ステータス詳細管理モーダル -->
+<div class="modal-overlay" id="manage-modal" onclick="closeManageModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="manage-modal-title-area">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 14px; font-weight: bold; color: var(--deep-color);">予約先と数量を管理</span>
+        <button class="modal-close-btn" onclick="closeManageModalDirect()">×</button>
+      </div>
+      <div class="manage-modal-main-title" id="manage-modal-item-title">タイトル</div>
+    </div>
+
+    <div class="manage-section-title">オンライン</div>
+    <div class="manage-sub-label">購入・予約</div>
+    <div id="manage-online-container"></div>
+
+    <div class="manage-add-row">
+      <input type="text" class="manage-add-input" id="new-online-name" placeholder="予約先名 (例：セブンネット)">
+      <button class="manage-add-btn" onclick="addCustomReservation('online')">追加</button>
+    </div>
+
+    <div class="manage-section-title">店頭</div>
+    <div id="manage-store-container"></div>
+
+    <div class="manage-add-row">
+      <input type="text" class="manage-add-input" id="new-store-name" placeholder="店舗名 (例：蔦屋書店 渋谷店)">
+      <button class="manage-add-btn" onclick="addCustomReservation('store')">追加</button>
+    </div>
+    <div class="manage-sub-label">店舗名を入力して複数登録できます</div>
+
+    <button class="manage-save-btn" onclick="saveManageModalData()">保存する</button>
+    <button class="manage-clear-btn" onclick="clearAllReservations()">予約済をすべて解除</button>
+  </div>
+</div>
+
 <script>
   const realNow = new Date();
   let currentYear = realNow.getFullYear();
@@ -325,6 +476,7 @@
   let currentStatusFilters = ["すべて"];
   let currentViewMode = "list";
   let isAdminLoggedIn = false;
+  let activeManageItemId = null;
 
   let profileData = {
     name: "橋本将生 (Masaki Hashimoto)",
@@ -370,11 +522,26 @@
       { 
         id: 1, type: "MAGAZINE", date: "2026-10-01", endDate: "", time: "", title: "J Movie Magazine Vol.135 (表紙)", status: ["表紙"], member: "橋本将生", 
         links: [{name: "Amazon", url: "https://amazon.co.jp"}], 
-        purchased: false 
+        reservations: [
+          { name: "Amazon", checked: false, count: 1, type: "online" },
+          { name: "楽天ブックス", checked: false, count: 1, type: "online" },
+          { name: "セブンネット", checked: false, count: 1, type: "online" }
+        ]
       }
     ];
     saveItemsToStorage();
   }
+
+  // 既存データに reservations が無い場合の互換処理
+  itemsData.forEach(item => {
+    if (!item.reservations) {
+      item.reservations = [
+        { name: "Amazon", checked: item.purchased || false, count: 1, type: "online" },
+        { name: "楽天ブックス", checked: false, count: 1, type: "online" },
+        { name: "セブンネット", checked: false, count: 1, type: "online" }
+      ];
+    }
+  });
 
   function saveItemsToStorage() {
     localStorage.setItem("masaki_schedule_items", JSON.stringify(itemsData));
@@ -676,21 +843,109 @@
     updateFormVisibilityBytype();
   }
 
-  function togglePurchase(id) {
-    const item = itemsData.find(i => i.id === id);
-    if (item) { 
-      item.purchased = !item.purchased; 
-      saveItemsToStorage();
-      render(); 
-    }
-  }
-
   function deleteItem(id) {
     if (!isAdminLoggedIn) return;
     if (confirm("削除しますか？")) {
-      itemsData = itemsData.filter(i => i.id !== id);
+      itemsData = itemsData.items = itemsData.filter(i => i.id !== id);
       saveItemsToStorage();
       render();
+    }
+  }
+
+  // --- 管理ステータスモーダル関連のロジック ---
+  function openManageModal(id) {
+    activeManageItemId = id;
+    const item = itemsData.find(i => i.id === id);
+    if (!item) return;
+
+    document.getElementById("manage-modal-item-title").textContent = item.title;
+    renderManageLists(item);
+    document.getElementById("manage-modal").classList.add("open");
+  }
+
+  function closeManageModalDirect() {
+    document.getElementById("manage-modal").classList.remove("open");
+  }
+
+  function closeManageModal(e) {
+    document.getElementById("manage-modal").classList.remove("open");
+  }
+
+  function renderManageLists(item) {
+    const onlineContainer = document.getElementById("manage-online-container");
+    const storeContainer = document.getElementById("manage-store-container");
+    onlineContainer.innerHTML = "";
+    storeContainer.innerHTML = "";
+
+    if (!item.reservations) item.reservations = [];
+
+    item.reservations.forEach((res, index) => {
+      let row = document.createElement("div");
+      row.className = "manage-row-card";
+      row.innerHTML = `
+        <div class="manage-row-left">
+          <input type="checkbox" id="res-check-${index}" ${res.checked ? 'checked' : ''} onchange="updateResCheck(${index}, this.checked)">
+          <label for="res-check-${index}" style="cursor:pointer;">${res.name}</label>
+        </div>
+        <div class="manage-counter-wrap">
+          <button class="manage-counter-btn" onclick="changeResCount(${index}, -1)">-</button>
+          <div class="manage-counter-num" id="res-count-${index}">${res.count}</div>
+          <button class="manage-counter-btn" onclick="changeResCount(${index}, 1)">+</button>
+        </div>
+      `;
+
+      if (res.type === "store") {
+        storeContainer.appendChild(row);
+      } else {
+        onlineContainer.appendChild(row);
+      }
+    });
+
+    if (storeContainer.children.length === 0) {
+      storeContainer.innerHTML = `<div style="font-size:11px; color:#888; padding:4px 0;">登録された店舗はありません</div>`;
+    }
+  }
+
+  function updateResCheck(index, checked) {
+    const item = itemsData.find(i => i.id === activeManageItemId);
+    if (item && item.reservations[index]) {
+      item.reservations[index].checked = checked;
+    }
+  }
+
+  function changeResCount(index, delta) {
+    const item = itemsData.find(i => i.id === activeManageItemId);
+    if (item && item.reservations[index]) {
+      item.reservations[index].count = Math.max(1, item.reservations[index].count + delta);
+      document.getElementById(`res-count-${index}`).textContent = item.reservations[index].count;
+    }
+  }
+
+  function addCustomReservation(type) {
+    const inputId = type === 'online' ? 'new-online-name' : 'new-store-name';
+    const inputEl = document.getElementById(inputId);
+    const val = inputEl.value.trim();
+    if (!val) return;
+
+    const item = itemsData.find(i => i.id === activeManageItemId);
+    if (item) {
+      item.reservations.push({ name: val, checked: true, count: 1, type: type });
+      inputEl.value = "";
+      renderManageLists(item);
+    }
+  }
+
+  function saveManageModalData() {
+    saveItemsToStorage();
+    closeManageModalDirect();
+    render();
+  }
+
+  function clearAllReservations() {
+    const item = itemsData.find(i => i.id === activeManageItemId);
+    if (item) {
+      item.reservations.forEach(r => r.checked = false);
+      renderManageLists(item);
     }
   }
 
@@ -729,7 +984,14 @@
       }
       alert("更新しました！");
     } else {
-      itemsData.push({ id: Date.now(), type, date, endDate: "", time: "20:00", title, status, member: "橋本将生", links: parsedLinks, purchased: false });
+      itemsData.push({ 
+        id: Date.now(), type, date, endDate: "", time: "20:00", title, status, member: "橋本将生", links: parsedLinks, 
+        reservations: [
+          { name: "Amazon", checked: false, count: 1, type: "online" },
+          { name: "楽天ブックス", checked: false, count: 1, type: "online" },
+          { name: "セブンネット", checked: false, count: 1, type: "online" }
+        ]
+      });
       alert("追加しました！");
     }
 
@@ -770,8 +1032,11 @@
   }
 
   function createCardHtml(item) {
-    const purchaseText = item.purchased ? "✓ 完了/済" : "○ 管理ステータス";
-    const purchaseClass = item.purchased ? "purchase-status-badge done" : "purchase-status-badge";
+    // 予約状況のチェック数をカウントしてバッジ表示を変更
+    let checkedCount = (item.reservations || []).filter(r => r.checked).length;
+    let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 管理ステータス";
+    let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
+    
     let statusTagsHtml = (Array.isArray(item.status) ? item.status : [item.status]).map(st => `<span class="status-tag">${st}</span>`).join(" ");
     let linksHtml = (item.links || []).map(l => `<a href="${l.url}" target="_blank" class="shop-link-btn">🔗 ${l.name}</a>`).join(" ");
 
@@ -779,7 +1044,7 @@
       <div class="item-card">
         <div class="item-header-row">
           <div class="item-title">${item.title}</div>
-          <button class="${purchaseClass}" onclick="togglePurchase(${item.id})">${purchaseText}</button>
+          <button class="${purchaseClass}" onclick="openManageModal(${item.id})">${purchaseText}</button>
         </div>
         <div class="date-range-display">📅 発売日/時間: ${item.date}</div>
         <div class="item-footer-row">
