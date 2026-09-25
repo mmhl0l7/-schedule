@@ -104,17 +104,108 @@
     .view-btn { font-size: 11px; padding: 5px 12px; border-radius: 14px; border: none; background: transparent; color: var(--deep-color); font-weight: bold; cursor: pointer; }
     .view-btn.active { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
 
-    .item-card { background: var(--card-bg); border: 1px solid #f8bbd0; border-radius: 16px; padding: 12px; margin-bottom: 10px; }
-    .item-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px; }
-    .item-title { font-size: 14px; font-weight: bold; color: #222; flex: 1; }
-    .purchase-status-badge { font-size: 10px; padding: 4px 8px; border-radius: 12px; border: 1px solid #ccc; background: #f8f9fa; color: #555; cursor: pointer; font-weight: bold; white-space: nowrap; }
-    .purchase-status-badge.done { background: #e2f0d9; color: #385723; border-color: #b7e1cd; }
-    .item-footer-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 6px; }
+    /* 画像に合わせた美しいカードデザイン */
+    .item-card { 
+      background: var(--card-bg); 
+      border: 2px solid #ffb6c1; 
+      border-radius: 20px; 
+      padding: 16px; 
+      margin-bottom: 14px; 
+      box-shadow: 0 2px 8px rgba(255, 105, 180, 0.08);
+      position: relative;
+    }
+    .item-top-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .item-category-badge-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #666;
+      font-weight: bold;
+    }
+    .item-icon-box {
+      width: 28px;
+      height: 28px;
+      background: #fce4ec;
+      border: 1px solid #f8bbd0;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .card-top-action-buttons {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .action-pill-btn {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      color: #555;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+    }
+    .action-pill-btn:hover {
+      background: var(--tag-bg);
+      border-color: var(--main-color);
+      color: var(--deep-color);
+    }
+    .purchase-status-badge { 
+      font-size: 11px; 
+      padding: 4px 10px; 
+      border-radius: 14px; 
+      border: 1px solid #e0e0e0; 
+      background: #fff; 
+      color: #555; 
+      cursor: pointer; 
+      font-weight: bold; 
+    }
+    .purchase-status-badge.done { 
+      background: #e2f0d9; 
+      color: #385723; 
+      border-color: #b7e1cd; 
+    }
+
+    .item-title { 
+      font-size: 15px; 
+      font-weight: bold; 
+      color: #222; 
+      margin-bottom: 8px; 
+      line-height: 1.4;
+    }
+    .item-content-desc {
+      font-size: 12px;
+      color: #444;
+      line-height: 1.5;
+      margin-bottom: 10px;
+      white-space: pre-wrap;
+    }
+
+    .item-footer-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 8px; border-top: 1px dashed #fce4ec; flex-wrap: wrap; gap: 6px; }
     .badges-left { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
-    .status-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; color: #fff; font-weight: bold; background: #ff69b4; }
-    .member-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: #fff0f5; color: var(--deep-color); border: 1px solid #f8bbd0; font-weight: bold; }
-    .date-range-display { font-size: 10px; color: #666; background: #fdf0f5; padding: 2px 6px; border-radius: 6px; border: 1px dashed var(--main-color); margin-bottom: 6px; display: inline-block; }
-    .shop-link-btn { font-size: 10px; background: #fff0f5; color: var(--deep-color); border: 1px solid var(--main-color); padding: 3px 8px; border-radius: 10px; text-decoration: none; font-weight: bold; }
+    .member-tag { font-size: 10px; padding: 3px 10px; border-radius: 10px; background: #fff0f5; color: var(--deep-color); border: 1px solid #f8bbd0; font-weight: bold; }
+    
+    .tap-detail-hint {
+      font-size: 10px;
+      color: #888;
+      text-align: center;
+      width: 100%;
+      margin-top: 4px;
+      font-weight: bold;
+    }
 
     .item-action-icons { display: none; gap: 5px; }
     .item-action-icons.show { display: flex; }
@@ -190,7 +281,7 @@
       padding: 0 4px;
     }
 
-    /* 管理詳細モーダル専用のスタイル */
+    /* 管理ステータス詳細管理モーダル */
     .manage-modal-title-area {
       margin-bottom: 14px;
     }
@@ -397,6 +488,10 @@
     <div class="form-group" id="group-time"><label>時間</label><input type="time" id="input-time" value="20:00"></div>
     <div class="form-group"><label>タイトル</label><input type="text" id="input-title" placeholder="雑誌名または番組名"></div>
     <div class="form-group">
+      <label>内容詳細（省略可）</label>
+      <textarea id="input-desc" rows="3" placeholder="【現場リポート】など"></textarea>
+    </div>
+    <div class="form-group">
       <label>カテゴリ</label>
       <select id="input-type" onchange="onFormTypeChange()">
         <option value="MAGAZINE">MAGAZINE</option>
@@ -517,7 +612,6 @@
     }
   }
 
-  // デフォルトのオンライン予約リスト（タワレコを追加）
   const defaultReservations = [
     { name: "Amazon", checked: false, count: 1, type: "online" },
     { name: "楽天ブックス", checked: false, count: 1, type: "online" },
@@ -528,7 +622,7 @@
   if (itemsData.length === 0) {
     itemsData = [
       { 
-        id: 1, type: "MAGAZINE", date: "2026-10-01", endDate: "", time: "", title: "J Movie Magazine Vol.135 (表紙)", status: ["表紙"], member: "橋本将生", 
+        id: 1, type: "MAGAZINE", date: "2026-10-01", endDate: "", time: "", title: "J Movie Magazine Vol.135 (表紙)", desc: "【新作現場リポート】\n橋本将生 『お姉ちゃんの翠くん』", status: ["表紙"], member: "橋本将生", 
         links: [{name: "Amazon", url: "https://amazon.co.jp"}], 
         reservations: JSON.parse(JSON.stringify(defaultReservations))
       }
@@ -536,20 +630,16 @@
     saveItemsToStorage();
   }
 
-  // 既存データへのタワレコ自動追加＆互換処理
   itemsData.forEach(item => {
     if (!item.reservations) {
       item.reservations = JSON.parse(JSON.stringify(defaultReservations));
-      // 旧purchasedプロパティがあればAmazonに引き継ぐ
-      if (item.purchased) {
-        item.reservations[0].checked = true;
-      }
+      if (item.purchased) item.reservations[0].checked = true;
     } else {
-      // 既存のreservationsにタワーレコードがなければ追加する
       if (!item.reservations.some(r => r.name === "タワーレコード")) {
         item.reservations.push({ name: "タワーレコード", checked: false, count: 1, type: "online" });
       }
     }
+    if (item.desc === undefined) item.desc = "";
   });
 
   function saveItemsToStorage() {
@@ -569,9 +659,7 @@
   function forceReloadApp() {
     if (window.caches) {
       caches.keys().then(names => {
-        names.forEach(name => {
-          caches.delete(name);
-        });
+        names.forEach(name => { caches.delete(name); });
       });
     }
     window.location.reload(true);
@@ -848,6 +936,7 @@
     document.getElementById("form-cancel-btn").style.display = "none";
     document.getElementById("input-date").value = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
     document.getElementById("input-title").value = "";
+    document.getElementById("input-desc").value = "";
     updateFormStatusOptions();
     updateFormVisibilityBytype();
   }
@@ -861,7 +950,6 @@
     }
   }
 
-  // --- 管理ステータスモーダル関連のロジック ---
   function openManageModal(id) {
     activeManageItemId = id;
     const item = itemsData.find(i => i.id === id);
@@ -977,11 +1065,22 @@
     return result;
   }
 
+  function shareItem(title, date) {
+    const shareText = `【${date} 予定】\n${title}\n#橋本将生`;
+    if (navigator.share) {
+      navigator.share({ title: title, text: shareText }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(shareText);
+      alert("クリップボードにシェア用テキストをコピーしました！");
+    }
+  }
+
   function saveItemData() {
     const editId = document.getElementById("edit-item-id").value;
     const date = document.getElementById("input-date").value;
     const type = document.getElementById("input-type").value;
     const title = document.getElementById("input-title").value;
+    const desc = document.getElementById("input-desc").value;
     const status = Array.from(document.querySelectorAll('input[name="form-status-checkbox"]:checked')).map(cb => cb.value);
 
     if (!date || !title) { alert("日付とタイトルを入力してください"); return; }
@@ -992,12 +1091,12 @@
     if (editId) {
       const item = itemsData.find(i => i.id == editId);
       if (item) {
-        item.date = date; item.title = title; item.type = type; item.status = status; item.links = parsedLinks;
+        item.date = date; item.title = title; item.desc = desc; item.type = type; item.status = status; item.links = parsedLinks;
       }
       alert("更新しました！");
     } else {
       itemsData.push({ 
-        id: Date.now(), type, date, endDate: "", time: "20:00", title, status, member: "橋本将生", links: parsedLinks, 
+        id: Date.now(), type, date, endDate: "", time: "20:00", title, desc, status, member: "橋本将生", links: parsedLinks, 
         reservations: JSON.parse(JSON.stringify(defaultReservations))
       });
       alert("追加しました！");
@@ -1041,30 +1140,40 @@
 
   function createCardHtml(item) {
     let checkedCount = (item.reservations || []).filter(r => r.checked).length;
-    let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 管理ステータス";
+    let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 予約/購入管理";
     let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
     
-    let statusTagsHtml = (Array.isArray(item.status) ? item.status : [item.status]).map(st => `<span class="status-tag">${st}</span>`).join(" ");
-    let linksHtml = (item.links || []).map(l => `<a href="${l.url}" target="_blank" class="shop-link-btn">🔗 ${l.name}</a>`).join(" ");
+    let typeLabel = item.type === "MAGAZINE" ? "終日 雑誌" : "出演番組";
+    let typeIcon = item.type === "MAGAZINE" ? "📖" : "📺";
+    let statusTagsHtml = (Array.isArray(item.status) ? item.status : [item.status]).map(st => `<span class="member-tag">${st}</span>`).join(" ");
 
     return `
       <div class="item-card">
-        <div class="item-header-row">
-          <div class="item-title">${item.title}</div>
-          <button class="${purchaseClass}" onclick="openManageModal(${item.id})">${purchaseText}</button>
+        <div class="item-top-info-row">
+          <div class="item-category-badge-wrap">
+            <div class="item-icon-box">${typeIcon}</div>
+            <span>${typeLabel}</span>
+          </div>
+          <div class="card-top-action-buttons">
+            <button class="action-pill-btn" onclick="shareItem('${item.title}', '${item.date}')">🔗 シェア</button>
+            <button class="${purchaseClass}" onclick="openManageModal(${item.id})">${purchaseText}</button>
+          </div>
         </div>
-        <div class="date-range-display">📅 発売日/時間: ${item.date}</div>
+
+        <div class="item-title">${item.title}</div>
+        ${item.desc ? `<div class="item-content-desc">${item.desc}</div>` : ''}
+
         <div class="item-footer-row">
           <div class="badges-left">
             ${statusTagsHtml}
             <span class="member-tag">橋本将生</span>
-            ${linksHtml}
           </div>
           <div class="item-action-icons ${isAdminLoggedIn ? 'show' : ''}">
             <button class="icon-btn edit-icon-btn" onclick="editItem(${item.id})">編集✏️</button>
             <button class="icon-btn delete-icon-btn" onclick="deleteItem(${item.id})">削除✕</button>
           </div>
         </div>
+        <div class="tap-detail-hint">▼ タップで詳細</div>
       </div>
     `;
   }
@@ -1077,6 +1186,7 @@
     document.getElementById("edit-item-id").value = item.id;
     document.getElementById("input-date").value = item.date;
     document.getElementById("input-title").value = item.title;
+    document.getElementById("input-desc").value = item.desc || "";
     document.getElementById("input-type").value = item.type;
     updateFormStatusOptions(item.status);
     updateFormVisibilityBytype();
