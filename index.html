@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <link rel="apple-touch-icon" href="icon.png">
-<link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="manifest.json">
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -530,10 +530,21 @@
 
   function updateTodayTopic() {
     const releaseDate = new Date("2026-12-04T00:00:00");
-    const diffDays = Math.ceil((releaseDate - new Date()) / (1000 * 60 * 60 * 24));
+    const today = new Date();
+    releaseDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    const diffTime = releaseDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
     const topicEl = document.getElementById("topic-text");
-    if (diffDays > 0) topicEl.textContent = `映画『お姉ちゃんの翠くん』公開まで あと ${diffDays} 日！ (12/4公開)`;
-    else topicEl.textContent = `映画『お姉ちゃんの翠くん』大ヒット公開中！`;
+    if (diffDays > 0) {
+      topicEl.textContent = `映画『お姉ちゃんの翠くん』公開まで あと ${diffDays} 日！ (12/4公開)`;
+    } else if (diffDays === 0) {
+      topicEl.textContent = `映画『お姉ちゃんの翠くん』本日公開！`;
+    } else {
+      topicEl.textContent = `映画『お姉ちゃんの翠くん』大ヒット公開中！`;
+    }
   }
 
   function checkAdminAndToggleForm() {
@@ -629,7 +640,6 @@
     return itemsData.filter(item => {
       if (item.type !== currentMainType) return false;
       
-      // カレンダー表示のときは月フィルターを強制適用、リストのときは月表示に合わせる
       let itemDate = new Date(item.date);
       if (itemDate.getFullYear() !== currentYear || itemDate.getMonth() !== currentMonth) {
         return false;
