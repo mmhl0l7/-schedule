@@ -291,13 +291,32 @@
     ]
   };
 
-  let itemsData = [
-    { 
-      id: 1, type: "MAGAZINE", date: "2026-10-01", endDate: "", time: "", title: "J Movie Magazine Vol.135 (表紙)", status: ["表紙"], member: "橋本将生", 
-      links: [{name: "Amazon", url: "https://amazon.co.jp"}], 
-      purchased: false 
+  // 予定データをスマホに保存・読み込みする仕組み
+  let itemsData = [];
+  const savedItems = localStorage.getItem("masaki_schedule_items");
+  if (savedItems) {
+    try {
+      itemsData = JSON.parse(savedItems);
+    } catch (e) {
+      itemsData = [];
     }
-  ];
+  }
+
+  // 初期データが空の場合のサンプル
+  if (itemsData.length === 0) {
+    itemsData = [
+      { 
+        id: 1, type: "MAGAZINE", date: "2026-10-01", endDate: "", time: "", title: "J Movie Magazine Vol.135 (表紙)", status: ["表紙"], member: "橋本将生", 
+        links: [{name: "Amazon", url: "https://amazon.co.jp"}], 
+        purchased: false 
+      }
+    ];
+    saveItemsToStorage();
+  }
+
+  function saveItemsToStorage() {
+    localStorage.setItem("masaki_schedule_items", JSON.stringify(itemsData));
+  }
 
   document.getElementById("month-display").textContent = `${currentYear}年${currentMonth + 1}月`;
 
@@ -309,7 +328,6 @@
     updateTodayTopic();
   });
 
-  // 更新ボタンを押したときにGitHubから最新のページを確実に読み込み直す関数
   function forceReloadApp() {
     if (window.caches) {
       caches.keys().then(names => {
@@ -598,13 +616,18 @@
 
   function togglePurchase(id) {
     const item = itemsData.find(i => i.id === id);
-    if (item) { item.purchased = !item.purchased; render(); }
+    if (item) { 
+      item.purchased = !item.purchased; 
+      saveItemsToStorage();
+      render(); 
+    }
   }
 
   function deleteItem(id) {
     if (!isAdminLoggedIn) return;
     if (confirm("削除しますか？")) {
       itemsData = itemsData.filter(i => i.id !== id);
+      saveItemsToStorage();
       render();
     }
   }
@@ -648,6 +671,7 @@
       alert("追加しました！");
     }
 
+    saveItemsToStorage();
     document.getElementById("admin-form").style.display = "none";
     resetFormToCreateMode();
     render();
