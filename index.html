@@ -125,10 +125,11 @@
     .cancel-edit-btn { background: #ccc; color: #fff; border: none; width: 100%; padding: 6px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 4px; font-size: 11px; }
 
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; background: #fff; padding: 8px; border-radius: 16px; border: 1px solid var(--border-color); }
-    .cal-cell { min-height: 55px; border: 1px solid #eee; border-radius: 6px; padding: 2px; font-size: 9px; background: #fafafa; overflow: hidden; cursor: pointer; }
+    .cal-cell { min-height: 65px; border: 1px solid #eee; border-radius: 6px; padding: 3px; font-size: 9px; background: #fafafa; overflow: hidden; }
     .cal-cell.has-event { background: #fff0f5; border-color: var(--main-color); }
     .cal-cell.is-today { background: #ffe4ec !important; border: 2px solid var(--deep-color) !important; }
-    .cal-day-num { font-weight: bold; color: #444; margin-bottom: 2px; display: inline-block; }
+    .cal-day-num { font-weight: bold; color: #444; margin-bottom: 2px; display: block; }
+    .cal-event-title { background: var(--main-color); color: #fff; padding: 1px 3px; border-radius: 3px; margin-bottom: 2px; font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
     .no-data { text-align: center; color: #888; font-size: 12px; padding: 20px; background: #fff; border-radius: 12px; }
 
     .footer-admin-area { text-align: center; margin: 30px 0 15px 0; }
@@ -621,29 +622,35 @@
     render();
   }
 
-  function isItemInCurrentMonth(item) {
-    let startDate = new Date(item.date);
-    let monthStart = new Date(currentYear, currentMonth, 1);
-    let monthEnd = new Date(currentYear, currentMonth + 1, 0);
-    return startDate <= monthEnd && startDate >= monthStart;
-  }
-
-  function render() {
-    const container = document.getElementById("content-area");
-    container.innerHTML = "";
-
-    let filtered = itemsData.filter(item => {
+  function filterItems(forCalendar = false) {
+    return itemsData.filter(item => {
       if (item.type !== currentMainType) return false;
-      if (!isItemInCurrentMonth(item)) return false;
+      
+      // カレンダー表示のときは月フィルターを強制適用、リストのときは月表示に合わせる
+      let itemDate = new Date(item.date);
+      if (itemDate.getFullYear() !== currentYear || itemDate.getMonth() !== currentMonth) {
+        return false;
+      }
+
       if (!currentStatusFilters.includes("すべて")) {
         let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
         if (!currentStatusFilters.some(st => itemStatuses.includes(st))) return false;
       }
       return true;
     });
+  }
 
-    if (currentViewMode === "calendar") renderCalendarView(filtered, container);
-    else renderListView(filtered, container);
+  function render() {
+    const container = document.getElementById("content-area");
+    container.innerHTML = "";
+
+    let filtered = filterItems();
+
+    if (currentViewMode === "calendar") {
+      renderCalendarView(filterItems(true), container);
+    } else {
+      renderListView(filtered, container);
+    }
   }
 
   function createCardHtml(item) {
@@ -716,15 +723,37 @@
     const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
     const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-    for (let i = 0; i < firstDayIndex; i++) calWrapper.appendChild(document.createElement("div"));
+    for (let i = 0; i < firstDayIndex; i++) {
+      calWrapper.appendChild(document.createElement("div"));
+    }
 
     for (let day = 1; day <= totalDays; day++) {
       const cell = document.createElement("div");
       cell.className = "cal-cell";
+      
+      const today = new Date();
+      if (day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
+        cell.classList.add("is-today");
+      }
+
       const numEl = document.createElement("div");
       numEl.className = "cal-day-num";
       numEl.textContent = day;
       cell.appendChild(numEl);
+
+      const dayStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const dayEvents = data.filter(item => item.date === dayStr);
+
+      if (dayEvents.length > 0) {
+        cell.classList.add("has-event");
+        dayEvents.forEach(ev => {
+          const evEl = document.createElement("span");
+          evEl.className = "cal-event-title";
+          evEl.textContent = ev.title;
+          cell.appendChild(evEl);
+        });
+      }
+
       calWrapper.appendChild(cell);
     }
     container.appendChild(calWrapper);
