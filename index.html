@@ -577,7 +577,6 @@
     saveItemsToStorage();
   }
 
-  // 起動時に日付をチェックして、発売日を過ぎていたら「予約受付中」を「発売中」に自動切り替え
   function checkAndAutoUpdateStatuses() {
     const todayStr = new Date().toISOString().split('T')[0];
     let updated = false;
@@ -590,7 +589,6 @@
             item.status = item.status.map(st => st === "予約受付中" ? "発売中" : st);
             updated = true;
           } else if (!item.status.includes("発売中")) {
-            // もし予約受付中ですらなかった場合でも、発売日以降なら発売中を追加する
             item.status.push("発売中");
             updated = true;
           }
@@ -1020,7 +1018,7 @@
   function saveManageModalData() {
     saveItemsToStorage();
     closeManageModalDirect();
-    render();
+    render(); // 即座に画面を再描画してボタンの状態を反映する
   }
 
   function clearAllReservations() {
