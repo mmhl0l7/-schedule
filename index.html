@@ -104,7 +104,6 @@
     .view-btn { font-size: 11px; padding: 5px 12px; border-radius: 14px; border: none; background: transparent; color: var(--deep-color); font-weight: bold; cursor: pointer; }
     .view-btn.active { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
 
-    /* もとの親しみやすいカードデザイン（アコーディオン対応） */
     .item-card { 
       background: var(--card-bg); 
       border: 1px solid var(--border-color); 
@@ -138,7 +137,6 @@
 
     .item-title { font-size: 14px; font-weight: bold; color: #333; margin-bottom: 6px; }
     
-    /* タップで開閉する詳細コンテンツ部分 */
     .item-collapsible-detail {
       display: none;
       margin-top: 8px;
@@ -179,7 +177,6 @@
     .cal-event-title { background: var(--main-color); color: #fff; padding: 1px 3px; border-radius: 3px; margin-bottom: 2px; font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
     .no-data { text-align: center; color: #888; font-size: 12px; padding: 20px; background: #fff; border-radius: 12px; }
 
-    /* モーダルポップアップのスタイル */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -232,7 +229,6 @@
       padding: 0 4px;
     }
 
-    /* 管理ステータス詳細管理モーダル */
     .manage-modal-title-area {
       margin-bottom: 14px;
     }
@@ -573,13 +569,41 @@
   if (itemsData.length === 0) {
     itemsData = [
       { 
-        id: 1, type: "MAGAZINE", date: "2026-10-01", endDate: "", time: "", title: "J Movie Magazine Vol.135 (表紙)", desc: "【新作現場リポート】\n橋本将生 『お姉ちゃんの翠くん』", status: ["表紙"], member: "橋本将生", 
+        id: 1, type: "MAGAZINE", date: "2026-10-01", endDate: "", time: "", title: "J Movie Magazine Vol.135 (表紙)", desc: "【新作現場リポート】\n橋本将生 『お姉ちゃんの翠くん』", status: ["予約受付中", "表紙"], member: "橋本将生", 
         links: [{name: "Amazon", url: "https://amazon.co.jp"}], 
         reservations: JSON.parse(JSON.stringify(defaultReservations))
       }
     ];
     saveItemsToStorage();
   }
+
+  // 起動時に日付をチェックして、発売日を過ぎていたら「予約受付中」を「発売中」に自動切り替え
+  function checkAndAutoUpdateStatuses() {
+    const todayStr = new Date().toISOString().split('T')[0];
+    let updated = false;
+
+    itemsData.forEach(item => {
+      if (item.type === "MAGAZINE" && item.date) {
+        if (item.date <= todayStr) {
+          if (!item.status) item.status = [];
+          if (item.status.includes("予約受付中")) {
+            item.status = item.status.map(st => st === "予約受付中" ? "発売中" : st);
+            updated = true;
+          } else if (!item.status.includes("発売中")) {
+            // もし予約受付中ですらなかった場合でも、発売日以降なら発売中を追加する
+            item.status.push("発売中");
+            updated = true;
+          }
+        }
+      }
+    });
+
+    if (updated) {
+      saveItemsToStorage();
+    }
+  }
+
+  checkAndAutoUpdateStatuses();
 
   itemsData.forEach(item => {
     if (!item.reservations) {
@@ -901,7 +925,6 @@
     }
   }
 
-  // カードをタップして詳細（本文やリンク）を開閉する関数
   function toggleItemDetail(id) {
     const detailEl = document.getElementById(`item-detail-${id}`);
     if (detailEl) {
