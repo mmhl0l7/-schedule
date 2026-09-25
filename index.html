@@ -517,29 +517,38 @@
     }
   }
 
+  // デフォルトのオンライン予約リスト（タワレコを追加）
+  const defaultReservations = [
+    { name: "Amazon", checked: false, count: 1, type: "online" },
+    { name: "楽天ブックス", checked: false, count: 1, type: "online" },
+    { name: "セブンネット", checked: false, count: 1, type: "online" },
+    { name: "タワーレコード", checked: false, count: 1, type: "online" }
+  ];
+
   if (itemsData.length === 0) {
     itemsData = [
       { 
         id: 1, type: "MAGAZINE", date: "2026-10-01", endDate: "", time: "", title: "J Movie Magazine Vol.135 (表紙)", status: ["表紙"], member: "橋本将生", 
         links: [{name: "Amazon", url: "https://amazon.co.jp"}], 
-        reservations: [
-          { name: "Amazon", checked: false, count: 1, type: "online" },
-          { name: "楽天ブックス", checked: false, count: 1, type: "online" },
-          { name: "セブンネット", checked: false, count: 1, type: "online" }
-        ]
+        reservations: JSON.parse(JSON.stringify(defaultReservations))
       }
     ];
     saveItemsToStorage();
   }
 
-  // 既存データに reservations が無い場合の互換処理
+  // 既存データへのタワレコ自動追加＆互換処理
   itemsData.forEach(item => {
     if (!item.reservations) {
-      item.reservations = [
-        { name: "Amazon", checked: item.purchased || false, count: 1, type: "online" },
-        { name: "楽天ブックス", checked: false, count: 1, type: "online" },
-        { name: "セブンネット", checked: false, count: 1, type: "online" }
-      ];
+      item.reservations = JSON.parse(JSON.stringify(defaultReservations));
+      // 旧purchasedプロパティがあればAmazonに引き継ぐ
+      if (item.purchased) {
+        item.reservations[0].checked = true;
+      }
+    } else {
+      // 既存のreservationsにタワーレコードがなければ追加する
+      if (!item.reservations.some(r => r.name === "タワーレコード")) {
+        item.reservations.push({ name: "タワーレコード", checked: false, count: 1, type: "online" });
+      }
     }
   });
 
@@ -846,7 +855,7 @@
   function deleteItem(id) {
     if (!isAdminLoggedIn) return;
     if (confirm("削除しますか？")) {
-      itemsData = itemsData.items = itemsData.filter(i => i.id !== id);
+      itemsData = itemsData.filter(i => i.id !== id);
       saveItemsToStorage();
       render();
     }
@@ -877,7 +886,9 @@
     onlineContainer.innerHTML = "";
     storeContainer.innerHTML = "";
 
-    if (!item.reservations) item.reservations = [];
+    if (!item.reservations) item.reservations = JSON.parse(JSON.stringify(defaultReservations));
+
+    let hasStore = false;
 
     item.reservations.forEach((res, index) => {
       let row = document.createElement("div");
@@ -895,13 +906,14 @@
       `;
 
       if (res.type === "store") {
+        hasStore = true;
         storeContainer.appendChild(row);
       } else {
         onlineContainer.appendChild(row);
       }
     });
 
-    if (storeContainer.children.length === 0) {
+    if (!hasStore) {
       storeContainer.innerHTML = `<div style="font-size:11px; color:#888; padding:4px 0;">登録された店舗はありません</div>`;
     }
   }
@@ -986,11 +998,7 @@
     } else {
       itemsData.push({ 
         id: Date.now(), type, date, endDate: "", time: "20:00", title, status, member: "橋本将生", links: parsedLinks, 
-        reservations: [
-          { name: "Amazon", checked: false, count: 1, type: "online" },
-          { name: "楽天ブックス", checked: false, count: 1, type: "online" },
-          { name: "セブンネット", checked: false, count: 1, type: "online" }
-        ]
+        reservations: JSON.parse(JSON.stringify(defaultReservations))
       });
       alert("追加しました！");
     }
@@ -1032,7 +1040,6 @@
   }
 
   function createCardHtml(item) {
-    // 予約状況のチェック数をカウントしてバッジ表示を変更
     let checkedCount = (item.reservations || []).filter(r => r.checked).length;
     let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 管理ステータス";
     let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
