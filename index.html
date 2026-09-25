@@ -519,6 +519,8 @@
   let currentViewMode = "list";
   let isAdminLoggedIn = false;
   let activeManageItemId = null;
+  let activeCalendarDateStr = null; // カレンダーポップアップが開いている時の日付保持用
+  let activeCalendarEvents = null;  // カレンダーポップアップが開いている時のイベント一覧保持用
 
   let profileData = {
     name: "橋本将生 (Masaki Hashimoto)",
@@ -1018,7 +1020,24 @@
   function saveManageModalData() {
     saveItemsToStorage();
     closeManageModalDirect();
-    render(); // 即座に画面を再描画してボタンの状態を反映する
+    render(); // 裏のメイン画面を再描画
+
+    // カレンダーポップアップが開いている状態なら、ポップアップ側の中身も即座に再描画して更新する
+    const calModal = document.getElementById("cal-modal");
+    if (calModal.classList.contains("open") && activeCalendarDateStr) {
+      const refreshedEvents = itemsData.filter(item => {
+        if (item.type !== currentMainType) return false;
+        let itemDate = new Date(item.date);
+        if (itemDate.getFullYear() !== currentYear || itemDate.getMonth() !== currentMonth) return false;
+        if (!currentStatusFilters.includes("すべて")) {
+          let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
+          if (!currentStatusFilters.some(st => itemStatuses.includes(st))) return false;
+        }
+        return true;
+      }).filter(item => item.date === activeCalendarDateStr);
+
+      openCalendarModal(activeCalendarDateStr, refreshedEvents);
+    }
   }
 
   function clearAllReservations() {
@@ -1227,6 +1246,9 @@
   }
 
   function openCalendarModal(dateStr, events) {
+    activeCalendarDateStr = dateStr;
+    activeCalendarEvents = events;
+
     const [y, m, d] = dateStr.split("-");
     const dateObj = new Date(y, m - 1, d);
     const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
@@ -1246,10 +1268,14 @@
   }
 
   function closeCalendarModalDirect() {
+    activeCalendarDateStr = null;
+    activeCalendarEvents = null;
     document.getElementById("cal-modal").classList.remove("open");
   }
 
   function closeCalendarModal(e) {
+    activeCalendarDateStr = null;
+    activeCalendarEvents = null;
     document.getElementById("cal-modal").classList.remove("open");
   }
 
