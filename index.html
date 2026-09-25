@@ -137,8 +137,58 @@
     .cal-event-title { background: var(--main-color); color: #fff; padding: 1px 3px; border-radius: 3px; margin-bottom: 2px; font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
     .no-data { text-align: center; color: #888; font-size: 12px; padding: 20px; background: #fff; border-radius: 12px; }
 
-    .cal-selected-date-area { margin-top: 12px; }
-    .cal-selected-header { font-size: 12px; font-weight: bold; color: var(--deep-color); margin-bottom: 6px; }
+    /* モーダルポップアップのスタイル */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .modal-content {
+      background: #fff;
+      width: 100%;
+      max-width: 500px;
+      max-height: 80vh;
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 16px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+      animation: slideUp 0.3s ease-out;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .modal-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+    .modal-date-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--deep-color);
+    }
+    .modal-close-btn {
+      background: none;
+      border: none;
+      font-size: 18px;
+      font-weight: bold;
+      color: #888;
+      cursor: pointer;
+      padding: 0 4px;
+    }
 
     .footer-admin-area { text-align: center; margin: 30px 0 15px 0; }
     .admin-footer-btn { background: none; border: none; color: #bbb; font-size: 10px; cursor: pointer; text-decoration: underline; padding: 5px; }
@@ -254,6 +304,17 @@
   </div>
 </div>
 
+<!-- カレンダー詳細ポップアップモーダル -->
+<div class="modal-overlay" id="cal-modal" onclick="closeCalendarModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-header-row">
+      <div class="modal-date-title" id="modal-date-title">2026年9月10日(木)</div>
+      <button class="modal-close-btn" onclick="closeCalendarModalDirect()">×</button>
+    </div>
+    <div id="modal-items-container"></div>
+  </div>
+</div>
+
 <script>
   const realNow = new Date();
   let currentYear = realNow.getFullYear();
@@ -264,7 +325,6 @@
   let currentStatusFilters = ["すべて"];
   let currentViewMode = "list";
   let isAdminLoggedIn = false;
-  let selectedCalendarDate = null;
 
   let profileData = {
     name: "橋本将生 (Masaki Hashimoto)",
@@ -440,7 +500,6 @@
   function switchMainType(type) {
     currentMainType = type;
     currentStatusFilters = ["すべて"];
-    selectedCalendarDate = null;
     document.getElementById("tab-magazine").classList.toggle("active", type === "MAGAZINE");
     document.getElementById("tab-program").classList.toggle("active", type === "PROGRAM");
     
@@ -512,7 +571,6 @@
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
     else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
     document.getElementById("month-display").textContent = `${currentYear}年${currentMonth + 1}月`;
-    selectedCalendarDate = null;
     render();
   }
 
@@ -521,7 +579,6 @@
     currentYear = now.getFullYear();
     currentMonth = now.getMonth();
     document.getElementById("month-display").textContent = `${currentYear}年${currentMonth + 1}月`;
-    selectedCalendarDate = null;
     render();
   }
 
@@ -550,7 +607,6 @@
       if (currentStatusFilters.length === 0) currentStatusFilters = ["すべて"];
     }
     updateStatusFilterPills();
-    selectedCalendarDate = null;
     render();
   }
 
@@ -814,43 +870,40 @@
         });
 
         cell.onclick = () => {
-          selectedCalendarDate = dayStr;
-          renderCalendarDetails(data, container, dayStr);
+          openCalendarModal(dayStr, dayEvents);
         };
       }
 
       calWrapper.appendChild(cell);
     }
     container.appendChild(calWrapper);
-
-    if (selectedCalendarDate) {
-      renderCalendarDetails(data, container, selectedCalendarDate);
-    }
   }
 
-  function renderCalendarDetails(data, container, dateStr) {
-    let existingArea = document.getElementById("cal-selected-area");
-    if (existingArea) existingArea.remove();
+  function openCalendarModal(dateStr, events) {
+    const [y, m, d] = dateStr.split("-");
+    const dateObj = new Date(y, m - 1, d);
+    const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+    const wday = weekdays[dateObj.getDay()];
 
-    const dayEvents = data.filter(item => item.date === dateStr);
-    if (dayEvents.length === 0) return;
+    document.getElementById("modal-date-title").textContent = `${y}年${parseInt(m)}月${parseInt(d)}日(${wday})`;
 
-    const detailArea = document.createElement("div");
-    detailArea.id = "cal-selected-area";
-    detailArea.className = "cal-selected-date-area";
-
-    const header = document.createElement("div");
-    header.className = "cal-selected-header";
-    header.textContent = `📌 ${dateStr} の予定詳細`;
-    detailArea.appendChild(header);
-
-    dayEvents.forEach(item => {
+    const itemsContainer = document.getElementById("modal-items-container");
+    itemsContainer.innerHTML = "";
+    events.forEach(item => {
       let wrapper = document.createElement("div");
       wrapper.innerHTML = createCardHtml(item);
-      detailArea.appendChild(wrapper.firstElementChild);
+      itemsContainer.appendChild(wrapper.firstElementChild);
     });
 
-    container.appendChild(detailArea);
+    document.getElementById("cal-modal").classList.add("open");
+  }
+
+  function closeCalendarModalDirect() {
+    document.getElementById("cal-modal").classList.remove("open");
+  }
+
+  function closeCalendarModal(e) {
+    document.getElementById("cal-modal").classList.remove("open");
   }
 
   document.getElementById("input-date").value = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
