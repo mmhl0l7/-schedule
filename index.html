@@ -80,19 +80,60 @@
     .topic-title { font-size: 13px; font-weight: bold; line-height: 1.4; }
 
     .header-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .app-title-area { display: flex; align-items: center; gap: 8px; }
-    .app-title-text { font-size: 15px; font-weight: bold; color: var(--deep-color); }
-    .reload-btn { background: #fff; border: 1px solid var(--main-color); color: var(--deep-color); padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; cursor: pointer; }
-    .notification-status-badge { background: #fff; border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 14px; font-size: 11px; font-weight: bold; color: var(--deep-color); }
+    .app-title-area { display: flex; align-items: center; gap: 6px; }
+    .app-title-text { font-size: 14px; font-weight: bold; color: var(--deep-color); }
+    
+    /* 左上くるくるマークボタン & 自動回転アニメーション */
+    .icon-action-btn { 
+      background: #fff; 
+      border: 1px solid var(--border-color); 
+      color: var(--deep-color); 
+      width: 32px; 
+      height: 32px; 
+      border-radius: 50%; 
+      font-size: 14px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      cursor: pointer; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: transform 0.5s ease;
+    }
+    .icon-action-btn.spinning {
+      transform: rotate(360deg);
+    }
+    
+    .notification-status-badge { 
+      background: #fff; 
+      border: 1px solid var(--border-color); 
+      padding: 6px 12px; 
+      border-radius: 16px; 
+      font-size: 11px; 
+      font-weight: bold; 
+      color: var(--deep-color); 
+      cursor: pointer; 
+      display: flex; 
+      align-items: center; 
+      gap: 4px;
+      position: relative;
+    }
+    .notification-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--main-color);
+      border-radius: 50%;
+      display: none;
+    }
+    .notification-dot.show { display: inline-block; }
 
     .type-tabs { display: flex; background: #f8bbd0; border-radius: 24px; padding: 4px; margin-bottom: 12px; }
     .type-tab { flex: 1; text-align: center; padding: 10px; font-size: 12px; font-weight: bold; color: #880e4f; border-radius: 20px; cursor: pointer; background: transparent; border: none; }
     .type-tab.active { background: #ffffff; color: var(--deep-color); box-shadow: 0 2px 6px rgba(216, 27, 96, 0.2); }
 
-    .month-nav-container { display: flex; gap: 8px; margin-bottom: 12px; }
+    .month-nav-container { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
     .month-nav { flex: 1; display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid var(--border-color); border-radius: 20px; padding: 6px 12px; font-weight: bold; color: var(--deep-color); }
     .month-nav button { background: var(--tag-bg); border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; color: var(--deep-color); font-weight: bold; }
-    .today-jump-btn { background: #fff; border: 1px solid var(--main-color); color: var(--deep-color); padding: 0 14px; border-radius: 20px; font-size: 11px; font-weight: bold; cursor: pointer; }
+    .today-jump-btn { background: #fff; border: 1px solid var(--main-color); color: var(--deep-color); padding: 0 14px; height: 36px; border-radius: 20px; font-size: 11px; font-weight: bold; cursor: pointer; }
 
     .filter-section { background: #fff; border: 1px solid var(--border-color); border-radius: 16px; padding: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; }
     .filter-row { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
@@ -113,9 +154,7 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.02);
       position: relative;
     }
-    .item-summary-bar {
-      cursor: pointer;
-    }
+    .item-summary-bar { cursor: pointer; }
     .item-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .item-date-text { font-size: 11px; font-weight: bold; color: var(--deep-color); background: var(--tag-bg); padding: 2px 8px; border-radius: 10px; display: inline-block; }
     
@@ -136,19 +175,9 @@
     }
 
     .item-title { font-size: 14px; font-weight: bold; color: #333; margin-bottom: 6px; }
-    
-    .item-collapsible-detail {
-      display: none;
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px dashed var(--border-color);
-    }
-    .item-collapsible-detail.open {
-      display: block;
-    }
-
+    .item-collapsible-detail { display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-color); }
+    .item-collapsible-detail.open { display: block; }
     .item-content-desc { font-size: 11px; color: #555; margin-bottom: 8px; line-height: 1.4; white-space: pre-wrap; }
-    
     .item-links-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
     .item-link-chip { font-size: 10px; background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; padding: 2px 8px; border-radius: 8px; text-decoration: none; font-weight: bold; }
 
@@ -177,6 +206,69 @@
     .cal-event-title { background: var(--main-color); color: #fff; padding: 1px 3px; border-radius: 3px; margin-bottom: 2px; font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
     .no-data { text-align: center; color: #888; font-size: 12px; padding: 20px; background: #fff; border-radius: 12px; }
 
+    /* 通知パネル（右側ドロワー） */
+    .notification-drawer-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 2000;
+      justify-content: flex-end;
+    }
+    .notification-drawer-overlay.open { display: flex; }
+    .notification-drawer {
+      background: #fff;
+      width: 85%;
+      max-width: 380px;
+      height: 100%;
+      box-sizing: border-box;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+      animation: slideLeft 0.3s ease-out;
+    }
+    @keyframes slideLeft {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+    .notif-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+    .notif-header-title { font-size: 15px; font-weight: bold; color: var(--deep-color); }
+    .notif-header-actions { display: flex; align-items: center; gap: 10px; }
+    .notif-read-all-btn { font-size: 11px; background: none; border: none; color: #1565c0; cursor: pointer; font-weight: bold; padding: 0; }
+    .notif-close-btn { background: none; border: none; font-size: 18px; font-weight: bold; color: #888; cursor: pointer; padding: 0 4px; }
+    
+    .notif-list-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .notif-card {
+      background: #faf5f7;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 12px;
+      position: relative;
+    }
+    .notif-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .notif-card-type { font-size: 10px; color: #666; font-weight: bold; }
+    .notif-card-time { font-size: 10px; color: #888; }
+    .notif-card-msg { font-size: 12px; font-weight: bold; color: #222; margin-bottom: 8px; line-height: 1.4; }
+    .notif-detail-btn {
+      background: #222;
+      color: #fff;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    /* モーダル群 */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -186,9 +278,7 @@
       justify-content: center;
       align-items: flex-end;
     }
-    .modal-overlay.open {
-      display: flex;
-    }
+    .modal-overlay.open { display: flex; }
     .modal-content {
       background: #fff;
       width: 100%;
@@ -214,136 +304,24 @@
       border-bottom: 1px solid var(--border-color);
       padding-bottom: 8px;
     }
-    .modal-date-title {
-      font-size: 14px;
-      font-weight: bold;
-      color: var(--deep-color);
-    }
-    .modal-close-btn {
-      background: none;
-      border: none;
-      font-size: 18px;
-      font-weight: bold;
-      color: #888;
-      cursor: pointer;
-      padding: 0 4px;
-    }
+    .modal-date-title { font-size: 14px; font-weight: bold; color: var(--deep-color); }
+    .modal-close-btn { background: none; border: none; font-size: 18px; font-weight: bold; color: #888; cursor: pointer; padding: 0 4px; }
 
-    .manage-modal-title-area {
-      margin-bottom: 14px;
-    }
-    .manage-modal-main-title {
-      font-size: 13px;
-      font-weight: bold;
-      color: #222;
-      margin-top: 2px;
-    }
-    .manage-section-title {
-      font-size: 12px;
-      font-weight: bold;
-      color: var(--deep-color);
-      margin: 12px 0 6px 0;
-    }
-    .manage-sub-label {
-      font-size: 10px;
-      color: #666;
-      margin-bottom: 6px;
-    }
-    .manage-row-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #fff;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 8px 10px;
-      margin-bottom: 8px;
-    }
-    .manage-row-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      font-weight: bold;
-      color: #333;
-    }
-    .manage-row-left input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      accent-color: var(--main-color);
-    }
-    .manage-counter-wrap {
-      display: flex;
-      align-items: center;
-      background: #f8f9fa;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .manage-counter-btn {
-      background: #f1f3f5;
-      border: none;
-      width: 26px;
-      height: 26px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 12px;
-      color: #555;
-    }
-    .manage-counter-num {
-      width: 28px;
-      text-align: center;
-      font-size: 12px;
-      font-weight: bold;
-      color: #333;
-    }
-    .manage-add-row {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-    .manage-add-input {
-      flex: 1;
-      padding: 6px 10px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      font-size: 11px;
-    }
-    .manage-add-btn {
-      background: #f8f9fa;
-      border: 1px solid #ccc;
-      color: #333;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: bold;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .manage-save-btn {
-      background: #4db6ac;
-      color: #fff;
-      border: none;
-      width: 100%;
-      padding: 10px;
-      border-radius: 12px;
-      font-weight: bold;
-      font-size: 13px;
-      cursor: pointer;
-      margin-top: 14px;
-    }
-    .manage-clear-btn {
-      background: #fff;
-      color: #666;
-      border: 1px solid #ccc;
-      width: 100%;
-      padding: 8px;
-      border-radius: 12px;
-      font-weight: bold;
-      font-size: 12px;
-      cursor: pointer;
-      margin-top: 8px;
-    }
+    .manage-modal-title-area { margin-bottom: 14px; }
+    .manage-modal-main-title { font-size: 13px; font-weight: bold; color: #222; margin-top: 2px; }
+    .manage-section-title { font-size: 12px; font-weight: bold; color: var(--deep-color); margin: 12px 0 6px 0; }
+    .manage-sub-label { font-size: 10px; color: #666; margin-bottom: 6px; }
+    .manage-row-card { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid var(--border-color); border-radius: 12px; padding: 8px 10px; margin-bottom: 8px; }
+    .manage-row-left { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: bold; color: #333; }
+    .manage-row-left input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--main-color); }
+    .manage-counter-wrap { display: flex; align-items: center; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+    .manage-counter-btn { background: #f1f3f5; border: none; width: 26px; height: 26px; font-weight: bold; cursor: pointer; font-size: 12px; color: #555; }
+    .manage-counter-num { width: 28px; text-align: center; font-size: 12px; font-weight: bold; color: #333; }
+    .manage-add-row { display: flex; gap: 6px; margin-bottom: 10px; }
+    .manage-add-input { flex: 1; padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 11px; }
+    .manage-add-btn { background: #f8f9fa; border: 1px solid #ccc; color: #333; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+    .manage-save-btn { background: #4db6ac; color: #fff; border: none; width: 100%; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 14px; }
+    .manage-clear-btn { background: #fff; color: #666; border: 1px solid #ccc; width: 100%; padding: 8px; border-radius: 12px; font-weight: bold; font-size: 12px; cursor: pointer; margin-top: 8px; }
 
     .footer-admin-area { text-align: center; margin: 30px 0 15px 0; }
     .admin-footer-btn { background: none; border: none; color: #bbb; font-size: 10px; cursor: pointer; text-decoration: underline; padding: 5px; }
@@ -355,10 +333,12 @@
 <div class="app-container" id="app-root">
   <div class="header-top-bar">
     <div class="app-title-area">
+      <button class="icon-action-btn" id="reload-btn" onclick="forceReloadApp()" title="アプリを更新">🔄</button>
       <div class="app-title-text">🩷 橋本将生 Schedule</div>
-      <button class="reload-btn" onclick="forceReloadApp()">🔄 更新</button>
     </div>
-    <div class="notification-status-badge">🔔 通知: 稼働中</div>
+    <div class="notification-status-badge" onclick="openNotificationDrawer()">
+      🔔 通知 <span class="notification-dot" id="notif-dot"></span>
+    </div>
   </div>
 
   <div class="today-topic-card" id="today-topic-box">
@@ -463,6 +443,20 @@
   </div>
 </div>
 
+<!-- 通知ドロワーパネル -->
+<div class="notification-drawer-overlay" id="notif-drawer" onclick="closeNotificationDrawer(event)">
+  <div class="notification-drawer" onclick="event.stopPropagation()">
+    <div class="notif-header-row">
+      <div class="notif-header-title">通知</div>
+      <div class="notif-header-actions">
+        <button class="notif-read-all-btn" onclick="markAllNotificationsRead()">すべて既読</button>
+        <button class="notif-close-btn" onclick="closeNotificationDrawerDirect()">×</button>
+      </div>
+    </div>
+    <div class="notif-list-container" id="notif-list-container"></div>
+  </div>
+</div>
+
 <!-- カレンダー詳細ポップアップモーダル -->
 <div class="modal-overlay" id="cal-modal" onclick="closeCalendarModal(event)">
   <div class="modal-content" onclick="event.stopPropagation()">
@@ -519,8 +513,8 @@
   let currentViewMode = "list";
   let isAdminLoggedIn = false;
   let activeManageItemId = null;
-  let activeCalendarDateStr = null; // カレンダーポップアップが開いている時の日付保持用
-  let activeCalendarEvents = null;  // カレンダーポップアップが開いている時のイベント一覧保持用
+  let activeCalendarDateStr = null;
+  let activeCalendarEvents = null;
 
   let profileData = {
     name: "橋本将生 (Masaki Hashimoto)",
@@ -554,11 +548,13 @@
   let itemsData = [];
   const savedItems = localStorage.getItem("masaki_schedule_items");
   if (savedItems) {
-    try {
-      itemsData = JSON.parse(savedItems);
-    } catch (e) {
-      itemsData = [];
-    }
+    try { itemsData = JSON.parse(savedItems); } catch (e) { itemsData = []; }
+  }
+
+  let notificationsData = [];
+  const savedNotifs = localStorage.getItem("masaki_schedule_notifications");
+  if (savedNotifs) {
+    try { notificationsData = JSON.parse(savedNotifs); } catch (e) { notificationsData = []; }
   }
 
   const defaultReservations = [
@@ -579,65 +575,120 @@
     saveItemsToStorage();
   }
 
-  function checkAndAutoUpdateStatuses() {
-    const todayStr = new Date().toISOString().split('T')[0];
-    let updated = false;
-
-    itemsData.forEach(item => {
-      if (item.type === "MAGAZINE" && item.date) {
-        if (item.date <= todayStr) {
-          if (!item.status) item.status = [];
-          if (item.status.includes("予約受付中")) {
-            item.status = item.status.map(st => st === "予約受付中" ? "発売中" : st);
-            updated = true;
-          } else if (!item.status.includes("発売中")) {
-            item.status.push("発売中");
-            updated = true;
-          }
-        }
-      }
-    });
-
-    if (updated) {
-      saveItemsToStorage();
-    }
-  }
-
-  checkAndAutoUpdateStatuses();
-
-  itemsData.forEach(item => {
-    if (!item.reservations) {
-      item.reservations = JSON.parse(JSON.stringify(defaultReservations));
-      if (item.purchased) item.reservations[0].checked = true;
-    } else {
-      if (!item.reservations.some(r => r.name === "タワーレコード")) {
-        item.reservations.push({ name: "タワーレコード", checked: false, count: 1, type: "online" });
-      }
-    }
-    if (item.desc === undefined) item.desc = "";
-  });
-
   function saveItemsToStorage() {
     localStorage.setItem("masaki_schedule_items", JSON.stringify(itemsData));
   }
 
+  function saveNotificationsToStorage() {
+    localStorage.setItem("masaki_schedule_notifications", JSON.stringify(notificationsData));
+    updateNotificationDot();
+  }
+
+  function addNotification(title) {
+    const now = new Date();
+    const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    notificationsData.unshift({
+      id: Date.now(),
+      time: timeStr,
+      msg: `新しい予定が登録されました！ [🩷 ${title}]`,
+      unread: true
+    });
+    saveNotificationsToStorage();
+  }
+
+  function updateNotificationDot() {
+    const dot = document.getElementById("notif-dot");
+    if (!dot) return;
+    const hasUnread = notificationsData.some(n => n.unread);
+    if (hasUnread) dot.classList.add("show");
+    else dot.classList.remove("show");
+  }
+
+  function openNotificationDrawer() {
+    renderNotificationList();
+    document.getElementById("notif-drawer").classList.add("open");
+  }
+
+  function closeNotificationDrawerDirect() {
+    document.getElementById("notif-drawer").classList.remove("open");
+  }
+
+  function closeNotificationDrawer(e) {
+    document.getElementById("notif-drawer").classList.remove("open");
+  }
+
+  function markAllNotificationsRead() {
+    notificationsData.forEach(n => n.unread = false);
+    saveNotificationsToStorage();
+    renderNotificationList();
+  }
+
+  function renderNotificationList() {
+    const container = document.getElementById("notif-list-container");
+    container.innerHTML = "";
+
+    if (notificationsData.length === 0) {
+      container.innerHTML = `<div style="text-align:center; color:#888; font-size:12px; padding:20px;">通知はありません</div>`;
+      return;
+    }
+
+    notificationsData.forEach(n => {
+      let card = document.createElement("div");
+      card.className = "notif-card";
+      card.style.borderLeft = n.unread ? "4px solid var(--main-color)" : "1px solid var(--border-color)";
+      card.innerHTML = `
+        <div class="notif-card-top">
+          <span class="notif-card-type">予定</span>
+          <span class="notif-card-time">${n.time}</span>
+        </div>
+        <div class="notif-card-msg">${n.msg}</div>
+        <button class="notif-detail-btn" onclick="jumpFromNotification()">詳細を見る</button>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function jumpFromNotification() {
+    closeNotificationDrawerDirect();
+    jumpToCurrentMonth();
+  }
+
   document.getElementById("month-display").textContent = `${currentYear}年${currentMonth + 1}月`;
 
+  // ページ読み込み時に自動でくるくる回して更新する処理
   window.addEventListener('load', () => {
+    const btn = document.getElementById("reload-btn");
+    if (btn) {
+      btn.classList.add("spinning");
+      setTimeout(() => {
+        btn.classList.remove("spinning");
+      }, 600);
+    }
+
     renderProfileCard();
     updateStatusFilterPills();
     updateFormStatusOptions();
     updateFormVisibilityBytype();
     updateTodayTopic();
+    updateNotificationDot();
   });
 
   function forceReloadApp() {
-    if (window.caches) {
-      caches.keys().then(names => {
-        names.forEach(name => { caches.delete(name); });
-      });
+    const btn = document.getElementById("reload-btn");
+    if (btn) {
+      btn.classList.add("spinning");
+      setTimeout(() => {
+        btn.classList.remove("spinning");
+      }, 600);
     }
-    window.location.reload(true);
+
+    if (window.caches) {
+      caches.keys().then(names => { names.forEach(name => { caches.delete(name); }); });
+    }
+    // 少しアニメーションを見せてからリロード
+    setTimeout(() => {
+      window.location.reload(true);
+    }, 400);
   }
 
   function toggleProfileAccordion() {
@@ -663,7 +714,6 @@
     profileData.sections.forEach(sec => {
       let block = document.createElement("div");
       block.className = "profile-section-block";
-      
       let titleDiv = document.createElement("div");
       titleDiv.className = "profile-section-title";
       titleDiv.textContent = sec.category;
@@ -674,10 +724,7 @@
 
       sec.links.forEach(l => {
         let a = document.createElement("a");
-        a.href = l.url;
-        a.target = "_blank";
-        a.className = "profile-link-btn";
-        a.textContent = l.name;
+        a.href = l.url; a.target = "_blank"; a.className = "profile-link-btn"; a.textContent = l.name;
         wrapDiv.appendChild(a);
       });
       block.appendChild(wrapDiv);
@@ -927,9 +974,7 @@
 
   function toggleItemDetail(id) {
     const detailEl = document.getElementById(`item-detail-${id}`);
-    if (detailEl) {
-      detailEl.classList.toggle("open");
-    }
+    if (detailEl) detailEl.classList.toggle("open");
   }
 
   function openManageModal(id) {
@@ -990,9 +1035,7 @@
 
   function updateResCheck(index, checked) {
     const item = itemsData.find(i => i.id === activeManageItemId);
-    if (item && item.reservations[index]) {
-      item.reservations[index].checked = checked;
-    }
+    if (item && item.reservations[index]) item.reservations[index].checked = checked;
   }
 
   function changeResCount(index, delta) {
@@ -1020,9 +1063,8 @@
   function saveManageModalData() {
     saveItemsToStorage();
     closeManageModalDirect();
-    render(); // 裏のメイン画面を再描画
+    render();
 
-    // カレンダーポップアップが開いている状態なら、ポップアップ側の中身も即座に再描画して更新する
     const calModal = document.getElementById("cal-modal");
     if (calModal.classList.contains("open") && activeCalendarDateStr) {
       const refreshedEvents = itemsData.filter(item => {
@@ -1088,7 +1130,8 @@
         id: Date.now(), type, date, endDate: "", time: "20:00", title, desc, status, member: "橋本将生", links: parsedLinks, 
         reservations: JSON.parse(JSON.stringify(defaultReservations))
       });
-      alert("追加しました！");
+      addNotification(title);
+      alert("追加しました！ベルマークから通知を確認できます！");
     }
 
     saveItemsToStorage();
@@ -1100,11 +1143,8 @@
   function filterItems() {
     return itemsData.filter(item => {
       if (item.type !== currentMainType) return false;
-      
       let itemDate = new Date(item.date);
-      if (itemDate.getFullYear() !== currentYear || itemDate.getMonth() !== currentMonth) {
-        return false;
-      }
+      if (itemDate.getFullYear() !== currentYear || itemDate.getMonth() !== currentMonth) return false;
 
       if (!currentStatusFilters.includes("すべて")) {
         let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
@@ -1117,9 +1157,7 @@
   function render() {
     const container = document.getElementById("content-area");
     container.innerHTML = "";
-
     let filtered = filterItems();
-
     if (currentViewMode === "calendar") {
       renderCalendarView(filtered, container);
     } else {
@@ -1235,9 +1273,7 @@
           cell.appendChild(evEl);
         });
 
-        cell.onclick = () => {
-          openCalendarModal(dayStr, dayEvents);
-        };
+        cell.onclick = () => { openCalendarModal(dayStr, dayEvents); };
       }
 
       calWrapper.appendChild(cell);
