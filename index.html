@@ -377,7 +377,6 @@
   <div class="type-tabs">
     <button class="type-tab active" id="tab-magazine" onclick="switchMainType('MAGAZINE')">MAGAZINE</button>
     <button class="type-tab" id="tab-program" onclick="switchMainType('PROGRAM')">出演番組</button>
-    <button class="type-tab" id="tab-anniversary" onclick="switchMainType('ANNIVERSARY')">🎂 誕生日・記念日</button>
   </div>
 
   <div class="month-nav-container">
@@ -409,7 +408,7 @@
     <input type="hidden" id="edit-item-id" value="">
     
     <div class="form-group"><label>日付</label><input type="date" id="input-date"></div>
-    <div class="form-group" id="group-end-date" style="display:none;"><label>終了日</label><input type="date" id="input-end-date"></div>
+    <div class="form-group" id="group-end-date"><label>終了日</label><input type="date" id="input-end-date"></div>
     <div class="form-group" id="group-time"><label>時間</label><input type="time" id="input-time" value="20:00"></div>
     <div class="form-group"><label>タイトル</label><input type="text" id="input-title" placeholder="タイトルを入力"></div>
     <div class="form-group">
@@ -421,7 +420,7 @@
       <select id="input-type" onchange="onFormTypeChange()">
         <option value="MAGAZINE">MAGAZINE</option>
         <option value="PROGRAM">出演番組</option>
-        <option value="ANNIVERSARY">🎂 誕生日・記念日</option>
+        <option value="ANNIVERSARY">🎂 誕生日・記念日・映画公開日</option>
       </select>
     </div>
     <div class="form-group">
@@ -796,7 +795,6 @@
     currentStatusFilters = ["すべて"];
     document.getElementById("tab-magazine").classList.toggle("active", type === "MAGAZINE");
     document.getElementById("tab-program").classList.toggle("active", type === "PROGRAM");
-    document.getElementById("tab-anniversary").classList.toggle("active", type === "ANNIVERSARY");
     
     updateStatusFilterPills();
     if (!document.getElementById("edit-item-id").value) {
@@ -827,9 +825,9 @@
       statuses.push("予約受付中", "表紙", "発売中", "重版");
     } else if (currentMainType === "PROGRAM") {
       statuses.push("放送予定", "レギュラー", "ゲスト出演");
-    } else {
-      statuses.push("誕生日", "記念日", "映画公開");
     }
+    statuses.push("誕生日", "記念日", "映画公開");
+
     statuses.forEach(st => {
       const btn = document.createElement("button");
       btn.className = "filter-pill" + (currentStatusFilters.includes(st) ? " active" : "");
@@ -848,9 +846,9 @@
     statusContainer.innerHTML = "";
     let options = [];
     if (targetType === "MAGAZINE") {
-      options = ["予約受付中", "表紙", "発売中", "重版"];
+      options = ["予約受付中", "表紙", "発売中", "重版", "誕生日", "記念日", "映画公開"];
     } else if (targetType === "PROGRAM") {
-      options = ["放送予定", "ゲスト出演", "レギュラー"];
+      options = ["放送予定", "ゲスト出演", "レギュラー", "誕生日", "記念日", "映画公開"];
     } else {
       options = ["誕生日", "記念日", "映画公開"];
     }
@@ -1088,7 +1086,9 @@
     const calModal = document.getElementById("cal-modal");
     if (calModal.classList.contains("open") && activeCalendarDateStr) {
       const refreshedEvents = itemsData.filter(item => {
-        if (item.type !== currentMainType) return false;
+        let matchesType = (item.type === currentMainType || item.type === "ANNIVERSARY");
+        if (!matchesType) return false;
+
         let itemDate = new Date(item.date);
         if (itemDate.getFullYear() !== currentYear || itemDate.getMonth() !== currentMonth) return false;
         if (!currentStatusFilters.includes("すべて")) {
@@ -1162,7 +1162,10 @@
 
   function filterItems() {
     return itemsData.filter(item => {
-      if (item.type !== currentMainType) return false;
+      // 選択中のタブ（MAGAZINE または PROGRAM）の予定、あるいは ANNIVERSARY（誕生日・記念日・映画公開）であれば両方に表示
+      let matchesType = (item.type === currentMainType || item.type === "ANNIVERSARY");
+      if (!matchesType) return false;
+
       let itemDate = new Date(item.date);
       if (itemDate.getFullYear() !== currentYear || itemDate.getMonth() !== currentMonth) return false;
 
