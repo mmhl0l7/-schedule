@@ -124,8 +124,8 @@
     }
     .notification-dot.show { display: inline-block; }
 
-    .type-tabs { display: flex; background: #f8bbd0; border-radius: 24px; padding: 4px; margin-bottom: 12px; }
-    .type-tab { flex: 1; text-align: center; padding: 10px; font-size: 12px; font-weight: bold; color: #880e4f; border-radius: 20px; cursor: pointer; background: transparent; border: none; }
+    .type-tabs { display: flex; background: #f8bbd0; border-radius: 24px; padding: 4px; margin-bottom: 12px; gap: 2px; }
+    .type-tab { flex: 1; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: bold; color: #880e4f; border-radius: 20px; cursor: pointer; background: transparent; border: none; white-space: nowrap; }
     .type-tab.active { background: #ffffff; color: var(--deep-color); box-shadow: 0 2px 6px rgba(216, 27, 96, 0.2); }
 
     .month-nav-container { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
@@ -394,8 +394,9 @@
   </div>
 
   <div class="type-tabs">
-    <button class="type-tab active" id="tab-magazine" onclick="switchMainType('MAGAZINE')">MAGAZINE</button>
-    <button class="type-tab" id="tab-program" onclick="switchMainType('PROGRAM')">出演番組</button>
+    <button class="type-tab active" id="tab-magazine" onclick="switchMainType('MAGAZINE')">MAGAZINE / CD</button>
+    <button class="type-tab" id="tab-program" onclick="switchMainType('PROGRAM')">出演番組 / 映画</button>
+    <button class="type-tab" id="tab-event" onclick="switchMainType('EVENT')">イベント</button>
   </div>
 
   <div class="month-nav-container">
@@ -429,7 +430,7 @@
     <div class="form-group"><label>日付</label><input type="date" id="input-date"></div>
     <div class="form-group" id="group-end-date" style="display:none;"><label>終了日</label><input type="date" id="input-end-date"></div>
     <div class="form-group" id="group-time"><label>時間</label><input type="time" id="input-time" value="20:00"></div>
-    <div class="form-group"><label>タイトル</label><input type="text" id="input-title" placeholder="雑誌名または番組名"></div>
+    <div class="form-group"><label>タイトル</label><input type="text" id="input-title" placeholder="タイトルを入力"></div>
     <div class="form-group">
       <label>内容詳細（省略可）</label>
       <textarea id="input-desc" rows="3" placeholder="【現場リポート】など"></textarea>
@@ -437,8 +438,9 @@
     <div class="form-group">
       <label>カテゴリ</label>
       <select id="input-type" onchange="onFormTypeChange()">
-        <option value="MAGAZINE">MAGAZINE</option>
-        <option value="PROGRAM">出演番組</option>
+        <option value="MAGAZINE">MAGAZINE / CD</option>
+        <option value="PROGRAM">出演番組 / 映画</option>
+        <option value="EVENT">イベント</option>
       </select>
     </div>
     <div class="form-group">
@@ -800,6 +802,7 @@
     currentStatusFilters = ["すべて"];
     document.getElementById("tab-magazine").classList.toggle("active", type === "MAGAZINE");
     document.getElementById("tab-program").classList.toggle("active", type === "PROGRAM");
+    document.getElementById("tab-event").classList.toggle("active", type === "EVENT");
     
     updateStatusFilterPills();
     if (!document.getElementById("edit-item-id").value) {
@@ -827,10 +830,13 @@
     container.innerHTML = "";
     let statuses = ["すべて"];
     if (currentMainType === "MAGAZINE") {
-      statuses.push("予約受付中", "表紙", "発売中", "重版", "誕生日");
-    } else {
-      statuses.push("放送予定", "レギュラー", "ゲスト出演");
+      statuses.push("予約受付中", "表紙", "発売中", "重版", "CD発売", "CD予約中", "誕生日", "記念日");
+    } else if (currentMainType === "PROGRAM") {
+      statuses.push("放送予定", "映画公開", "ゲスト出演", "レギュラー");
+    } else if (currentMainType === "EVENT") {
+      statuses.push("チケット受付中", "開催予定", "グッズ販売");
     }
+    
     statuses.forEach(st => {
       const btn = document.createElement("button");
       btn.className = "filter-pill" + (currentStatusFilters.includes(st) ? " active" : "");
@@ -847,7 +853,15 @@
     if (!statusContainer) return;
     
     statusContainer.innerHTML = "";
-    let options = targetType === "MAGAZINE" ? ["予約受付中", "表紙", "発売中", "重版", "誕生日"] : ["放送予定", "ゲスト出演", "レギュラー"];
+    let options = [];
+    if (targetType === "MAGAZINE") {
+      options = ["予約受付中", "表紙", "発売中", "重版", "CD発売", "CD予約中", "誕生日", "記念日"];
+    } else if (targetType === "PROGRAM") {
+      options = ["放送予定", "映画公開", "ゲスト出演", "レギュラー"];
+    } else if (targetType === "EVENT") {
+      options = ["チケット受付中", "開催予定", "グッズ販売"];
+    }
+
     let selectedArr = Array.isArray(selectedStatuses) ? selectedStatuses : [selectedStatuses];
 
     options.forEach(opt => {
@@ -1218,7 +1232,6 @@
 
   function createCardHtml(item) {
     let purchaseHtml = "";
-    // MAGAZINEタブであっても、「誕生日」ステータスが含まれている、またはタイトルに「誕生日」や「HBD」を含む場合は予約購入マークを出さないようにする
     let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
     let isBirthday = itemStatuses.includes("誕生日") || item.title.includes("誕生日") || item.title.includes("HBD");
 
