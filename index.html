@@ -83,7 +83,7 @@
     .app-title-area { display: flex; align-items: center; gap: 6px; }
     .app-title-text { font-size: 14px; font-weight: bold; color: var(--deep-color); }
     
-    /* 左上ふわっとボタン ＆ アニメーション定義 */
+    /* 左上くるくるマークボタン & 自動回転アニメーション */
     .icon-action-btn { 
       background: #fff; 
       border: 1px solid var(--border-color); 
@@ -97,23 +97,10 @@
       justify-content: center; 
       cursor: pointer; 
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: transform 0.5s ease;
     }
-    .icon-action-btn.fade-in {
-      animation: fuwatto 0.6s ease;
-    }
-    @keyframes fuwatto {
-      0% {
-        transform: scale(0.5);
-        opacity: 0;
-      }
-      60% {
-        transform: scale(1.25);
-        opacity: 1;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
+    .icon-action-btn.spinning {
+      transform: rotate(360deg);
     }
     
     .notification-status-badge { 
@@ -346,7 +333,7 @@
 <div class="app-container" id="app-root">
   <div class="header-top-bar">
     <div class="app-title-area">
-      <button class="icon-action-btn fade-in" id="reload-btn" onclick="forceReloadApp()" title="アプリを更新">🔄</button>
+      <button class="icon-action-btn" id="reload-btn" onclick="forceReloadApp()" title="アプリを更新">🔄</button>
       <div class="app-title-text">🩷 橋本将生 Schedule</div>
     </div>
     <div class="notification-status-badge" onclick="openNotificationDrawer()">
@@ -668,7 +655,16 @@
 
   document.getElementById("month-display").textContent = `${currentYear}年${currentMonth + 1}月`;
 
-  window.addEventListener('DOMContentLoaded', () => {
+  // ページ読み込み時に自動でくるくる回して更新する処理
+  window.addEventListener('load', () => {
+    const btn = document.getElementById("reload-btn");
+    if (btn) {
+      btn.classList.add("spinning");
+      setTimeout(() => {
+        btn.classList.remove("spinning");
+      }, 600);
+    }
+
     renderProfileCard();
     updateStatusFilterPills();
     updateFormStatusOptions();
@@ -680,16 +676,16 @@
   function forceReloadApp() {
     const btn = document.getElementById("reload-btn");
     if (btn) {
-      // 一度クラスを外して再付与することで、クリックごとに確実にアニメーションを再発生させる
-      btn.classList.remove("fade-in");
-      void btn.offsetWidth; // ブラウザに再描画を強制
-      btn.classList.add("fade-in");
+      btn.classList.add("spinning");
+      setTimeout(() => {
+        btn.classList.remove("spinning");
+      }, 600);
     }
 
     if (window.caches) {
       caches.keys().then(names => { names.forEach(name => { caches.delete(name); }); });
     }
-    
+    // 少しアニメーションを見せてからリロード
     setTimeout(() => {
       window.location.reload(true);
     }, 400);
