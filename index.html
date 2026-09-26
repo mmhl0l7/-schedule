@@ -1,972 +1,1331 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>橋本将生 Schedule & Profile</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: M PLUS Rounded 1c -->
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'M PLUS Rounded 1c', sans-serif;
-            background-color: #fff5f7;
-            color: #4a4a4a;
-        }
-        .theme-gradient {
-            background: linear-gradient(135deg, #ffb7c5 0%, #ffc8d6 100%);
-        }
-        .theme-text {
-            color: #d46a84;
-        }
-        .theme-bg {
-            background-color: #ffb7c5;
-        }
-        .theme-border {
-            border-color: #ffb7c5;
-        }
-        /* スムーズスクロール */
-        html {
-            scroll-behavior: smooth;
-        }
-        /* カスタムスクロールバー */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #fff5f7;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #ffb7c5;
-            border-radius: 3px;
-        }
-    </style>
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="manifest" href="manifest.json">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>橋本将生 Schedule</title>
+  <style>
+    :root {
+      --pastel-base: #fdf6f9;
+      --main-color: #ff69b4;
+      --deep-color: #d81b60;
+      --border-color: #fce4ec;
+      --card-bg: #ffffff;
+      --tag-bg: #fff0f5;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--pastel-base);
+      margin: 0;
+      padding: 10px;
+      color: #333;
+    }
+    .app-container {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+
+    .checkbox-row-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .checkbox-row-container label {
+      font-size: 11px;
+      font-weight: normal;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: #fff0f5;
+      padding: 5px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+    }
+    .checkbox-row-container input[type="checkbox"] {
+      margin: 0;
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    .profile-card { background: #fff; border: 1px solid var(--border-color); border-radius: 16px; padding: 14px; margin-bottom: 12px; position: relative; }
+    .profile-summary-bar { display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+    .profile-header { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .profile-avatar { width: 45px; height: 45px; background: #fce4ec; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 2px solid var(--main-color); flex-shrink: 0; }
+    .profile-name-area { min-width: 0; }
+    .profile-name-area h2 { font-size: 14px; color: var(--deep-color); margin: 0 0 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .profile-name-area p { font-size: 11px; color: #666; margin: 0; }
+    .accordion-toggle-icon { font-size: 11px; font-weight: bold; color: var(--deep-color); background: var(--tag-bg); padding: 4px 8px; border-radius: 12px; border: 1px solid #f8bbd0; flex-shrink: 0; }
+    .profile-collapsible-content { display: none; margin-top: 12px; border-top: 1px dashed var(--border-color); padding-top: 10px; position: relative; }
+    .profile-collapsible-content.open { display: block; }
+    .profile-edit-trigger { display: none; position: absolute; top: 10px; right: 0; background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; cursor: pointer; }
+    .profile-edit-trigger.show { display: block; }
+
+    .profile-links-grid { display: flex; flex-direction: column; gap: 12px; }
+    .profile-section-block { background: #faf5f7; border: 1px solid var(--border-color); border-radius: 12px; padding: 10px; }
+    .profile-section-title { font-size: 12px; font-weight: bold; color: var(--deep-color); margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
+    .profile-link-buttons-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+    .profile-link-btn { font-size: 11px; background: #fff; color: #555; border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 8px; text-decoration: none; font-weight: bold; }
+    .profile-link-btn:hover { background: var(--tag-bg); color: var(--deep-color); border-color: var(--main-color); }
+
+    .today-topic-card { background: linear-gradient(135deg, #ff80ab, #ff4081); color: #fff; border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; }
+    .topic-label { font-size: 10px; background: rgba(255,255,255,0.3); padding: 2px 8px; border-radius: 10px; display: inline-block; font-weight: bold; margin-bottom: 4px; }
+    .topic-title { font-size: 13px; font-weight: bold; line-height: 1.4; }
+
+    .header-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .app-title-area { display: flex; align-items: center; gap: 6px; }
+    .app-title-text { font-size: 14px; font-weight: bold; color: var(--deep-color); }
+    
+    /* 左上くるくるマークボタン & 自動回転アニメーション */
+    .icon-action-btn { 
+      background: #fff; 
+      border: 1px solid var(--border-color); 
+      color: var(--deep-color); 
+      width: 32px; 
+      height: 32px; 
+      border-radius: 50%; 
+      font-size: 14px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      cursor: pointer; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: transform 0.5s ease;
+    }
+    .icon-action-btn.spinning {
+      transform: rotate(360deg);
+    }
+    
+    .notification-status-badge { 
+      background: #fff; 
+      border: 1px solid var(--border-color); 
+      padding: 6px 12px; 
+      border-radius: 16px; 
+      font-size: 11px; 
+      font-weight: bold; 
+      color: var(--deep-color); 
+      cursor: pointer; 
+      display: flex; 
+      align-items: center; 
+      gap: 4px;
+      position: relative;
+    }
+    .notification-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--main-color);
+      border-radius: 50%;
+      display: none;
+    }
+    .notification-dot.show { display: inline-block; }
+
+    .type-tabs { display: flex; background: #f8bbd0; border-radius: 24px; padding: 4px; margin-bottom: 12px; }
+    .type-tab { flex: 1; text-align: center; padding: 10px; font-size: 12px; font-weight: bold; color: #880e4f; border-radius: 20px; cursor: pointer; background: transparent; border: none; }
+    .type-tab.active { background: #ffffff; color: var(--deep-color); box-shadow: 0 2px 6px rgba(216, 27, 96, 0.2); }
+
+    .month-nav-container { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
+    .month-nav { flex: 1; display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid var(--border-color); border-radius: 20px; padding: 6px 12px; font-weight: bold; color: var(--deep-color); }
+    .month-nav button { background: var(--tag-bg); border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; color: var(--deep-color); font-weight: bold; }
+    .today-jump-btn { background: #fff; border: 1px solid var(--main-color); color: var(--deep-color); padding: 0 14px; height: 36px; border-radius: 20px; font-size: 11px; font-weight: bold; cursor: pointer; }
+
+    .filter-section { background: #fff; border: 1px solid var(--border-color); border-radius: 16px; padding: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .filter-row { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+    .filter-pill { font-size: 11px; padding: 4px 10px; border-radius: 14px; border: 1px solid var(--border-color); background: #fff; color: #555; cursor: pointer; font-weight: bold; }
+    .filter-pill.active { background: var(--deep-color); color: #fff; border-color: var(--deep-color); }
+
+    .view-mode-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .view-switch { display: flex; background: #fce4ec; border-radius: 16px; padding: 3px; }
+    .view-btn { font-size: 11px; padding: 5px 12px; border-radius: 14px; border: none; background: transparent; color: var(--deep-color); font-weight: bold; cursor: pointer; }
+    .view-btn.active { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+    .item-card { 
+      background: var(--card-bg); 
+      border: 1px solid var(--border-color); 
+      border-radius: 16px; 
+      padding: 14px; 
+      margin-bottom: 12px; 
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      position: relative;
+    }
+    .item-summary-bar { cursor: pointer; }
+    .item-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .item-date-text { font-size: 11px; font-weight: bold; color: var(--deep-color); background: var(--tag-bg); padding: 2px 8px; border-radius: 10px; display: inline-block; }
+    
+    .purchase-status-badge { 
+      font-size: 11px; 
+      padding: 3px 10px; 
+      border-radius: 12px; 
+      border: 1px solid var(--border-color); 
+      background: #fff; 
+      color: #666; 
+      cursor: pointer; 
+      font-weight: bold; 
+    }
+    .purchase-status-badge.done { 
+      background: #e2f0d9; 
+      color: #385723; 
+      border-color: #b7e1cd; 
+    }
+
+    .item-title { font-size: 14px; font-weight: bold; color: #333; margin-bottom: 6px; }
+    .item-collapsible-detail { display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-color); }
+    .item-collapsible-detail.open { display: block; }
+    .item-content-desc { font-size: 11px; color: #555; margin-bottom: 8px; line-height: 1.4; white-space: pre-wrap; }
+    .item-links-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+    .item-link-chip { font-size: 10px; background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; padding: 2px 8px; border-radius: 8px; text-decoration: none; font-weight: bold; }
+
+    .item-footer-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--border-color); }
+    .badges-left { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+    .member-tag { font-size: 10px; padding: 2px 8px; border-radius: 8px; background: var(--tag-bg); color: var(--deep-color); border: 1px solid #f8bbd0; font-weight: bold; }
+
+    .item-action-icons { display: none; gap: 5px; }
+    .item-action-icons.show { display: flex; }
+    .icon-btn { background: #f9f9fc; border: 1px solid var(--border-color); padding: 3px 8px; border-radius: 10px; font-size: 11px; cursor: pointer; font-weight: bold; }
+    .edit-icon-btn { background: #e3f2fd; color: #1565c0; border-color: #bbdefb; }
+    .delete-icon-btn { background: #ffebee; color: #c62828; border-color: #ffcdd2; }
+
+    .form-container { display: none; background: #fff; border: 2px solid var(--main-color); border-radius: 16px; padding: 14px; margin-bottom: 16px; }
+    .form-group { margin-bottom: 8px; }
+    .form-group label { font-size: 11px; font-weight: bold; color: var(--deep-color); display: block; margin-bottom: 2px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 6px; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-size: 12px; }
+    .submit-btn { background: var(--main-color); color: #fff; border: none; width: 100%; padding: 8px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 6px; }
+    .cancel-edit-btn { background: #ccc; color: #fff; border: none; width: 100%; padding: 6px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 4px; font-size: 11px; }
+
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; background: #fff; padding: 8px; border-radius: 16px; border: 1px solid var(--border-color); }
+    .cal-cell { min-height: 65px; border: 1px solid #eee; border-radius: 6px; padding: 3px; font-size: 9px; background: #fafafa; overflow: hidden; cursor: pointer; }
+    .cal-cell.has-event { background: #fff0f5; border-color: var(--main-color); }
+    .cal-cell.is-today { background: #ffe4ec !important; border: 2px solid var(--deep-color) !important; }
+    .cal-day-num { font-weight: bold; color: #444; margin-bottom: 2px; display: block; }
+    .cal-event-title { background: var(--main-color); color: #fff; padding: 1px 3px; border-radius: 3px; margin-bottom: 2px; font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+    .no-data { text-align: center; color: #888; font-size: 12px; padding: 20px; background: #fff; border-radius: 12px; }
+
+    /* 通知パネル（右側ドロワー） */
+    .notification-drawer-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 2000;
+      justify-content: flex-end;
+    }
+    .notification-drawer-overlay.open { display: flex; }
+    .notification-drawer {
+      background: #fff;
+      width: 85%;
+      max-width: 380px;
+      height: 100%;
+      box-sizing: border-box;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+      animation: slideLeft 0.3s ease-out;
+    }
+    @keyframes slideLeft {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+    .notif-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+    .notif-header-title { font-size: 15px; font-weight: bold; color: var(--deep-color); }
+    .notif-header-actions { display: flex; align-items: center; gap: 10px; }
+    .notif-read-all-btn { font-size: 11px; background: none; border: none; color: #1565c0; cursor: pointer; font-weight: bold; padding: 0; }
+    .notif-close-btn { background: none; border: none; font-size: 18px; font-weight: bold; color: #888; cursor: pointer; padding: 0 4px; }
+    
+    .notif-list-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .notif-card {
+      background: #faf5f7;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 12px;
+      position: relative;
+    }
+    .notif-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .notif-card-type { font-size: 10px; color: #666; font-weight: bold; }
+    .notif-card-time { font-size: 10px; color: #888; }
+    .notif-card-msg { font-size: 12px; font-weight: bold; color: #222; margin-bottom: 8px; line-height: 1.4; }
+    .notif-detail-btn {
+      background: #222;
+      color: #fff;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    /* モーダル群 */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-content {
+      background: #fff;
+      width: 100%;
+      max-width: 500px;
+      max-height: 85vh;
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 16px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+      animation: slideUp 0.3s ease-out;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .modal-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+    .modal-date-title { font-size: 14px; font-weight: bold; color: var(--deep-color); }
+    .modal-close-btn { background: none; border: none; font-size: 18px; font-weight: bold; color: #888; cursor: pointer; padding: 0 4px; }
+
+    .manage-modal-title-area { margin-bottom: 14px; }
+    .manage-modal-main-title { font-size: 13px; font-weight: bold; color: #222; margin-top: 2px; }
+    .manage-section-title { font-size: 12px; font-weight: bold; color: var(--deep-color); margin: 12px 0 6px 0; }
+    .manage-sub-label { font-size: 10px; color: #666; margin-bottom: 6px; }
+    .manage-row-card { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid var(--border-color); border-radius: 12px; padding: 8px 10px; margin-bottom: 8px; }
+    .manage-row-left { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: bold; color: #333; }
+    .manage-row-left input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--main-color); }
+    .manage-counter-wrap { display: flex; align-items: center; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+    .manage-counter-btn { background: #f1f3f5; border: none; width: 26px; height: 26px; font-weight: bold; cursor: pointer; font-size: 12px; color: #555; }
+    .manage-counter-num { width: 28px; text-align: center; font-size: 12px; font-weight: bold; color: #333; }
+    .manage-add-row { display: flex; gap: 6px; margin-bottom: 10px; }
+    .manage-add-input { flex: 1; padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 11px; }
+    .manage-add-btn { background: #f8f9fa; border: 1px solid #ccc; color: #333; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+    .manage-save-btn { background: #4db6ac; color: #fff; border: none; width: 100%; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 14px; }
+    .manage-clear-btn { background: #fff; color: #666; border: 1px solid #ccc; width: 100%; padding: 8px; border-radius: 12px; font-weight: bold; font-size: 12px; cursor: pointer; margin-top: 8px; }
+
+    .footer-admin-area { text-align: center; margin: 30px 0 15px 0; }
+    .admin-footer-btn { background: none; border: none; color: #bbb; font-size: 10px; cursor: pointer; text-decoration: underline; padding: 5px; }
+    .admin-footer-btn.logged-in { color: var(--deep-color); font-weight: bold; text-decoration: none; }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col pb-20 md:pb-0">
+<body>
 
-    <!-- ヘッダー -->
-    <header class="theme-gradient sticky top-0 z-40 shadow-md">
-        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                    <i class="fa-solid fa-heart theme-text text-lg"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg text-gray-800 leading-tight">橋本 将生</h1>
-                    <p class="text-xs text-gray-600">Official Schedule & Profile</p>
-                </div>
-            </div>
-            
-            <div class="flex items-center space-x-2">
-                <!-- 通知ボタン -->
-                <button onclick="toggleNotificationDrawer()" class="relative p-2 text-gray-700 hover:text-pink-600 transition bg-white/50 rounded-full w-10 h-10 flex items-center justify-center">
-                    <i class="fa-solid fa-bell"></i>
-                    <span id="notifBadge" class="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center hidden">0</span>
-                </button>
-                <!-- 管理者モード切替 -->
-                <button onclick="openAuthModal()" id="authButton" class="bg-white/80 hover:bg-white text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm transition flex items-center space-x-1">
-                    <i class="fa-solid fa-lock text-[10px]"></i>
-                    <span id="authButtonText">管理</span>
-                </button>
-            </div>
+<div class="app-container" id="app-root">
+  <div class="header-top-bar">
+    <div class="app-title-area">
+      <button class="icon-action-btn" id="reload-btn" onclick="forceReloadApp()" title="アプリを更新">🔄</button>
+      <div class="app-title-text">🩷 橋本将生 Schedule</div>
+    </div>
+    <div class="notification-status-badge" onclick="openNotificationDrawer()">
+      🔔 通知 <span class="notification-dot" id="notif-dot"></span>
+    </div>
+  </div>
+
+  <div class="today-topic-card" id="today-topic-box">
+    <div class="topic-label" id="topic-label">✨ 映画公開カウントダウン</div>
+    <div class="topic-title" id="topic-text">読み込み中...</div>
+  </div>
+
+  <div class="profile-card">
+    <div class="profile-summary-bar" onclick="toggleProfileAccordion()">
+      <div class="profile-header">
+        <div class="profile-avatar" id="pf-avatar-icon">🩷</div>
+        <div class="profile-name-area">
+          <h2 id="pf-display-name">橋本将生 (Masaki Hashimoto)</h2>
+          <p id="pf-display-sub">プロフィール＆関連リンクまとめ</p>
         </div>
-    </header>
-
-    <!-- メインコンテンツ -->
-    <main class="max-w-4xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
-
-        <!-- プロフィールセクション -->
-        <section class="bg-white rounded-2xl p-5 shadow-sm border border-pink-100">
-            <div class="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-5">
-                <div class="relative">
-                    <img id="profileImage" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="橋本将生" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-pink-200 shadow-inner">
-                    <button onclick="openProfileEditModal()" id="editProfileBtn" class="hidden absolute bottom-0 right-0 bg-pink-500 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-md hover:bg-pink-600 transition">
-                        <i class="fa-solid fa-pen text-xs"></i>
-                    </button>
-                </div>
-                <div class="flex-grow text-center sm:text-left">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between">
-                        <h2 id="profileName" class="text-xl font-bold text-gray-800">橋本 将生 <span class="text-xs font-normal text-gray-500">Masaki Hashimoto</span></h2>
-                        <button onclick="toggleProfileDetails()" class="text-xs theme-text font-bold mt-1 sm:mt-0 hover:underline flex items-center justify-center sm:justify-start space-x-1">
-                            <span id="profileToggleText">プロフィール詳細・リンクを開く</span>
-                            <i id="profileToggleIcon" class="fa-solid fa-chevron-down text-[10px]"></i>
-                        </button>
-                    </div>
-                    <p id="profileBio" class="text-sm text-gray-600 mt-2">
-                        俳優・タレント。主な出演作多数。ファンのみなさんの応援が力になっています！最新情報はこちらからチェック✨
-                    </p>
-                    
-                    <!-- 折りたたみ詳細エリア -->
-                    <div id="profileDetails" class="hidden mt-4 pt-4 border-t border-gray-100 space-y-3">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-600">
-                            <div><span class="font-bold text-gray-700">生年月日:</span> <span id="profileBirthday">1998年5月15日</span></div>
-                            <div><span class="font-bold text-gray-700">出身地:</span> <span id="profileFrom">東京都</span></div>
-                            <div><span class="font-bold text-gray-700">趣味:</span> <span id="profileHobby">映画鑑賞、ギター</span></div>
-                            <div><span class="font-bold text-gray-700">特技:</span> <span id="profileSkill">料理、サッカー</span></div>
-                        </div>
-                        
-                        <!-- リンク集 -->
-                        <div class="pt-2">
-                            <p class="text-xs font-bold text-gray-700 mb-2"><i class="fa-solid fa-link mr-1"></i> 関連リンク・出演作情報</p>
-                            <div id="linkListContainer" class="flex flex-wrap gap-2">
-                                <!-- 動的生成 -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 通知許可バナー -->
-        <div id="notificationPermissionBanner" class="bg-pink-50 border border-pink-200 rounded-xl p-4 flex items-center justify-between shadow-sm hidden">
-            <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-full bg-pink-200 text-pink-700 flex items-center justify-center">
-                    <i class="fa-solid fa-bell"></i>
-                </div>
-                <div>
-                    <p class="text-xs font-bold text-gray-800">プッシュ通知を有効にしませんか？</p>
-                    <p class="text-[11px] text-gray-600">出演番組の10分前や当日にブラウザ通知でお知らせします。</p>
-                </div>
-            </div>
-            <button onclick="requestNotificationPermission()" class="bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow transition">
-                許可する
-            </button>
-        </div>
-
-        <!-- スケジュールセクション -->
-        <section class="bg-white rounded-2xl p-5 shadow-sm border border-pink-100">
-            <!-- タブ・コントロールバー -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0 pb-4 border-b border-gray-100">
-                <div class="flex items-center space-x-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-                    <button onclick="setTab('all')" id="tab-all" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-pink-500 text-white shadow-sm">すべて</button>
-                    <button onclick="setTab('tv')" id="tab-tv" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-gray-100 text-gray-600 hover:bg-gray-200">TV・配信</button>
-                    <button onclick="setTab('magazine')" id="tab-magazine" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-gray-100 text-gray-600 hover:bg-gray-200">雑誌・WEB</button>
-                    <button onclick="setTab('event')" id="tab-event" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-gray-100 text-gray-600 hover:bg-gray-200">イベント</button>
-                    <button onclick="setTab('other')" id="tab-other" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-gray-100 text-gray-600 hover:bg-gray-200">その他</button>
-                </div>
-
-                <div class="flex items-center space-x-2 w-full sm:w-auto justify-between sm:justify-end">
-                    <!-- 表示切替 (リスト / カレンダー) -->
-                    <div class="flex bg-gray-100 p-0.5 rounded-lg">
-                        <button onclick="setViewMode('list')" id="viewModeList" class="px-3 py-1 rounded-md text-xs font-bold bg-white text-gray-800 shadow-sm transition">リスト</button>
-                        <button onclick="setViewMode('calendar')" id="viewModeCalendar" class="px-3 py-1 rounded-md text-xs font-bold text-gray-600 transition">カレンダー</button>
-                    </div>
-
-                    <!-- 管理者用：予定追加ボタン -->
-                    <button onclick="openScheduleModal()" id="addScheduleBtn" class="hidden bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow transition flex items-center space-x-1">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>追加</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- 検索フィルター -->
-            <div class="mt-4 flex items-center space-x-2 bg-gray-50 px-3 py-2 rounded-xl border border-gray-100">
-                <i class="fa-solid fa-magnifying-glass text-gray-400 text-xs"></i>
-                <input type="text" id="searchInput" oninput="filterSchedules()" placeholder="キーワードでスケジュールを検索..." class="bg-transparent text-xs text-gray-700 focus:outline-none w-full">
-            </div>
-
-            <!-- リスト表示コンテナ -->
-            <div id="listViewContainer" class="mt-4 space-y-3">
-                <!-- 動的生成 -->
-            </div>
-
-            <!-- カレンダー表示コンテナ -->
-            <div id="calendarViewContainer" class="mt-4 hidden">
-                <div class="flex justify-between items-center mb-4">
-                    <button onclick="changeMonth(-1)" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"><i class="fa-solid fa-chevron-left text-xs"></i></button>
-                    <h3 id="calendarMonthTitle" class="font-bold text-sm text-gray-800">2026年 9月</h3>
-                    <button onclick="changeMonth(1)" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"><i class="fa-solid fa-chevron-right text-xs"></i></button>
-                </div>
-                <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-500 mb-2">
-                    <div class="text-red-500">日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div class="text-blue-500">土</div>
-                </div>
-                <div id="calendarGrid" class="grid grid-cols-7 gap-1">
-                    <!-- 動的生成 -->
-                </div>
-                <div id="selectedDateSchedules" class="mt-6 pt-4 border-t border-gray-100 hidden">
-                    <h4 id="selectedDateTitle" class="text-xs font-bold text-gray-700 mb-3">日付のスケジュール</h4>
-                    <div id="selectedDateList" class="space-y-2"></div>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- フッター -->
-    <footer class="mt-auto py-6 text-center text-xs text-gray-500 border-t border-pink-100 bg-white">
-        <p>&copy; 2026 橋本将生 Official Support. All Rights Reserved.</p>
-    </footer>
-
-    <!-- 通知ドロワー（サイドパネル） -->
-    <div id="notificationDrawer" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm hidden flex justify-end transition-opacity">
-        <div class="bg-white w-full max-w-sm h-full shadow-2xl flex flex-col p-5 transform transition-transform">
-            <div class="flex justify-between items-center pb-3 border-b border-gray-100">
-                <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-bell theme-text"></i>
-                    <h3 class="font-bold text-sm text-gray-800">通知・お知らせ</h3>
-                </div>
-                <button onclick="toggleNotificationDrawer()" class="text-gray-400 hover:text-gray-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <div id="notificationList" class="flex-grow overflow-y-auto py-3 space-y-3">
-                <!-- 動的生成 -->
-            </div>
-            <div class="pt-3 border-t border-gray-100 flex justify-between">
-                <button onclick="clearNotifications()" class="text-xs text-gray-500 hover:text-red-500 transition">すべて削除</button>
-                <button onclick="toggleNotificationDrawer()" class="text-xs theme-text font-bold">閉じる</button>
-            </div>
-        </div>
+      </div>
+      <div class="accordion-toggle-icon" id="accordion-toggle-text">開く ▼</div>
     </div>
 
-    <!-- 予約・購入管理モーダル -->
-    <div id="bookingModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
-                <h3 class="font-bold text-sm text-gray-800"><i class="fa-solid fa-bookmark theme-text mr-1"></i> 予約・購入ステータス管理</h3>
-                <button onclick="closeBookingModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <input type="hidden" id="bookingScheduleId">
-            <p id="bookingScheduleTitle" class="text-xs font-bold text-gray-700 bg-pink-50 p-2.5 rounded-xl border border-pink-100"></p>
-            
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">予約状況</label>
-                    <select id="bookingStatus" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
-                        <option value="none">未予約・未購入</option>
-                        <option value="reserved">予約済み</option>
-                        <option value="purchased">購入・視聴完了</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">ショップ・プラットフォーム</label>
-                    <input type="text" id="bookingShop" placeholder="例: Amazon, タワレコ, Tver, 劇場など" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">冊数・枚数・メモ</label>
-                    <input type="text" id="bookingMemo" placeholder="例: 2冊, 特典付き など" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
-                </div>
-            </div>
+    <div class="profile-collapsible-content" id="profile-collapsible-area">
+      <button class="profile-edit-trigger" id="profile-edit-btn" onclick="openProfileEditModal()">✏️ プロフィール編集</button>
+      <div class="profile-links-grid" id="profile-links-container"></div>
+    </div>
+  </div>
 
-            <div class="flex justify-end space-x-2 pt-3 border-t border-gray-100">
-                <button onclick="closeBookingModal()" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-200 transition">キャンセル</button>
-                <button onclick="saveBookingData()" class="px-4 py-2 bg-pink-500 text-white rounded-xl text-xs font-bold hover:bg-pink-600 transition shadow-sm">保存する</button>
-            </div>
-        </div>
+  <div class="form-container" id="profile-form">
+    <div style="font-size: 13px; font-weight: bold; color: var(--deep-color); margin-bottom: 8px;">✏️ プロフィール・リンク編集</div>
+    <div class="form-group"><label>名前</label><input type="text" id="input-pf-name" value="橋本将生 (Masaki Hashimoto)"></div>
+    <div class="form-group"><label>サブタイトル</label><input type="text" id="input-pf-sub" value="プロフィール＆関連リンクまとめ"></div>
+    <div class="form-group"><label>アイコン</label><input type="text" id="input-pf-icon" value="🩷"></div>
+    <div class="form-group">
+      <label>リンク設定 (カテゴリ: 名前=URL形式を改行区切り)</label>
+      <textarea id="input-pf-links" rows="8"></textarea>
+    </div>
+    <button class="submit-btn" onclick="saveProfileData()">更新する</button>
+    <button class="cancel-edit-btn" onclick="document.getElementById('profile-form').style.display='none'">キャンセル</button>
+  </div>
+
+  <div class="type-tabs">
+    <button class="type-tab active" id="tab-magazine" onclick="switchMainType('MAGAZINE')">MAGAZINE</button>
+    <button class="type-tab" id="tab-program" onclick="switchMainType('PROGRAM')">出演番組</button>
+  </div>
+
+  <div class="month-nav-container">
+    <div class="month-nav">
+      <button onclick="changeMonth(-1)">&lt;</button>
+      <span id="month-display">2026年10月</span>
+      <button onclick="changeMonth(1)">&gt;</button>
+    </div>
+    <button class="today-jump-btn" onclick="jumpToCurrentMonth()">🔄 今月</button>
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-row" id="member-filters">
+      <button class="filter-pill active" onclick="toggleMemberFilter('すべて')">すべて</button>
+      <button class="filter-pill" onclick="toggleMemberFilter('橋本将生')">橋本将生</button>
+    </div>
+    <div class="filter-row" id="status-filters"></div>
+  </div>
+
+  <div class="view-mode-bar">
+    <div class="view-switch">
+      <button class="view-btn active" id="view-list-btn" onclick="switchView('list')">リスト</button>
+      <button class="view-btn" id="view-cal-btn" onclick="switchView('calendar')">カレンダー</button>
+    </div>
+  </div>
+
+  <div class="form-container" id="admin-form">
+    <div style="font-size: 13px; font-weight: bold; color: var(--deep-color); margin-bottom: 8px;" id="form-heading-text">📖 スケジュール追加</div>
+    <input type="hidden" id="edit-item-id" value="">
+    
+    <div class="form-group"><label>日付</label><input type="date" id="input-date"></div>
+    <div class="form-group" id="group-end-date" style="display:none;"><label>終了日</label><input type="date" id="input-end-date"></div>
+    <div class="form-group" id="group-time"><label>時間</label><input type="time" id="input-time" value="20:00"></div>
+    <div class="form-group"><label>タイトル</label><input type="text" id="input-title" placeholder="雑誌名または番組名"></div>
+    <div class="form-group">
+      <label>内容詳細（省略可）</label>
+      <textarea id="input-desc" rows="3" placeholder="【現場リポート】など"></textarea>
+    </div>
+    <div class="form-group">
+      <label>カテゴリ</label>
+      <select id="input-type" onchange="onFormTypeChange()">
+        <option value="MAGAZINE">MAGAZINE</option>
+        <option value="PROGRAM">出演番組</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>ステータス（複数選択可）</label>
+      <div id="input-status-container" class="checkbox-row-container"></div>
+    </div>
+    <div class="form-group">
+      <label>関連リンク</label><input type="text" id="input-links" placeholder="例: Amazon:https://...">
+    </div>
+    <button class="submit-btn" id="form-submit-btn" onclick="saveItemData()">登録する</button>
+    <button class="cancel-edit-btn" id="form-cancel-btn" style="display:none;" onclick="resetFormToCreateMode()">キャンセル</button>
+  </div>
+
+  <div id="content-area"></div>
+
+  <div class="footer-admin-area">
+    <button class="admin-footer-btn" id="admin-toggle-btn" onclick="checkAdminAndToggleForm()">⚙️ 管理者ログイン</button>
+  </div>
+</div>
+
+<!-- 通知ドロワーパネル -->
+<div class="notification-drawer-overlay" id="notif-drawer" onclick="closeNotificationDrawer(event)">
+  <div class="notification-drawer" onclick="event.stopPropagation()">
+    <div class="notif-header-row">
+      <div class="notif-header-title">通知</div>
+      <div class="notif-header-actions">
+        <button class="notif-read-all-btn" onclick="markAllNotificationsRead()">すべて既読</button>
+        <button class="notif-close-btn" onclick="closeNotificationDrawerDirect()">×</button>
+      </div>
+    </div>
+    <div class="notif-list-container" id="notif-list-container"></div>
+  </div>
+</div>
+
+<!-- カレンダー詳細ポップアップモーダル -->
+<div class="modal-overlay" id="cal-modal" onclick="closeCalendarModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-header-row">
+      <div class="modal-date-title" id="modal-date-title">2026年9月10日(木)</div>
+      <button class="modal-close-btn" onclick="closeCalendarModalDirect()">×</button>
+    </div>
+    <div id="modal-items-container"></div>
+  </div>
+</div>
+
+<!-- 管理ステータス詳細管理モーダル -->
+<div class="modal-overlay" id="manage-modal" onclick="closeManageModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="manage-modal-title-area">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 14px; font-weight: bold; color: var(--deep-color);">予約先と数量を管理</span>
+        <button class="modal-close-btn" onclick="closeManageModalDirect()">×</button>
+      </div>
+      <div class="manage-modal-main-title" id="manage-modal-item-title">タイトル</div>
     </div>
 
-    <!-- 管理者ログインモーダル -->
-    <div id="authModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl space-y-4">
-            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
-                <h3 class="font-bold text-sm text-gray-800"><i class="fa-solid fa-lock theme-text mr-1"></i> 管理者ログイン</h3>
-                <button onclick="closeAuthModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <p class="text-xs text-gray-600">管理パスワードを入力してください。</p>
-            <input type="password" id="adminPasswordInput" placeholder="パスワード" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
-            <div class="flex justify-end space-x-2 pt-2">
-                <button onclick="closeAuthModal()" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-200 transition">キャンセル</button>
-                <button onclick="verifyAdminPassword()" class="px-4 py-2 bg-pink-500 text-white rounded-xl text-xs font-bold hover:bg-pink-600 transition shadow-sm">ログイン</button>
-            </div>
-        </div>
+    <div class="manage-section-title">オンライン</div>
+    <div class="manage-sub-label">購入・予約</div>
+    <div id="manage-online-container"></div>
+
+    <div class="manage-add-row">
+      <input type="text" class="manage-add-input" id="new-online-name" placeholder="予約先名 (例：セブンネット)">
+      <button class="manage-add-btn" onclick="addCustomReservation('online')">追加</button>
     </div>
 
-    <!-- スケジュール追加・編集モーダル（管理者用） -->
-    <div id="scheduleModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
-                <h3 id="scheduleModalTitle" class="font-bold text-sm text-gray-800">スケジュール新規追加</h3>
-                <button onclick="closeScheduleModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <input type="hidden" id="editScheduleId">
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">カテゴリ</label>
-                    <select id="schCategory" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
-                        <option value="tv">TV・配信</option>
-                        <option value="magazine">雑誌・WEB</option>
-                        <option value="event">イベント</option>
-                        <option value="other">その他</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">タイトル</label>
-                    <input type="text" id="schTitle" placeholder="例: 「〇〇番組」出演" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">日付</label>
-                        <input type="date" id="schDate" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">時間（任意）</label>
-                        <input type="time" id="schTime" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">詳細・媒体名</label>
-                    <input type="text" id="schDetail" placeholder="例: 日本テレビ系 21:00〜" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">公式サイト・予約URL（任意）</label>
-                    <input type="url" id="schUrl" placeholder="https://..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
-                </div>
-            </div>
-            <div class="flex justify-end space-x-2 pt-3 border-t border-gray-100">
-                <button onclick="closeScheduleModal()" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-200 transition">キャンセル</button>
-                <button onclick="saveSchedule()" class="px-4 py-2 bg-pink-500 text-white rounded-xl text-xs font-bold hover:bg-pink-600 transition shadow-sm">保存する</button>
-            </div>
-        </div>
+    <div class="manage-section-title">店頭</div>
+    <div id="manage-store-container"></div>
+
+    <div class="manage-add-row">
+      <input type="text" class="manage-add-input" id="new-store-name" placeholder="店舗名 (例：蔦屋書店 渋谷店)">
+      <button class="manage-add-btn" onclick="addCustomReservation('store')">追加</button>
     </div>
+    <div class="manage-sub-label">店舗名を入力して複数登録できます</div>
 
-    <!-- プロフィール編集モーダル（管理者用） -->
-    <div id="profileEditModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
-                <h3 class="font-bold text-sm text-gray-800">プロフィール・リンク編集</h3>
-                <button onclick="closeProfileEditModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">プロフィール画像URL</label>
-                    <input type="url" id="editImage" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">紹介文</label>
-                    <textarea id="editBio" rows="3" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400"></textarea>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">生年月日</label>
-                        <input type="text" id="editBirthday" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">出身地</label>
-                        <input type="text" id="editFrom" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">趣味</label>
-                        <input type="text" id="editHobby" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">特技</label>
-                        <input type="text" id="editSkill" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
-                    </div>
-                </div>
+    <button class="manage-save-btn" onclick="saveManageModalData()">保存する</button>
+    <button class="manage-clear-btn" onclick="clearAllReservations()">予約済をすべて解除</button>
+  </div>
+</div>
 
-                <!-- リンク管理セクション -->
-                <div class="pt-2 border-t border-gray-100">
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="text-xs font-bold text-gray-700">関連リンク一覧</label>
-                        <button onclick="addLinkField()" class="text-[11px] theme-text font-bold hover:underline">+ リンク追加</button>
-                    </div>
-                    <div id="editLinksContainer" class="space-y-2">
-                        <!-- 動的生成 -->
-                    </div>
-                </div>
-            </div>
-            <div class="flex justify-end space-x-2 pt-3 border-t border-gray-100">
-                <button onclick="closeProfileEditModal()" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-200 transition">キャンセル</button>
-                <button onclick="saveProfileData()" class="px-4 py-2 bg-pink-500 text-white rounded-xl text-xs font-bold hover:bg-pink-600 transition shadow-sm">保存する</button>
-            </div>
+<script>
+  const realNow = new Date();
+  let currentYear = realNow.getFullYear();
+  let currentMonth = realNow.getMonth();
+
+  let currentMainType = "MAGAZINE";
+  let currentMemberFilters = ["すべて"];
+  let currentStatusFilters = ["すべて"];
+  let currentViewMode = "list";
+  let isAdminLoggedIn = false;
+  let activeManageItemId = null;
+  let activeCalendarDateStr = null;
+  let activeCalendarEvents = null;
+
+  let profileData = {
+    name: "橋本将生 (Masaki Hashimoto)",
+    sub: "プロフィール＆関連リンクまとめ",
+    icon: "🩷",
+    sections: [
+      {
+        category: "🎬 映画・出演",
+        links: [
+          {name: "映画『お姉ちゃんの翠くん』主演・雪代翠 役 (12/4公開)", url: "#"}
+        ]
+      },
+      {
+        category: "🌟 アンバサダー・CM",
+        links: [
+          {name: "ジェルネイル『Gelee by Decorative Nail』アンバサダー", url: "#"},
+          {name: "森永乳業『クラフト フレッシュモッツァレラ』アンバサダー", url: "#"}
+        ]
+      },
+      {
+        category: "📱 SNS・公式リンク",
+        links: [
+          {name: "Instagram", url: "https://instagram.com"},
+          {name: "FAMILY CLUB web (いまさっきのまさき)", url: "https://www.fc-web.com"},
+          {name: "X (旧Twitter)", url: "https://x.com"}
+        ]
+      }
+    ]
+  };
+
+  let itemsData = [];
+  const savedItems = localStorage.getItem("masaki_schedule_items");
+  if (savedItems) {
+    try { itemsData = JSON.parse(savedItems); } catch (e) { itemsData = []; }
+  }
+
+  let notificationsData = [];
+  const savedNotifs = localStorage.getItem("masaki_schedule_notifications");
+  if (savedNotifs) {
+    try { notificationsData = JSON.parse(savedNotifs); } catch (e) { notificationsData = []; }
+  }
+
+  const defaultReservations = [
+    { name: "Amazon", checked: false, count: 1, type: "online" },
+    { name: "楽天ブックス", checked: false, count: 1, type: "online" },
+    { name: "セブンネット", checked: false, count: 1, type: "online" },
+    { name: "タワーレコード", checked: false, count: 1, type: "online" }
+  ];
+
+  if (itemsData.length === 0) {
+    itemsData = [
+      { 
+        id: 1, type: "MAGAZINE", date: "2026-10-01", endDate: "", time: "", title: "J Movie Magazine Vol.135 (表紙)", desc: "【新作現場リポート】\n橋本将生 『お姉ちゃんの翠くん』", status: ["予約受付中", "表紙"], member: "橋本将生", 
+        links: [{name: "Amazon", url: "https://amazon.co.jp"}], 
+        reservations: JSON.parse(JSON.stringify(defaultReservations))
+      }
+    ];
+    saveItemsToStorage();
+  }
+
+  function saveItemsToStorage() {
+    localStorage.setItem("masaki_schedule_items", JSON.stringify(itemsData));
+  }
+
+  function saveNotificationsToStorage() {
+    localStorage.setItem("masaki_schedule_notifications", JSON.stringify(notificationsData));
+    updateNotificationDot();
+  }
+
+  function addNotification(title) {
+    const now = new Date();
+    const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    notificationsData.unshift({
+      id: Date.now(),
+      time: timeStr,
+      msg: `新しい予定が登録されました！ [🩷 ${title}]`,
+      unread: true
+    });
+    saveNotificationsToStorage();
+  }
+
+  function updateNotificationDot() {
+    const dot = document.getElementById("notif-dot");
+    if (!dot) return;
+    const hasUnread = notificationsData.some(n => n.unread);
+    if (hasUnread) dot.classList.add("show");
+    else dot.classList.remove("show");
+  }
+
+  function openNotificationDrawer() {
+    renderNotificationList();
+    document.getElementById("notif-drawer").classList.add("open");
+  }
+
+  function closeNotificationDrawerDirect() {
+    document.getElementById("notif-drawer").classList.remove("open");
+  }
+
+  function closeNotificationDrawer(e) {
+    document.getElementById("notif-drawer").classList.remove("open");
+  }
+
+  function markAllNotificationsRead() {
+    notificationsData.forEach(n => n.unread = false);
+    saveNotificationsToStorage();
+    renderNotificationList();
+  }
+
+  function renderNotificationList() {
+    const container = document.getElementById("notif-list-container");
+    container.innerHTML = "";
+
+    if (notificationsData.length === 0) {
+      container.innerHTML = `<div style="text-align:center; color:#888; font-size:12px; padding:20px;">通知はありません</div>`;
+      return;
+    }
+
+    notificationsData.forEach(n => {
+      let card = document.createElement("div");
+      card.className = "notif-card";
+      card.style.borderLeft = n.unread ? "4px solid var(--main-color)" : "1px solid var(--border-color)";
+      card.innerHTML = `
+        <div class="notif-card-top">
+          <span class="notif-card-type">予定</span>
+          <span class="notif-card-time">${n.time}</span>
         </div>
-    </div>
+        <div class="notif-card-msg">${n.msg}</div>
+        <button class="notif-detail-btn" onclick="jumpFromNotification()">詳細を見る</button>
+      `;
+      container.appendChild(card);
+    });
+  }
 
-    <script>
-        // --- 初期データ定義 ---
-        let profileData = JSON.parse(localStorage.getItem('hashimoto_profile')) || {
-            name: "橋本 将生",
-            engName: "Masaki Hashimoto",
-            bio: "俳優・タレント。主な出演作多数。ファンのみなさんの応援が力になっています！最新情報はこちらからチェック✨",
-            image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
-            birthday: "1998年5月15日",
-            from: "東京都",
-            hobby: "映画鑑賞、ギター",
-            skill: "料理、サッカー",
-            links: [
-                { title: "公式X (Twitter)", url: "https://twitter.com", icon: "fa-brands fa-x-twitter" },
-                { title: "Instagram", url: "https://instagram.com", icon: "fa-brands fa-instagram" },
-                { title: "公式ファンクラブ", url: "https://example.com", icon: "fa-solid fa-star" },
-                { title: "出演映画特設サイト", url: "https://example.com", icon: "fa-solid fa-film" }
-            ]
-        };
+  function jumpFromNotification() {
+    closeNotificationDrawerDirect();
+    jumpToCurrentMonth();
+  }
 
-        let schedules = JSON.parse(localStorage.getItem('hashimoto_schedules')) || [
-            { id: 1, category: "tv", title: "金曜ドラマ『〇〇な私たち』第5話出演", date: "2026-09-30", time: "22:00", detail: "TBS系", url: "https://example.com" },
-            { id: 2, category: "magazine", title: "月刊『TVガイド』11月号インタビュー掲載", date: "2026-10-05", time: "", detail: "東京ニュース通信社", url: "https://example.com" },
-            { id: 3, category: "event", title: "1st写真集発売記念お渡し会イベント", date: "2026-10-12", time: "13:00", detail: "福家書店新宿サブナード店", url: "https://example.com" },
-            { id: 4, category: "tv", title: "バラエティ番組『世界を巡る』ゲスト出演", date: "2026-09-26", time: "20:00", detail: "フジテレビ系", url: "https://example.com" }
-        ];
+  document.getElementById("month-display").textContent = `${currentYear}年${currentMonth + 1}月`;
 
-        let bookings = JSON.parse(localStorage.getItem('hashimoto_bookings')) || {}; // { scheduleId: {status, shop, memo} }
-        let notifications = JSON.parse(localStorage.getItem('hashimoto_notifications')) || [];
+  // アプリの初期化と自動更新処理（pageshow対応）
+  function initApp() {
+    const btn = document.getElementById("reload-btn");
+    if (btn) {
+      btn.classList.add("spinning");
+      setTimeout(() => {
+        btn.classList.remove("spinning");
+      }, 600);
+    }
 
-        let currentTab = 'all';
-        let viewMode = 'list';
-        let isAdmin = false;
-        let currentCalendarDate = new Date();
+    renderProfileCard();
+    updateStatusFilterPills();
+    updateFormStatusOptions();
+    updateFormVisibilityBytype();
+    updateTodayTopic();
+    updateNotificationDot();
+    render();
+  }
 
-        // アプリ起動時の初期化
-        window.addEventListener('DOMContentLoaded', () => {
-            renderProfile();
-            renderSchedules();
-            updateNotificationBadge();
-            checkNotificationPermissionUI();
-            
-            // 1分ごとに通知タイミングをチェック
-            setInterval(checkScheduleReminders, 60000);
-            checkScheduleReminders(); // 初回チェック
+  window.addEventListener('load', initApp);
+  
+  // スマホのホーム画面から開いたとき（BFキャッシュからの復元時）に対応
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+      initApp();
+    }
+  });
+
+  function forceReloadApp() {
+    const btn = document.getElementById("reload-btn");
+    if (btn) {
+      btn.classList.add("spinning");
+      setTimeout(() => {
+        btn.classList.remove("spinning");
+      }, 600);
+    }
+
+    if (window.caches) {
+      caches.keys().then(names => { names.forEach(name => { caches.delete(name); }); });
+    }
+    setTimeout(() => {
+      window.location.reload(true);
+    }, 400);
+  }
+
+  function toggleProfileAccordion() {
+    const area = document.getElementById("profile-collapsible-area");
+    const toggleText = document.getElementById("accordion-toggle-text");
+    if (area.classList.contains("open")) {
+      area.classList.remove("open");
+      toggleText.textContent = "開く ▼";
+    } else {
+      area.classList.add("open");
+      toggleText.textContent = "閉じる ▲";
+    }
+  }
+
+  function renderProfileCard() {
+    document.getElementById("pf-display-name").textContent = profileData.name;
+    document.getElementById("pf-display-sub").textContent = profileData.sub;
+    document.getElementById("pf-avatar-icon").textContent = profileData.icon;
+
+    const container = document.getElementById("profile-links-container");
+    container.innerHTML = "";
+
+    profileData.sections.forEach(sec => {
+      let block = document.createElement("div");
+      block.className = "profile-section-block";
+      let titleDiv = document.createElement("div");
+      titleDiv.className = "profile-section-title";
+      titleDiv.textContent = sec.category;
+      block.appendChild(titleDiv);
+
+      let wrapDiv = document.createElement("div");
+      wrapDiv.className = "profile-link-buttons-wrap";
+
+      sec.links.forEach(l => {
+        let a = document.createElement("a");
+        a.href = l.url; a.target = "_blank"; a.className = "profile-link-btn"; a.textContent = l.name;
+        wrapDiv.appendChild(a);
+      });
+      block.appendChild(wrapDiv);
+      container.appendChild(block);
+    });
+  }
+
+  function openProfileEditModal() {
+    document.getElementById("input-pf-name").value = profileData.name;
+    document.getElementById("input-pf-sub").value = profileData.sub;
+    document.getElementById("input-pf-icon").value = profileData.icon;
+
+    let textLines = [];
+    profileData.sections.forEach(sec => {
+      let linksStr = sec.links.map(l => `${l.name}=${l.url}`).join(", ");
+      textLines.push(`${sec.category}: ${linksStr}`);
+    });
+    document.getElementById("input-pf-links").value = textLines.join("\n");
+    document.getElementById("profile-form").style.display = "block";
+  }
+
+  function saveProfileData() {
+    profileData.name = document.getElementById("input-pf-name").value;
+    profileData.sub = document.getElementById("input-pf-sub").value;
+    profileData.icon = document.getElementById("input-pf-icon").value;
+
+    let rawText = document.getElementById("input-pf-links").value;
+    let newSections = [];
+
+    rawText.split("\n").forEach(line => {
+      line = line.trim();
+      if (!line) return;
+      if (line.includes(":")) {
+        let colonIdx = line.indexOf(":");
+        let cat = line.substring(0, colonIdx).trim();
+        let rest = line.substring(colonIdx + 1).trim();
+        let links = [];
+
+        rest.split(",").forEach(itemPart => {
+          itemPart = itemPart.trim();
+          if (!itemPart) return;
+          if (itemPart.includes("=")) {
+            let eqIdx = itemPart.indexOf("=");
+            links.push({ name: itemPart.substring(0, eqIdx).trim(), url: itemPart.substring(eqIdx + 1).trim() });
+          } else {
+            links.push({ name: itemPart, url: itemPart });
+          }
+        });
+        newSections.push({ category: cat, links: links });
+      }
+    });
+
+    if (newSections.length > 0) profileData.sections = newSections;
+    renderProfileCard();
+    document.getElementById("profile-form").style.display = "none";
+    alert("プロフィールを更新しました！");
+  }
+
+  function switchMainType(type) {
+    currentMainType = type;
+    currentStatusFilters = ["すべて"];
+    document.getElementById("tab-magazine").classList.toggle("active", type === "MAGAZINE");
+    document.getElementById("tab-program").classList.toggle("active", type === "PROGRAM");
+    
+    updateStatusFilterPills();
+    if (!document.getElementById("edit-item-id").value) {
+      document.getElementById("input-type").value = type;
+      updateFormStatusOptions();
+      updateFormVisibilityBytype();
+    }
+    render();
+  }
+
+  function onFormTypeChange() {
+    updateFormStatusOptions();
+    updateFormVisibilityBytype();
+  }
+
+  function updateFormVisibilityBytype() {
+    const typeSelect = document.getElementById("input-type");
+    const targetType = typeSelect ? typeSelect.value : currentMainType;
+    document.getElementById("group-time").style.display = targetType === "MAGAZINE" ? "none" : "block";
+    document.getElementById("group-end-date").style.display = targetType === "MAGAZINE" ? "none" : "block";
+  }
+
+  function updateStatusFilterPills() {
+    const container = document.getElementById("status-filters");
+    container.innerHTML = "";
+    let statuses = ["すべて"];
+    if (currentMainType === "MAGAZINE") {
+      statuses.push("予約受付中", "表紙", "発売中", "重版");
+    } else {
+      statuses.push("放送予定", "レギュラー", "ゲスト出演");
+    }
+    statuses.forEach(st => {
+      const btn = document.createElement("button");
+      btn.className = "filter-pill" + (currentStatusFilters.includes(st) ? " active" : "");
+      btn.textContent = st;
+      btn.onclick = () => toggleStatusFilter(st);
+      container.appendChild(btn);
+    });
+  }
+
+  function updateFormStatusOptions(selectedStatuses = []) {
+    const typeSelect = document.getElementById("input-type");
+    const targetType = typeSelect ? typeSelect.value : currentMainType;
+    const statusContainer = document.getElementById("input-status-container");
+    if (!statusContainer) return;
+    
+    statusContainer.innerHTML = "";
+    let options = targetType === "MAGAZINE" ? ["予約受付中", "表紙", "発売中", "重版"] : ["放送予定", "ゲスト出演", "レギュラー"];
+    let selectedArr = Array.isArray(selectedStatuses) ? selectedStatuses : [selectedStatuses];
+
+    options.forEach(opt => {
+      const label = document.createElement("label");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.name = "form-status-checkbox";
+      checkbox.value = opt;
+      if (selectedArr.includes(opt)) checkbox.checked = true;
+
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(opt));
+      statusContainer.appendChild(label);
+    });
+  }
+
+  function changeMonth(dir) {
+    currentMonth += dir;
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+    document.getElementById("month-display").textContent = `${currentYear}年${currentMonth + 1}月`;
+    render();
+  }
+
+  function jumpToCurrentMonth() {
+    const now = new Date();
+    currentYear = now.getFullYear();
+    currentMonth = now.getMonth();
+    document.getElementById("month-display").textContent = `${currentYear}年${currentMonth + 1}月`;
+    render();
+  }
+
+  function toggleMemberFilter(member) {
+    if (member === "すべて") {
+      currentMemberFilters = ["すべて"];
+    } else {
+      if (currentMemberFilters.includes("すべて")) currentMemberFilters = [];
+      let idx = currentMemberFilters.indexOf(member);
+      if (idx > -1) currentMemberFilters.splice(idx, 1);
+      else currentMemberFilters.push(member);
+      if (currentMemberFilters.length === 0) currentMemberFilters = ["すべて"];
+    }
+    updateMultiPills("member-filters", currentMemberFilters);
+    render();
+  }
+
+  function toggleStatusFilter(status) {
+    if (status === "すべて") {
+      currentStatusFilters = ["すべて"];
+    } else {
+      if (currentStatusFilters.includes("すべて")) currentStatusFilters = [];
+      let idx = currentStatusFilters.indexOf(status);
+      if (idx > -1) currentStatusFilters.splice(idx, 1);
+      else currentStatusFilters.push(status);
+      if (currentStatusFilters.length === 0) currentStatusFilters = ["すべて"];
+    }
+    updateStatusFilterPills();
+    render();
+  }
+
+  function updateMultiPills(containerId, activeList) {
+    const container = document.getElementById(containerId);
+    Array.from(container.children).forEach(btn => {
+      if (activeList.includes(btn.textContent)) btn.classList.add("active");
+      else btn.classList.remove("active");
+    });
+  }
+
+  function switchView(mode) {
+    currentViewMode = mode;
+    document.getElementById("view-list-btn").classList.toggle("active", mode === "list");
+    document.getElementById("view-cal-btn").classList.toggle("active", mode === "calendar");
+    render();
+  }
+
+  function updateTodayTopic() {
+    const releaseDate = new Date("2026-12-04T00:00:00");
+    const today = new Date();
+    releaseDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    const diffTime = releaseDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    const topicEl = document.getElementById("topic-text");
+    if (diffDays > 0) {
+      topicEl.textContent = `映画『お姉ちゃんの翠くん』公開まで あと ${diffDays} 日！ (12/4公開)`;
+    } else if (diffDays === 0) {
+      topicEl.textContent = `映画『お姉ちゃんの翠くん』本日公開！`;
+    } else {
+      topicEl.textContent = `映画『お姉ちゃんの翠くん』大ヒット公開中！`;
+    }
+  }
+
+  function checkAdminAndToggleForm() {
+    if (!isAdminLoggedIn) {
+      const pwd = prompt("管理者パスワードを入力してください：");
+      if (pwd === "masaki123") {
+        isAdminLoggedIn = true;
+        const btn = document.getElementById("admin-toggle-btn");
+        btn.textContent = "⚙️ 管理者モード中";
+        btn.classList.add("logged-in");
+        document.getElementById("profile-edit-btn").classList.add("show");
+        alert("管理者としてログインしました！");
+        render();
+      } else {
+        if (pwd !== null) alert("パスワードが違います");
+        return;
+      }
+    }
+    const form = document.getElementById("admin-form");
+    form.style.display = form.style.display === "block" ? "none" : "block";
+    if (form.style.display === "block" && !document.getElementById("edit-item-id").value) resetFormToCreateMode();
+  }
+
+  function resetFormToCreateMode() {
+    document.getElementById("edit-item-id").value = "";
+    document.getElementById("form-heading-text").textContent = "📖 スケジュール追加";
+    document.getElementById("form-submit-btn").textContent = "登録する";
+    document.getElementById("form-cancel-btn").style.display = "none";
+    document.getElementById("input-date").value = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+    document.getElementById("input-title").value = "";
+    document.getElementById("input-desc").value = "";
+    updateFormStatusOptions();
+    updateFormVisibilityBytype();
+  }
+
+  function deleteItem(id) {
+    if (!isAdminLoggedIn) return;
+    if (confirm("削除しますか？")) {
+      itemsData = itemsData.filter(i => i.id !== id);
+      saveItemsToStorage();
+      render();
+    }
+  }
+
+  function toggleItemDetail(id) {
+    const detailEl = document.getElementById(`item-detail-${id}`);
+    if (detailEl) detailEl.classList.toggle("open");
+  }
+
+  function openManageModal(id) {
+    activeManageItemId = id;
+    const item = itemsData.find(i => i.id === id);
+    if (!item) return;
+
+    document.getElementById("manage-modal-item-title").textContent = item.title;
+    renderManageLists(item);
+    document.getElementById("manage-modal").classList.add("open");
+  }
+
+  function closeManageModalDirect() {
+    document.getElementById("manage-modal").classList.remove("open");
+  }
+
+  function closeManageModal(e) {
+    document.getElementById("manage-modal").classList.remove("open");
+  }
+
+  function renderManageLists(item) {
+    const onlineContainer = document.getElementById("manage-online-container");
+    const storeContainer = document.getElementById("manage-store-container");
+    onlineContainer.innerHTML = "";
+    storeContainer.innerHTML = "";
+
+    if (!item.reservations) item.reservations = JSON.parse(JSON.stringify(defaultReservations));
+
+    let hasStore = false;
+
+    item.reservations.forEach((res, index) => {
+      let row = document.createElement("div");
+      row.className = "manage-row-card";
+      row.innerHTML = `
+        <div class="manage-row-left">
+          <input type="checkbox" id="res-check-${index}" ${res.checked ? 'checked' : ''} onchange="updateResCheck(${index}, this.checked)">
+          <label for="res-check-${index}" style="cursor:pointer;">${res.name}</label>
+        </div>
+        <div class="manage-counter-wrap">
+          <button class="manage-counter-btn" onclick="changeResCount(${index}, -1)">-</button>
+          <div class="manage-counter-num" id="res-count-${index}">${res.count}</div>
+          <button class="manage-counter-btn" onclick="changeResCount(${index}, 1)">+</button>
+        </div>
+      `;
+
+      if (res.type === "store") {
+        hasStore = true;
+        storeContainer.appendChild(row);
+      } else {
+        onlineContainer.appendChild(row);
+      }
+    });
+
+    if (!hasStore) {
+      storeContainer.innerHTML = `<div style="font-size:11px; color:#888; padding:4px 0;">登録された店舗はありません</div>`;
+    }
+  }
+
+  function updateResCheck(index, checked) {
+    const item = itemsData.find(i => i.id === activeManageItemId);
+    if (item && item.reservations[index]) item.reservations[index].checked = checked;
+  }
+
+  function changeResCount(index, delta) {
+    const item = itemsData.find(i => i.id === activeManageItemId);
+    if (item && item.reservations[index]) {
+      item.reservations[index].count = Math.max(1, item.reservations[index].count + delta);
+      document.getElementById(`res-count-${index}`).textContent = item.reservations[index].count;
+    }
+  }
+
+  function addCustomReservation(type) {
+    const inputId = type === 'online' ? 'new-online-name' : 'new-store-name';
+    const inputEl = document.getElementById(inputId);
+    const val = inputEl.value.trim();
+    if (!val) return;
+
+    const item = itemsData.find(i => i.id === activeManageItemId);
+    if (item) {
+      item.reservations.push({ name: val, checked: true, count: 1, type: type });
+      inputEl.value = "";
+      renderManageLists(item);
+    }
+  }
+
+  function saveManageModalData() {
+    saveItemsToStorage();
+    closeManageModalDirect();
+    render();
+
+    const calModal = document.getElementById("cal-modal");
+    if (calModal.classList.contains("open") && activeCalendarDateStr) {
+      const refreshedEvents = itemsData.filter(item => {
+        if (item.type !== currentMainType) return false;
+        let itemDate = new Date(item.date);
+        if (itemDate.getFullYear() !== currentYear || itemDate.getMonth() !== currentMonth) return false;
+        if (!currentStatusFilters.includes("すべて")) {
+          let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
+          if (!currentStatusFilters.some(st => itemStatuses.includes(st))) return false;
+        }
+        return true;
+      }).filter(item => item.date === activeCalendarDateStr);
+
+      openCalendarModal(activeCalendarDateStr, refreshedEvents);
+    }
+  }
+
+  function clearAllReservations() {
+    const item = itemsData.find(i => i.id === activeManageItemId);
+    if (item) {
+      item.reservations.forEach(r => r.checked = false);
+      renderManageLists(item);
+    }
+  }
+
+  function parseLinks(inputStr) {
+    if (!inputStr || !inputStr.trim()) return [];
+    let result = [];
+    inputStr.split(",").forEach(part => {
+      part = part.trim();
+      if (!part) return;
+      if (part.includes(":")) {
+        let colonIdx = part.indexOf(":");
+        result.push({ name: part.substring(0, colonIdx).trim(), url: part.substring(colonIdx + 1).trim() });
+      } else {
+        result.push({ name: "リンク", url: part });
+      }
+    });
+    return result;
+  }
+
+  function saveItemData() {
+    const editId = document.getElementById("edit-item-id").value;
+    const date = document.getElementById("input-date").value;
+    const type = document.getElementById("input-type").value;
+    const title = document.getElementById("input-title").value;
+    const desc = document.getElementById("input-desc").value;
+    const status = Array.from(document.querySelectorAll('input[name="form-status-checkbox"]:checked')).map(cb => cb.value);
+
+    if (!date || !title) { alert("日付とタイトルを入力してください"); return; }
+    if (status.length === 0) { alert("ステータスを1つ以上選択してください"); return; }
+
+    const parsedLinks = parseLinks(document.getElementById("input-links").value);
+
+    if (editId) {
+      const item = itemsData.find(i => i.id == editId);
+      if (item) {
+        item.date = date; item.title = title; item.desc = desc; item.type = type; item.status = status; item.links = parsedLinks;
+      }
+      alert("更新しました！");
+    } else {
+      itemsData.push({ 
+        id: Date.now(), type, date, endDate: "", time: "20:00", title, desc, status, member: "橋本将生", links: parsedLinks, 
+        reservations: JSON.parse(JSON.stringify(defaultReservations))
+      });
+      addNotification(title);
+      alert("追加しました！ベルマークから通知を確認できます！");
+    }
+
+    saveItemsToStorage();
+    document.getElementById("admin-form").style.display = "none";
+    resetFormToCreateMode();
+    render();
+  }
+
+  function filterItems() {
+    return itemsData.filter(item => {
+      if (item.type !== currentMainType) return false;
+      let itemDate = new Date(item.date);
+      if (itemDate.getFullYear() !== currentYear || itemDate.getMonth() !== currentMonth) return false;
+
+      if (!currentStatusFilters.includes("すべて")) {
+        let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
+        if (!currentStatusFilters.some(st => itemStatuses.includes(st))) return false;
+      }
+      return true;
+    });
+  }
+
+  function render() {
+    const container = document.getElementById("content-area");
+    container.innerHTML = "";
+    let filtered = filterItems();
+    if (currentViewMode === "calendar") {
+      renderCalendarView(filtered, container);
+    } else {
+      renderListView(filtered, container);
+    }
+  }
+
+  function createCardHtml(item) {
+    let checkedCount = (item.reservations || []).filter(r => r.checked).length;
+    let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 予約/購入管理";
+    let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
+    
+    let statusTagsHtml = (Array.isArray(item.status) ? item.status : [item.status]).map(st => `<span class="member-tag">${st}</span>`).join(" ");
+    let linksHtml = (item.links || []).map(l => `<a href="${l.url}" target="_blank" class="item-link-chip" onclick="event.stopPropagation()">${l.name}</a>`).join(" ");
+
+    return `
+      <div class="item-card">
+        <div class="item-summary-bar" onclick="toggleItemDetail(${item.id})">
+          <div class="item-header-row">
+            <div class="item-date-text">📅 ${item.date}</div>
+            <button class="${purchaseClass}" onclick="event.stopPropagation(); openManageModal(${item.id})">${purchaseText}</button>
+          </div>
+          <div class="item-title">${item.title} ▼</div>
+        </div>
+        <div class="item-collapsible-detail" id="item-detail-${item.id}">
+          ${item.desc ? `<div class="item-content-desc">${item.desc}</div>` : ''}
+          ${linksHtml ? `<div class="item-links-row">${linksHtml}</div>` : ''}
+        </div>
+        <div class="item-footer-row">
+          <div class="badges-left">
+            ${statusTagsHtml}
+            <span class="member-tag">橋本将生</span>
+          </div>
+          <div class="item-action-icons ${isAdminLoggedIn ? 'show' : ''}">
+            <button class="icon-btn edit-icon-btn" onclick="editItem(${item.id})">編集✏️</button>
+            <button class="icon-btn delete-icon-btn" onclick="deleteItem(${item.id})">削除✕</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function editItem(id) {
+    if (!isAdminLoggedIn) return;
+    const item = itemsData.find(i => i.id === id);
+    if (!item) return;
+
+    document.getElementById("edit-item-id").value = item.id;
+    document.getElementById("input-date").value = item.date;
+    document.getElementById("input-title").value = item.title;
+    document.getElementById("input-desc").value = item.desc || "";
+    document.getElementById("input-type").value = item.type;
+    updateFormStatusOptions(item.status);
+    updateFormVisibilityBytype();
+
+    document.getElementById("input-links").value = (item.links || []).map(l => `${l.name}:${l.url}`).join(", ");
+    document.getElementById("form-heading-text").textContent = "✏️ スケジュール編集";
+    document.getElementById("form-submit-btn").textContent = "更新する";
+    document.getElementById("form-cancel-btn").style.display = "block";
+    document.getElementById("admin-form").style.display = "block";
+  }
+
+  function renderListView(data, container) {
+    if (data.length === 0) { container.innerHTML = `<div class="no-data">該当する予定はありません</div>`; return; }
+    data.sort((a, b) => a.date.localeCompare(b.date));
+    data.forEach(item => {
+      let wrapper = document.createElement("div");
+      wrapper.innerHTML = createCardHtml(item);
+      container.appendChild(wrapper.firstElementChild);
+    });
+  }
+
+  function renderCalendarView(data, container) {
+    const calWrapper = document.createElement("div");
+    calWrapper.className = "calendar-grid";
+    ["日", "月", "火", "水", "木", "金", "土"].forEach(w => {
+      let wEl = document.createElement("div");
+      wEl.style.textAlign = "center"; wEl.style.fontWeight = "bold"; wEl.style.fontSize = "10px"; wEl.style.color = "var(--deep-color)";
+      wEl.textContent = w;
+      calWrapper.appendChild(wEl);
+    });
+
+    const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+    const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+    for (let i = 0; i < firstDayIndex; i++) {
+      calWrapper.appendChild(document.createElement("div"));
+    }
+
+    for (let day = 1; day <= totalDays; day++) {
+      const cell = document.createElement("div");
+      cell.className = "cal-cell";
+      
+      const today = new Date();
+      if (day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
+        cell.classList.add("is-today");
+      }
+
+      const numEl = document.createElement("div");
+      numEl.className = "cal-day-num";
+      numEl.textContent = day;
+      cell.appendChild(numEl);
+
+      const dayStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const dayEvents = data.filter(item => item.date === dayStr);
+
+      if (dayEvents.length > 0) {
+        cell.classList.add("has-event");
+        dayEvents.forEach(ev => {
+          const evEl = document.createElement("span");
+          evEl.className = "cal-event-title";
+          evEl.textContent = ev.title;
+          cell.appendChild(evEl);
         });
 
-        // --- プロフィール関連 ---
-        function renderProfile() {
-            document.getElementById('profileImage').src = profileData.image;
-            document.getElementById('profileBio').innerText = profileData.bio;
-            document.getElementById('profileBirthday').innerText = profileData.birthday;
-            document.getElementById('profileFrom').innerText = profileData.from;
-            document.getElementById('profileHobby').innerText = profileData.hobby;
-            document.getElementById('profileSkill').innerText = profileData.skill;
+        cell.onclick = () => { openCalendarModal(dayStr, dayEvents); };
+      }
 
-            const container = document.getElementById('linkListContainer');
-            container.innerHTML = '';
-            profileData.links.forEach(link => {
-                const a = document.createElement('a');
-                a.href = link.url;
-                a.target = '_blank';
-                a.className = 'inline-flex items-center space-x-1.5 bg-pink-50 hover:bg-pink-100 text-pink-700 text-xs px-3 py-1.5 rounded-full transition font-medium border border-pink-100';
-                a.innerHTML = `<i class="${link.icon || 'fa-solid fa-link'}"></i><span>${link.title}</span>`;
-                container.appendChild(a);
-            });
-        }
+      calWrapper.appendChild(cell);
+    }
+    container.appendChild(calWrapper);
+  }
 
-        function toggleProfileDetails() {
-            const details = document.getElementById('profileDetails');
-            const text = document.getElementById('profileToggleText');
-            const icon = document.getElementById('profileToggleIcon');
-            if (details.classList.contains('hidden')) {
-                details.classList.remove('hidden');
-                text.innerText = 'プロフィール詳細・リンクを閉じる';
-                icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
-            } else {
-                details.classList.add('hidden');
-                text.innerText = 'プロフィール詳細・リンクを開く';
-                icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
-            }
-        }
+  function openCalendarModal(dateStr, events) {
+    activeCalendarDateStr = dateStr;
+    activeCalendarEvents = events;
 
-        // --- タブ・ビュー切替 ---
-        function setTab(tab) {
-            currentTab = tab;
-            ['all', 'tv', 'magazine', 'event', 'other'].forEach(t => {
-                const btn = document.getElementById(`tab-${t}`);
-                if (t === tab) {
-                    btn.className = 'px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-pink-500 text-white shadow-sm';
-                } else {
-                    btn.className = 'px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-gray-100 text-gray-600 hover:bg-gray-200';
-                }
-            });
-            renderSchedules();
-        }
+    const [y, m, d] = dateStr.split("-");
+    const dateObj = new Date(y, m - 1, d);
+    const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+    const wday = weekdays[dateObj.getDay()];
 
-        function setViewMode(mode) {
-            viewMode = mode;
-            const listBtn = document.getElementById('viewModeList');
-            const calBtn = document.getElementById('viewModeCalendar');
-            const listContainer = document.getElementById('listViewContainer');
-            const calContainer = document.getElementById('calendarViewContainer');
+    document.getElementById("modal-date-title").textContent = `${y}年${parseInt(m)}月${parseInt(d)}日(${wday})`;
 
-            if (mode === 'list') {
-                listBtn.className = 'px-3 py-1 rounded-md text-xs font-bold bg-white text-gray-800 shadow-sm transition';
-                calBtn.className = 'px-3 py-1 rounded-md text-xs font-bold text-gray-600 transition';
-                listContainer.classList.remove('hidden');
-                calContainer.classList.add('hidden');
-            } else {
-                calBtn.className = 'px-3 py-1 rounded-md text-xs font-bold bg-white text-gray-800 shadow-sm transition';
-                listBtn.className = 'px-3 py-1 rounded-md text-xs font-bold text-gray-600 transition';
-                calContainer.classList.remove('hidden');
-                listContainer.classList.add('hidden');
-                renderCalendar();
-            }
-        }
+    const itemsContainer = document.getElementById("modal-items-container");
+    itemsContainer.innerHTML = "";
+    events.forEach(item => {
+      let wrapper = document.createElement("div");
+      wrapper.innerHTML = createCardHtml(item);
+      itemsContainer.appendChild(wrapper.firstElementChild);
+    });
 
-        // --- スケジュール描画 ---
-        function renderSchedules() {
-            const container = document.getElementById('listViewContainer');
-            const keyword = document.getElementById('searchInput').value.toLowerCase();
-            container.innerHTML = '';
+    document.getElementById("cal-modal").classList.add("open");
+  }
 
-            let filtered = schedules.filter(sch => {
-                const matchTab = (currentTab === 'all' || sch.category === currentTab);
-                const matchKeyword = sch.title.toLowerCase().includes(keyword) || sch.detail.toLowerCase().includes(keyword);
-                return matchTab && matchKeyword;
-            });
+  function closeCalendarModalDirect() {
+    activeCalendarDateStr = null;
+    activeCalendarEvents = null;
+    document.getElementById("cal-modal").classList.remove("open");
+  }
 
-            // 日付順（新しい順・古い順など。ここでは日付昇順）
-            filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+  function closeCalendarModal(e) {
+    activeCalendarDateStr = null;
+    activeCalendarEvents = null;
+    document.getElementById("cal-modal").classList.remove("open");
+  }
 
-            if (filtered.length === 0) {
-                container.innerHTML = `<div class="text-center py-8 text-gray-400 text-xs">スケジュールはありません</div>`;
-                return;
-            }
+  document.getElementById("input-date").value = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+</script>
 
-            filtered.forEach(sch => {
-                const booking = bookings[sch.id] || { status: 'none', shop: '', memo: '' };
-                const catInfo = getCategoryBadge(sch.category);
-                
-                let bookingBadge = '';
-                if (booking.status === 'reserved') {
-                    bookingBadge = `<span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-bookmark mr-1"></i>予約済み</span>`;
-                } else if (booking.status === 'purchased') {
-                    bookingBadge = `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-check mr-1"></i>購入完了</span>`;
-                }
-
-                const card = document.createElement('div');
-                card.className = 'bg-gray-50 hover:bg-pink-50/40 border border-gray-100 rounded-2xl p-4 transition flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0';
-                card.innerHTML = `
-                    <div class="space-y-1.5 w-full sm:w-auto flex-grow">
-                        <div class="flex items-center space-x-2 flex-wrap gap-y-1">
-                            <span class="${catInfo.class} text-[10px] font-bold px-2.5 py-0.5 rounded-full">${catInfo.text}</span>
-                            <span class="text-xs font-bold text-gray-600"><i class="fa-regular fa-calendar mr-1"></i>${sch.date}${sch.time ? '/ ' + sch.time : ''}</span>
-                            ${bookingBadge}
-                        </div>
-                        <h4 class="font-bold text-sm text-gray-800">${sch.title}</h4>
-                        <p class="text-xs text-gray-500">${sch.detail}</p>
-                    </div>
-                    <div class="flex items-center space-x-2 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
-                        <button onclick="openBookingModal(${sch.id})" class="text-xs bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold px-3 py-1.5 rounded-xl shadow-xs transition flex items-center space-x-1">
-                            <i class="fa-solid fa-bookmark text-pink-500 text-[10px]"></i>
-                            <span>予約管理</span>
-                        </button>
-                        ${sch.url ? `<a href="${sch.url}" target="_blank" class="text-xs bg-pink-500 hover:bg-pink-600 text-white font-bold px-3 py-1.5 rounded-xl shadow-xs transition flex items-center space-x-1"><i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i><span>詳細</span></a>` : ''}
-                        ${isAdmin ? `
-                            <button onclick="openScheduleModalForEdit(${sch.id})" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold p-1.5 rounded-xl transition"><i class="fa-solid fa-pen text-xs"></i></button>
-                            <button onclick="deleteSchedule(${sch.id})" class="text-xs bg-red-100 hover:bg-red-200 text-red-600 font-bold p-1.5 rounded-xl transition"><i class="fa-solid fa-trash text-xs"></i></button>
-                        ` : ''}
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function filterSchedules() {
-            if (viewMode === 'list') {
-                renderSchedules();
-            }
-        }
-
-        function getCategoryBadge(cat) {
-            switch(cat) {
-                case 'tv': return { text: 'TV・配信', class: 'bg-sky-100 text-sky-700' };
-                case 'magazine': return { text: '雑誌・WEB', class: 'bg-purple-100 text-purple-700' };
-                case 'event': return { text: 'イベント', class: 'bg-rose-100 text-rose-700' };
-                default: return { text: 'その他', class: 'bg-gray-100 text-gray-700' };
-            }
-        }
-
-        // --- カレンダー描画 ---
-        function renderCalendar() {
-            const year = currentCalendarDate.getFullYear();
-            const month = currentCalendarDate.getMonth();
-            document.getElementById('calendarMonthTitle.innerText` = `${year}年 ${month + 1}月`;
-            document.getElementById('calendarMonthTitle').innerText = `${year}年 ${month + 1}月`;
-
-            const firstDayIndex = new Date(year, month, 1).getDay();
-            const lastDay = new Date(year, month + 1, 0).getDate();
-
-            const grid = document.getElementById('calendarGrid');
-            grid.innerHTML = '';
-
-            // 空白セル
-            for (let i = 0; i < firstDayIndex; i++) {
-                const empty = document.createElement('div');
-                grid.appendChild(empty);
-            }
-
-            // 日付セル
-            for (let day = 1; day <= lastDay; day++) {
-                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const daySchedules = schedules.filter(s => s.date === dateStr);
-
-                const cell = document.createElement('div');
-                cell.className = `min-h-[70px] p-1.5 border border-gray-100 rounded-xl bg-gray-50 flex flex-col justify-between cursor-pointer hover:bg-pink-50 transition`;
-                cell.onclick = () => showDateSchedules(dateStr, daySchedules);
-
-                const dayNum = document.createElement('span');
-                dayNum.className = 'text-xs font-bold text-gray-700';
-                dayNum.innerText = day;
-                cell.appendChild(dayNum);
-
-                if (daySchedules.length > 0) {
-                    const dotsContainer = document.createElement('div');
-                    dotsContainer.className = 'space-y-1 mt-1';
-                    daySchedules.forEach(s => {
-                        const dot = document.createElement('div');
-                        dot.className = 'text-[9px] truncate bg-pink-100 text-pink-700 px-1 rounded';
-                        dot.innerText = s.title;
-                        dotsContainer.appendChild(dot);
-                    });
-                    cell.appendChild(dotsContainer);
-                }
-                grid.appendChild(cell);
-            }
-        }
-
-        function changeMonth(direction) {
-            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + direction);
-            renderCalendar();
-            document.getElementById('selectedDateSchedules').classList.add('hidden');
-        }
-
-        function showDateSchedules(dateStr, daySchedules) {
-            const container = document.getElementById('selectedDateList');
-            const section = document.getElementById('selectedDateSchedules');
-            document.getElementById('selectedDateTitle').innerText = `${dateStr} のスケジュール`;
-            section.classList.remove('hidden');
-            container.innerHTML = '';
-
-            if (daySchedules.length === 0) {
-                container.innerHTML = `<p class="text-xs text-gray-400">この日のスケジュールはありません。</p>`;
-                return;
-            }
-
-            daySchedules.forEach(sch => {
-                const item = document.createElement('div');
-                item.className = 'bg-gray-50 p-2.5 rounded-xl border border-gray-100 text-xs flex justify-between items-center';
-                item.innerHTML = `
-                    <div>
-                        <span class="font-bold text-gray-800">${sch.title}</span>
-                        <p class="text-[11px] text-gray-500">${sch.detail} ${sch.time ? '(' + sch.time + ')' : ''}</p>
-                    </div>
-                    ${sch.url ? `<a href="${sch.url}" target="_blank" class="text-pink-500 hover:underline font-bold">詳細</a>` : ''}
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        // --- 通知機能の実装 ---
-        function checkNotificationPermissionUI() {
-            const banner = document.getElementById('notificationPermissionBanner');
-            if (!("Notification" in window)) {
-                banner.classList.add('hidden');
-                return;
-            }
-            if (Notification.permission === "granted") {
-                banner.classList.add('hidden');
-            } else if (Notification.permission === "denied") {
-                banner.classList.add('hidden');
-            } else {
-                banner.classList.remove('hidden');
-            }
-        }
-
-        function requestNotificationPermission() {
-            if (!("Notification" in window)) {
-                alert("このブラウザは通知機能をサポートしていません。");
-                return;
-            }
-            Notification.requestPermission().then(permission => {
-                checkNotificationPermissionUI();
-                if (permission === "granted") {
-                    new Notification("通知が有効化されました！", { body: "出演情報やリマインダーをお届けします。" });
-                }
-            });
-        }
-
-        function toggleNotificationDrawer() {
-            const drawer = document.getElementById('notificationDrawer');
-            if (drawer.classList.contains('hidden')) {
-                drawer.classList.remove('hidden');
-                renderNotifications();
-            } else {
-                drawer.classList.add('hidden');
-            }
-        }
-
-        function renderNotifications() {
-            const list = document.getElementById('notificationList');
-            list.innerHTML = '';
-            if (notifications.length === 0) {
-                list.innerHTML = `<div class="text-center py-10 text-gray-400 text-xs">新しい通知はありません</div>`;
-                return;
-            }
-
-            notifications.forEach((notif, index) => {
-                const div = document.createElement('div');
-                div.className = 'bg-pink-50/60 p-3 rounded-xl border border-pink-100 text-xs space-y-1 relative';
-                div.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <span class="font-bold text-gray-800">${notif.title}</span>
-                        <span class="text-[10px] text-gray-400">${notif.time}</span>
-                    </div>
-                    <p class="text-gray-600">${notif.message}</p>
-                `;
-                list.appendChild(div);
-            });
-        }
-
-        function updateNotificationBadge() {
-            const badge = document.getElementById('notifBadge');
-            if (notifications.length > 0) {
-                badge.innerText = notifications.length;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
-        }
-
-        function clearNotifications() {
-            notifications = [];
-            localStorage.setItem('hashimoto_notifications', JSON.stringify(notifications));
-            renderNotifications();
-            updateNotificationBadge();
-        }
-
-        // 定期的にスケジュールを走査してリマインダーを発火する関数
-        function checkScheduleReminders() {
-            const now = new Date();
-            const todayStr = now.toISOString().split('T')[0];
-            const currentHour = String(now.getHours()).padStart(2, '0');
-            const currentMin = String(now.getMinutes()).padStart(2, '0');
-            const currentTimeStr = `${currentHour}:${currentMin}`;
-
-            schedules.forEach(sch => {
-                // 1. 当日になったらお知らせ（例: 朝8時または初検知時）
-                if (sch.date === todayStr && !sch.notifiedToday) {
-                    addAlertNotification(`【本日開催】${sch.title}`, `${sch.detail} が本日予定されています！`);
-                    sch.notifiedToday = true;
-                }
-
-                // 2. 時間が指定されており、ちょうど10分前の場合にお知らせ
-                if (sch.date === todayStr && sch.time) {
-                    const [schH, schM] = sch.time.split(':').map(Number);
-                    const schTotalMin = schH * 60 + schM;
-                    const nowTotalMin = now.getHours() * 60 + now.getMinutes();
-                    const diffMin = schTotalMin - nowTotalMin;
-
-                    if (diffMin === 10 && !sch.notified10MinBefore) {
-                        addAlertNotification(`まもなく出演！(10分前)`, `${sch.title} (${sch.time}〜) がまもなく始まります！`);
-                        sch.notified10MinBefore = true;
-                    }
-                }
-            });
-        }
-
-        function addAlertNotification(title, message) {
-            const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            notifications.unshift({ title, message, time: timeStr });
-            localStorage.setItem('hashimoto_notifications', JSON.stringify(notifications));
-            updateNotificationBadge();
-
-            // ブラウザプッシュ通知
-            if ("Notification" in window && Notification.permission === "granted") {
-                new Notification(title, { body: message });
-            }
-        }
-
-        // --- 予約・購入管理モーダル ---
-        function openBookingModal(scheduleId) {
-            const sch = schedules.find(s => s.id === scheduleId);
-            if (!sch) return;
-            document.getElementById('bookingScheduleId').value = sch.id;
-            document.getElementById('bookingScheduleTitle').innerText = sch.title;
-
-            const booking = bookings[sch.id] || { status: 'none', shop: '', memo: '' };
-            document.getElementById('bookingStatus').value = booking.status;
-            document.getElementById('bookingShop').value = booking.shop;
-            document.getElementById('bookingMemo').value = booking.memo;
-
-            document.getElementById('bookingModal').classList.remove('hidden');
-        }
-
-        function closeBookingModal() {
-            document.getElementById('bookingModal').classList.add('hidden');
-        }
-
-        function saveBookingData() {
-            const id = document.getElementById('bookingScheduleId').value;
-            bookings[id] = {
-                status: document.getElementById('bookingStatus').value,
-                shop: document.getElementById('bookingShop').value,
-                memo: document.getElementById('bookingMemo').value
-            };
-            localStorage.setItem('hashimoto_bookings', JSON.stringify(bookings));
-            closeBookingModal();
-            renderSchedules();
-        }
-
-        // --- 管理者モード・データ編集関連 ---
-        function openAuthModal() {
-            if (isAdmin) {
-                if (confirm('管理者モードをログアウトしますか？')) {
-                    isAdmin = false;
-                    document.getElementById('authButtonText').innerText = '管理';
-                    document.getElementById('authButton').classList.remove('bg-pink-100', 'theme-text');
-                    document.getElementById('editProfileBtn').classList.add('hidden');
-                    document.getElementById('addScheduleBtn').classList.add('hidden');
-                    renderSchedules();
-                }
-                return;
-            }
-            document.getElementById('adminPasswordInput').value = '';
-            document.getElementById('authModal').classList.remove('hidden');
-        }
-
-        function closeAuthModal() {
-            document.getElementById('authModal').classList.add('hidden');
-        }
-
-        function verifyAdminPassword() {
-            const pass = document.getElementById('adminPasswordInput').value;
-            if (pass === 'masaki123') {
-                isAdmin = true;
-                closeAuthModal();
-                document.getElementById('authButtonText').innerText = '管理中';
-                document.getElementById('authButton').classList.add('bg-pink-100', 'theme-text');
-                document.getElementById('editProfileBtn').classList.remove('hidden');
-                document.getElementById('addScheduleBtn').classList.remove('hidden');
-                renderSchedules();
-                alert('管理者モードになりました。');
-            } else {
-                alert('パスワードが間違っています。');
-            }
-        }
-
-        // スケジュール追加・編集モーダル
-        function openScheduleModal() {
-            document.getElementById('scheduleModalTitle').innerText = 'スケジュール新規追加';
-            document.getElementById('editScheduleId').value = '';
-            document.getElementById('schTitle').value = '';
-            document.getElementById('schDate').value = '';
-            document.getElementById('schTime').value = '';
-            document.getElementById('schDetail').value = '';
-            document.getElementById('schUrl').value = '';
-            document.getElementById('scheduleModal').classList.remove('hidden');
-        }
-
-        function openScheduleModalForEdit(id) {
-            const sch = schedules.find(s => s.id === id);
-            if (!sch) return;
-            document.getElementById('scheduleModalTitle').innerText = 'スケジュール編集';
-            document.getElementById('editScheduleId').value = sch.id;
-            document.getElementById('schCategory').value = sch.category;
-            document.getElementById('schTitle').value = sch.title;
-            document.getElementById('schDate').value = sch.date;
-            document.getElementById('schTime').value = sch.time || '';
-            document.getElementById('schDetail').value = sch.detail;
-            document.getElementById('schUrl').value = sch.url || '';
-            document.getElementById('scheduleModal').classList.remove('hidden');
-        }
-
-        function closeScheduleModal() {
-            document.getElementById('scheduleModal').classList.add('hidden');
-        }
-
-        function saveSchedule() {
-            const id = document.getElementById('editScheduleId').value;
-            const category = document.getElementById('schCategory').value;
-            const title = document.getElementById('schTitle').value;
-            const date = document.getElementById('schDate').value;
-            const time = document.getElementById('schTime').value;
-            const detail = document.getElementById('schDetail').value;
-            const url = document.getElementById('schUrl').value;
-
-            if (!title || !date) {
-                alert('タイトルと日付は必須です。');
-                return;
-            }
-
-            if (id) {
-                const index = schedules.findIndex(s => s.id == id);
-                if (index !== -1) {
-                    schedules[index] = { ...schedules[index], category, title, date, time, detail, url };
-                }
-            } else {
-                const newId = schedules.length > 0 ? Math.max(...schedules.map(s => s.id)) + 1 : 1;
-                schedules.push({ id: newId, category, title, date, time, detail, url });
-            }
-
-            localStorage.setItem('hashimoto_schedules', JSON.stringify(schedules));
-            closeScheduleModal();
-            renderSchedules();
-            if (viewMode === 'calendar') renderCalendar();
-        }
-
-        function deleteSchedule(id) {
-            if (confirm('このスケジュールを削除してもよろしいですか？')) {
-                schedules = schedules.filter(s => s.id !== id);
-                localStorage.setItem('hashimoto_schedules', JSON.stringify(schedules));
-                renderSchedules();
-                if (viewMode === 'calendar') renderCalendar();
-            }
-        }
-
-        // プロフィール編集モーダル
-        function openProfileEditModal() {
-            document.getElementById('editImage').value = profileData.image;
-            document.getElementById('editBio').value = profileData.bio;
-            document.getElementById('editBirthday').value = profileData.birthday;
-            document.getElementById('editFrom').value = profileData.from;
-            document.getElementById('editHobby').value = profileData.hobby;
-            document.getElementById('editSkill').value = profileData.skill;
-
-            renderEditLinks();
-            document.getElementById('profileEditModal').classList.remove('hidden');
-        }
-
-        function closeProfileEditModal() {
-            document.getElementById('profileEditModal').classList.add('hidden');
-        }
-
-        function renderEditLinks() {
-            const container = document.getElementById('editLinksContainer');
-            container.innerHTML = '';
-            profileData.links.forEach((link, index) => {
-                const div = document.createElement('div');
-                div.className = 'flex items-center space-x-2 bg-gray-50 p-2 rounded-xl border border-gray-100';
-                div.innerHTML = `
-                    <input type="text" value="${link.title}" placeholder="タイトル" class="link-title-input w-1/3 bg-white border border-gray-200 rounded-lg px-2 py-1 text-xs focus:outline-none">
-                    <input type="url" value="${link.url}" placeholder="URL" class="link-url-input w-1/2 bg-white border border-gray-200 rounded-lg px-2 py-1 text-xs focus:outline-none">
-                    <button onclick="removeLinkField(${index})" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function addLinkField() {
-            profileData.links.push({ title: "", url: "", icon: "fa-solid fa-link" });
-            renderEditLinks();
-        }
-
-        function removeLinkField(index) {
-            profileData.links.splice(index, 1);
-            renderEditLinks();
-        }
-
-        function saveProfileData() {
-            profileData.image = document.getElementById('editImage').value;
-            profileData.bio = document.getElementById('editBio').value;
-            profileData.birthday = document.getElementById('editBirthday').value;
-            profileData.from = document.getElementById('editFrom').value;
-            profileData.hobby = document.getElementById('editHobby').value;
-            profileData.skill = document.getElementById('editSkill').value;
-
-            // リンク情報の回収
-            const titleInputs = document.querySelectorAll('.link-title-input');
-            const urlInputs = document.querySelectorAll('.link-url-input');
-            const newLinks = [];
-            for (let i = 0; i < titleInputs.length; i++) {
-                if (titleInputs[i].value && urlInputs[i].value) {
-                    newLinks.push({ title: titleInputs[i].value, url: urlInputs[i].value, icon: "fa-solid fa-link" });
-                }
-            }
-            profileData.links = newLinks;
-
-            localStorage.setItem('hashimoto_profile', JSON.stringify(profileData));
-            closeProfileEditModal();
-            renderProfile();
-        }
-    </script>
 </body>
 </html>
