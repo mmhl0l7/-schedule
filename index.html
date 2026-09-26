@@ -655,14 +655,19 @@
 
   document.getElementById("month-display").textContent = `${currentYear}年${currentMonth + 1}月`;
 
-  // アプリの初期化と自動更新処理（pageshow対応）
+  // アプリの初期化と自動更新処理（requestAnimationFrameで確実にアニメーション発火）
   function initApp() {
     const btn = document.getElementById("reload-btn");
     if (btn) {
-      btn.classList.add("spinning");
-      setTimeout(() => {
-        btn.classList.remove("spinning");
-      }, 600);
+      btn.classList.remove("spinning");
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          btn.classList.add("spinning");
+          setTimeout(() => {
+            btn.classList.remove("spinning");
+          }, 600);
+        });
+      });
     }
 
     renderProfileCard();
@@ -686,10 +691,15 @@
   function forceReloadApp() {
     const btn = document.getElementById("reload-btn");
     if (btn) {
-      btn.classList.add("spinning");
-      setTimeout(() => {
-        btn.classList.remove("spinning");
-      }, 600);
+      btn.classList.remove("spinning");
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          btn.classList.add("spinning");
+          setTimeout(() => {
+            btn.classList.remove("spinning");
+          }, 600);
+        });
+      });
     }
 
     if (window.caches) {
