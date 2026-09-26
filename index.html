@@ -21,7 +21,6 @@
       background-color: var(--pastel-base);
       margin: 0;
       padding: 10px;
-      padding-bottom: 90px; /* 固定ボタン用余白 */
       color: #f1f1f1;
     }
     .app-container {
@@ -67,8 +66,7 @@
     .accordion-toggle-icon { font-size: 11px; font-weight: bold; color: #fff; background: var(--tag-bg); padding: 4px 8px; border-radius: 12px; border: 1px solid var(--border-color); flex-shrink: 0; }
     .profile-collapsible-content { display: none; margin-top: 12px; border-top: 1px dashed var(--border-color); padding-top: 10px; position: relative; }
     .profile-collapsible-content.open { display: block; }
-    .profile-edit-trigger { display: none; position: absolute; top: 10px; right: 0; background: #333; color: #fff; border: 1px solid #555; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; cursor: pointer; }
-    .admin-visible .profile-edit-trigger { display: block; }
+    .profile-edit-trigger { display: block; position: absolute; top: 10px; right: 0; background: #333; color: #fff; border: 1px solid #555; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; cursor: pointer; }
 
     .profile-links-grid { display: flex; flex-direction: column; gap: 12px; }
     .profile-section-block { background: #181818; border: 1px solid var(--border-color); border-radius: 12px; padding: 10px; }
@@ -85,7 +83,6 @@
     .app-title-area { display: flex; align-items: center; gap: 6px; }
     .app-title-text { font-size: 14px; font-weight: bold; color: #fff; }
     
-    .header-right-area { display: flex; align-items: center; gap: 8px; }
     .icon-action-btn { 
       background: var(--card-bg); 
       border: 1px solid var(--border-color); 
@@ -124,22 +121,6 @@
     }
     .notification-dot.show { display: inline-block; }
 
-    .admin-login-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      color: #aaa;
-      padding: 6px 10px;
-      border-radius: 14px;
-      font-size: 10px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .admin-login-btn.logged-in {
-      background: #3a1a1a;
-      color: #feb2b2;
-      border-color: #9b2c2c;
-    }
-
     .type-tabs { display: flex; background: #000; border: 1px solid var(--border-color); border-radius: 24px; padding: 4px; margin-bottom: 12px; }
     .type-tab { flex: 1; text-align: center; padding: 10px; font-size: 11px; font-weight: bold; color: #aaa; border-radius: 20px; cursor: pointer; background: transparent; border: none; }
     .type-tab.active { background: #ffffff; color: #000; box-shadow: 0 2px 6px rgba(255, 255, 255, 0.2); }
@@ -171,6 +152,22 @@
     .item-summary-bar { cursor: pointer; }
     .item-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .item-date-text { font-size: 11px; font-weight: bold; color: #fff; background: var(--tag-bg); padding: 2px 8px; border-radius: 10px; display: inline-block; border: 1px solid var(--border-color); }
+    
+    .purchase-status-badge { 
+      font-size: 11px; 
+      padding: 3px 10px; 
+      border-radius: 12px; 
+      border: 1px solid var(--border-color); 
+      background: #2c2c2c; 
+      color: #ccc; 
+      cursor: pointer; 
+      font-weight: bold; 
+    }
+    .purchase-status-badge.done { 
+      background: #1b3a2b; 
+      color: #70c68e; 
+      border-color: #2e6b4d; 
+    }
 
     .item-title { font-size: 14px; font-weight: bold; color: #fff; margin-bottom: 6px; }
     .item-collapsible-detail { display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-color); }
@@ -183,8 +180,7 @@
     .badges-left { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
     .member-tag { font-size: 10px; padding: 2px 8px; border-radius: 8px; background: var(--tag-bg); color: #fff; border: 1px solid var(--border-color); font-weight: bold; }
 
-    .item-action-icons { display: none; gap: 5px; }
-    .admin-visible .item-action-icons { display: flex; }
+    .item-action-icons { display: flex; gap: 5px; }
     .icon-btn { background: #2c2c2c; border: 1px solid var(--border-color); padding: 3px 8px; border-radius: 10px; font-size: 11px; cursor: pointer; font-weight: bold; color: #fff; }
     .edit-icon-btn { background: #1a365d; color: #90cdf4; border-color: #2b6cb0; }
     .delete-icon-btn { background: #4a1515; color: #feb2b2; border-color: #9b2c2c; }
@@ -196,37 +192,6 @@
     .submit-btn { background: #fff; color: #000; border: none; width: 100%; padding: 8px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 6px; }
     .cancel-edit-btn { background: #444; color: #fff; border: none; width: 100%; padding: 6px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 4px; font-size: 11px; }
 
-    /* 常時表示の新規追加ボタン（画面下部固定・ログイン中のみ） */
-    .floating-add-wrapper {
-      display: none;
-      position: fixed;
-      bottom: 0; left: 0; width: 100%;
-      background: rgba(18, 18, 18, 0.95);
-      border-top: 1px solid var(--border-color);
-      padding: 10px 16px;
-      box-sizing: border-box;
-      z-index: 100;
-      backdrop-filter: blur(5px);
-    }
-    .admin-visible .floating-add-wrapper { display: block; }
-    .add-schedule-main-btn {
-      background: #fff;
-      color: #000;
-      border: none;
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto;
-      display: block;
-      padding: 12px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(255,255,255,0.1);
-      text-align: center;
-    }
-    .add-schedule-main-btn:hover { background: #e0e0e0; }
-
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; background: var(--card-bg); padding: 8px; border-radius: 16px; border: 1px solid var(--border-color); }
     .cal-cell { min-height: 65px; border: 1px solid var(--border-color); border-radius: 6px; padding: 3px; font-size: 9px; background: #181818; overflow: hidden; cursor: pointer; color: #fff; }
     .cal-cell.has-event { background: #252525; border-color: #555; }
@@ -234,6 +199,22 @@
     .cal-day-num { font-weight: bold; color: #fff; margin-bottom: 2px; display: block; }
     .cal-event-title { background: #fff; color: #000; padding: 1px 3px; border-radius: 3px; margin-bottom: 2px; font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; font-weight: bold; }
     .no-data { text-align: center; color: #888; font-size: 12px; padding: 20px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); }
+
+    .add-schedule-main-btn {
+      background: #fff;
+      color: #000;
+      border: none;
+      width: 100%;
+      padding: 14px;
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 20px 0 10px 0;
+      box-shadow: 0 4px 10px rgba(255,255,255,0.1);
+      text-align: center;
+    }
+    .add-schedule-main-btn:hover { background: #e0e0e0; }
 
     .notification-drawer-overlay {
       display: none;
@@ -335,9 +316,25 @@
     }
     .modal-date-title { font-size: 14px; font-weight: bold; color: #fff; }
     .modal-close-btn { background: none; border: none; font-size: 18px; font-weight: bold; color: #aaa; cursor: pointer; padding: 0 4px; }
+
+    .manage-modal-title-area { margin-bottom: 14px; }
+    .manage-modal-main-title { font-size: 13px; font-weight: bold; color: #fff; margin-top: 2px; }
+    .manage-section-title { font-size: 12px; font-weight: bold; color: #fff; margin: 12px 0 6px 0; }
+    .manage-sub-label { font-size: 10px; color: #aaa; margin-bottom: 6px; }
+    .manage-row-card { display: flex; align-items: center; justify-content: space-between; background: #181818; border: 1px solid var(--border-color); border-radius: 12px; padding: 8px 10px; margin-bottom: 8px; }
+    .manage-row-left { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: bold; color: #fff; }
+    .manage-row-left input[type="checkbox"] { width: 16px; height: 16px; accent-color: #fff; }
+    .manage-counter-wrap { display: flex; align-items: center; background: #2c2c2c; border: 1px solid #444; border-radius: 8px; overflow: hidden; }
+    .manage-counter-btn { background: #333; border: none; width: 26px; height: 26px; font-weight: bold; cursor: pointer; font-size: 12px; color: #fff; }
+    .manage-counter-num { width: 28px; text-align: center; font-size: 12px; font-weight: bold; color: #fff; }
+    .manage-add-row { display: flex; gap: 6px; margin-bottom: 10px; }
+    .manage-add-input { flex: 1; padding: 6px 10px; border: 1px solid var(--border-color); background: #121212; color: #fff; border-radius: 8px; font-size: 11px; }
+    .manage-add-btn { background: #333; border: 1px solid #555; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+    .manage-save-btn { background: #fff; color: #000; border: none; width: 100%; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 14px; }
+    .manage-clear-btn { background: #181818; color: #aaa; border: 1px solid #444; width: 100%; padding: 8px; border-radius: 12px; font-weight: bold; font-size: 12px; cursor: pointer; margin-top: 8px; }
   </style>
 </head>
-<body id="body-root">
+<body>
 
 <div class="app-container" id="app-root">
   <div class="header-top-bar">
@@ -345,11 +342,8 @@
       <button class="icon-action-btn" id="reload-btn" onclick="forceReloadApp()" title="アプリを更新">🔄</button>
       <div class="app-title-text">👑 ROIROM Schedule</div>
     </div>
-    <div class="header-right-area">
-      <button class="admin-login-btn" id="admin-login-toggle-btn" onclick="toggleAdminLogin()">管理者ログイン</button>
-      <div class="notification-status-badge" onclick="openNotificationDrawer()">
-        🔔 通知 <span class="notification-dot" id="notif-dot"></span>
-      </div>
+    <div class="notification-status-badge" onclick="openNotificationDrawer()">
+      🔔 通知 <span class="notification-dot" id="notif-dot"></span>
     </div>
   </div>
 
@@ -462,10 +456,8 @@
   </div>
 
   <div id="content-area"></div>
-</div>
 
-<!-- 画面一番下に常時表示される新規追加ボタン（ログイン中のみ） -->
-<div class="floating-add-wrapper" id="floating-add-wrapper">
+  <!-- 画像にあった新規スケジュール追加ボタン -->
   <button class="add-schedule-main-btn" onclick="toggleAddFormDirect()">+ 新規スケジュール追加</button>
 </div>
 
@@ -492,8 +484,40 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="manage-modal" onclick="closeManageModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="manage-modal-title-area">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 14px; font-weight: bold; color: #fff;">予約先と数量を管理</span>
+        <button class="modal-close-btn" onclick="closeManageModalDirect()">×</button>
+      </div>
+      <div class="manage-modal-main-title" id="manage-modal-item-title">タイトル</div>
+    </div>
+
+    <div class="manage-section-title">オンライン</div>
+    <div class="manage-sub-label">購入・予約</div>
+    <div id="manage-online-container"></div>
+
+    <div class="manage-add-row">
+      <input type="text" class="manage-add-input" id="new-online-name" placeholder="予約先名 (例：セブンネット)">
+      <button class="manage-add-btn" onclick="addCustomReservation('online')">追加</button>
+    </div>
+
+    <div class="manage-section-title">店頭</div>
+    <div id="manage-store-container"></div>
+
+    <div class="manage-add-row">
+      <input type="text" class="manage-add-input" id="new-store-name" placeholder="店舗名 (例：蔦屋書店 渋谷店)">
+      <button class="manage-add-btn" onclick="addCustomReservation('store')">追加</button>
+    </div>
+    <div class="manage-sub-label">店舗名を入力して複数登録できます</div>
+
+    <button class="manage-save-btn" onclick="saveManageModalData()">保存する</button>
+    <button class="manage-clear-btn" onclick="clearAllReservations()">予約済をすべて解除</button>
+  </div>
+</div>
+
 <script>
-  const ADMIN_PASSWORD = "admin"; // パスワード
   const realNow = new Date();
   let currentYear = realNow.getFullYear();
   let currentMonth = realNow.getMonth();
@@ -502,11 +526,9 @@
   let currentMemberFilters = ["すべて"];
   let currentStatusFilters = ["すべて"];
   let currentViewMode = "list";
+  let activeManageItemId = null;
   let activeCalendarDateStr = null;
   let activeCalendarEvents = null;
-
-  // ブラウザを閉じるまで（セッション中）状態を維持
-  let isAdminLoggedIn = sessionStorage.getItem("roirom_admin_logged_in") === "true";
 
   let profileData = {
     name: "ROIROM (本多大夢・浜川路己)",
@@ -535,11 +557,19 @@
     try { notificationsData = JSON.parse(savedNotifs); } catch (e) { notificationsData = []; }
   }
 
+  const defaultReservations = [
+    { name: "Amazon", checked: false, count: 1, type: "online" },
+    { name: "楽天ブックス", checked: false, count: 1, type: "online" },
+    { name: "セブンネット", checked: false, count: 1, type: "online" },
+    { name: "タワーレコード", checked: false, count: 1, type: "online" }
+  ];
+
   if (itemsData.length === 0) {
     itemsData = [
       { 
         id: 1, type: "MAGAZINE", date: "2026-09-10", endDate: "", time: "", title: "サンプルスケジュール", desc: "詳細説明がここに入ります", status: ["予約受付中"], member: "ROIROM", 
-        links: [{name: "Amazon", url: "https://amazon.co.jp"}]
+        links: [{name: "Amazon", url: "https://amazon.co.jp"}], 
+        reservations: JSON.parse(JSON.stringify(defaultReservations))
       }
     ];
     saveItemsToStorage();
@@ -632,7 +662,6 @@
       setTimeout(() => btn.classList.remove("spinning"), 600);
     }
 
-    applyAdminStateUI();
     renderProfileCard();
     updateStatusFilterPills();
     updateFormTypeOptions();
@@ -651,45 +680,6 @@
       setTimeout(() => btn.classList.remove("spinning"), 600);
     }
     setTimeout(() => window.location.reload(true), 400);
-  }
-
-  function toggleAdminLogin() {
-    if (isAdminLoggedIn) {
-      if (confirm("ログアウトしますか？")) {
-        isAdminLoggedIn = false;
-        sessionStorage.removeItem("roirom_admin_logged_in");
-        applyAdminStateUI();
-        document.getElementById("admin-form").style.display = "none";
-        render();
-        alert("ログアウトしました。");
-      }
-    } else {
-      const pass = prompt("管理者パスワードを入力してください:");
-      if (pass === ADMIN_PASSWORD) {
-        isAdminLoggedIn = true;
-        sessionStorage.setItem("roirom_admin_logged_in", "true");
-        applyAdminStateUI();
-        render();
-        alert("管理者としてログインしました。ブラウザを閉じるまで状態が保持されます。");
-      } else if (pass !== null) {
-        alert("パスワードが間違っています。");
-      }
-    }
-  }
-
-  function applyAdminStateUI() {
-    const bodyRoot = document.getElementById("body-root");
-    const loginBtn = document.getElementById("admin-login-toggle-btn");
-
-    if (isAdminLoggedIn) {
-      bodyRoot.classList.add("admin-visible");
-      loginBtn.textContent = "ログアウト";
-      loginBtn.classList.add("logged-in");
-    } else {
-      bodyRoot.classList.remove("admin-visible");
-      loginBtn.textContent = "管理者ログイン";
-      loginBtn.classList.remove("logged-in");
-    }
   }
 
   function toggleProfileAccordion() {
@@ -978,6 +968,103 @@
     if (detailEl) detailEl.classList.toggle("open");
   }
 
+  function openManageModal(id) {
+    activeManageItemId = id;
+    const item = itemsData.find(i => i.id === id);
+    if (!item) return;
+
+    document.getElementById("manage-modal-item-title").textContent = item.title;
+    renderManageLists(item);
+    document.getElementById("manage-modal").classList.add("open");
+  }
+
+  function closeManageModalDirect() {
+    document.getElementById("manage-modal").classList.remove("open");
+  }
+
+  function closeManageModal(e) {
+    document.getElementById("manage-modal").classList.remove("open");
+  }
+
+  function renderManageLists(item) {
+    const onlineContainer = document.getElementById("manage-online-container");
+    const storeContainer = document.getElementById("manage-store-container");
+    onlineContainer.innerHTML = "";
+    storeContainer.innerHTML = "";
+
+    if (!item.reservations) item.reservations = JSON.parse(JSON.stringify(defaultReservations));
+
+    let hasStore = false;
+
+    item.reservations.forEach((res, index) => {
+      let row = document.createElement("div");
+      row.className = "manage-row-card";
+      row.innerHTML = `
+        <div class="manage-row-left">
+          <input type="checkbox" id="res-check-${index}" ${res.checked ? 'checked' : ''} onchange="updateResCheck(${index}, this.checked)">
+          <label for="res-check-${index}" style="cursor:pointer;">${res.name}</label>
+        </div>
+        <div class="manage-counter-wrap">
+          <button class="manage-counter-btn" onclick="changeResCount(${index}, -1)">-</button>
+          <div class="manage-counter-num" id="res-count-${index}">${res.count}</div>
+          <button class="manage-counter-btn" onclick="changeResCount(${index}, 1)">+</button>
+        </div>
+      `;
+
+      if (res.type === "store") {
+        hasStore = true;
+        storeContainer.appendChild(row);
+      } else {
+        onlineContainer.appendChild(row);
+      }
+    });
+
+    if (!hasStore) {
+      storeContainer.innerHTML = `<div style="font-size:11px; color:#888; padding:4px 0;">登録された店舗はありません</div>`;
+    }
+  }
+
+  function updateResCheck(index, checked) {
+    const item = itemsData.find(i => i.id === activeManageItemId);
+    if (item && item.reservations[index]) item.reservations[index].checked = checked;
+  }
+
+  function changeResCount(index, delta) {
+    const item = itemsData.find(i => i.id === activeManageItemId);
+    if (item && item.reservations[index]) {
+      item.reservations[index].count = Math.max(1, item.reservations[index].count + delta);
+      document.getElementById(`res-count-${index}`).textContent = item.reservations[index].count;
+    }
+  }
+
+  function addCustomReservation(type) {
+    const inputId = type === 'online' ? 'new-online-name' : 'new-store-name';
+    const inputEl = document.getElementById(inputId);
+    const val = inputEl.value.trim();
+    if (!val) return;
+
+    const item = itemsData.find(i => i.id === activeManageItemId);
+    if (item) {
+      item.reservations.push({ name: val, checked: true, count: 1, type: type });
+      inputEl.value = "";
+      renderManageLists(item);
+    }
+  }
+
+  function saveManageModalData() {
+    saveItemsToStorage();
+    closeManageModalDirect();
+    render();
+  }
+
+  function clearAllReservations() {
+    const item = itemsData.find(i => i.id === activeManageItemId);
+    if (item) {
+      item.reservations.forEach(r => r.checked = false);
+      renderManageLists(item);
+    }
+  }
+
   function parseLinks(inputStr) {
     if (!inputStr || !inputStr.trim()) return [];
     let result = [];
@@ -1016,7 +1103,8 @@
       alert("更新しました！");
     } else {
       itemsData.push({ 
-        id: Date.now(), type, date, endDate: "", time: "20:00", title, desc, status, member: member, links: parsedLinks
+        id: Date.now(), type, date, endDate: "", time: "20:00", title, desc, status, member: member, links: parsedLinks, 
+        reservations: JSON.parse(JSON.stringify(defaultReservations))
       });
       addNotification(title);
       alert("追加しました！ベルマークから通知を確認できます！");
@@ -1060,6 +1148,10 @@
   }
 
   function createCardHtml(item) {
+    let checkedCount = (item.reservations || []).filter(r => r.checked).length;
+    let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 予約/購入管理";
+    let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
+    
     let statusTagsHtml = (Array.isArray(item.status) ? item.status : [item.status]).map(st => `<span class="member-tag">${st}</span>`).join(" ");
     let linksHtml = (item.links || []).map(l => `<a href="${l.url}" target="_blank" class="item-link-chip" onclick="event.stopPropagation()">${l.name}</a>`).join(" ");
     let itemMember = item.member || "本多大夢";
@@ -1069,6 +1161,7 @@
         <div class="item-summary-bar" onclick="toggleItemDetail(${item.id})">
           <div class="item-header-row">
             <div class="item-date-text">📅 ${item.date}</div>
+            <button class="${purchaseClass}" onclick="event.stopPropagation(); openManageModal(${item.id})">${purchaseText}</button>
           </div>
           <div class="item-title">${item.title} ▼</div>
         </div>
