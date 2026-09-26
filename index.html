@@ -83,7 +83,6 @@
     .app-title-area { display: flex; align-items: center; gap: 6px; }
     .app-title-text { font-size: 14px; font-weight: bold; color: var(--deep-color); }
     
-    /* 左上くるくるマークボタン & 自動回転アニメーション */
     .icon-action-btn { 
       background: #fff; 
       border: 1px solid var(--border-color); 
@@ -127,7 +126,7 @@
     .notification-dot.show { display: inline-block; }
 
     .type-tabs { display: flex; background: #f8bbd0; border-radius: 24px; padding: 4px; margin-bottom: 12px; }
-    .type-tab { flex: 1; text-align: center; padding: 10px; font-size: 12px; font-weight: bold; color: #880e4f; border-radius: 20px; cursor: pointer; background: transparent; border: none; }
+    .type-tab { flex: 1; text-align: center; padding: 10px; font-size: 11px; font-weight: bold; color: #880e4f; border-radius: 20px; cursor: pointer; background: transparent; border: none; }
     .type-tab.active { background: #ffffff; color: var(--deep-color); box-shadow: 0 2px 6px rgba(216, 27, 96, 0.2); }
 
     .month-nav-container { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
@@ -206,7 +205,6 @@
     .cal-event-title { background: var(--main-color); color: #fff; padding: 1px 3px; border-radius: 3px; margin-bottom: 2px; font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
     .no-data { text-align: center; color: #888; font-size: 12px; padding: 20px; background: #fff; border-radius: 12px; }
 
-    /* 通知パネル（右側ドロワー） */
     .notification-drawer-overlay {
       display: none;
       position: fixed;
@@ -268,7 +266,6 @@
       cursor: pointer;
     }
 
-    /* モーダル群 */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -380,6 +377,7 @@
   <div class="type-tabs">
     <button class="type-tab active" id="tab-magazine" onclick="switchMainType('MAGAZINE')">MAGAZINE</button>
     <button class="type-tab" id="tab-program" onclick="switchMainType('PROGRAM')">出演番組</button>
+    <button class="type-tab" id="tab-anniversary" onclick="switchMainType('ANNIVERSARY')">🎂 誕生日・記念日</button>
   </div>
 
   <div class="month-nav-container">
@@ -413,16 +411,17 @@
     <div class="form-group"><label>日付</label><input type="date" id="input-date"></div>
     <div class="form-group" id="group-end-date" style="display:none;"><label>終了日</label><input type="date" id="input-end-date"></div>
     <div class="form-group" id="group-time"><label>時間</label><input type="time" id="input-time" value="20:00"></div>
-    <div class="form-group"><label>タイトル</label><input type="text" id="input-title" placeholder="雑誌名または番組名"></div>
+    <div class="form-group"><label>タイトル</label><input type="text" id="input-title" placeholder="タイトルを入力"></div>
     <div class="form-group">
       <label>内容詳細（省略可）</label>
-      <textarea id="input-desc" rows="3" placeholder="【現場リポート】など"></textarea>
+      <textarea id="input-desc" rows="3" placeholder="詳細など"></textarea>
     </div>
     <div class="form-group">
       <label>カテゴリ</label>
       <select id="input-type" onchange="onFormTypeChange()">
         <option value="MAGAZINE">MAGAZINE</option>
         <option value="PROGRAM">出演番組</option>
+        <option value="ANNIVERSARY">🎂 誕生日・記念日</option>
       </select>
     </div>
     <div class="form-group">
@@ -430,7 +429,7 @@
       <div id="input-status-container" class="checkbox-row-container"></div>
     </div>
     <div class="form-group">
-      <label>関連リンク</label><input type="text" id="input-links" placeholder="例: Amazon:https://...">
+      <label>関連リンク</label><input type="text" id="input-links" placeholder="例: 公式:https://...">
     </div>
     <button class="submit-btn" id="form-submit-btn" onclick="saveItemData()">登録する</button>
     <button class="cancel-edit-btn" id="form-cancel-btn" style="display:none;" onclick="resetFormToCreateMode()">キャンセル</button>
@@ -443,7 +442,6 @@
   </div>
 </div>
 
-<!-- 通知ドロワーパネル -->
 <div class="notification-drawer-overlay" id="notif-drawer" onclick="closeNotificationDrawer(event)">
   <div class="notification-drawer" onclick="event.stopPropagation()">
     <div class="notif-header-row">
@@ -457,7 +455,6 @@
   </div>
 </div>
 
-<!-- カレンダー詳細ポップアップモーダル -->
 <div class="modal-overlay" id="cal-modal" onclick="closeCalendarModal(event)">
   <div class="modal-content" onclick="event.stopPropagation()">
     <div class="modal-header-row">
@@ -468,7 +465,6 @@
   </div>
 </div>
 
-<!-- 管理ステータス詳細管理モーダル -->
 <div class="modal-overlay" id="manage-modal" onclick="closeManageModal(event)">
   <div class="modal-content" onclick="event.stopPropagation()">
     <div class="manage-modal-title-area">
@@ -570,6 +566,11 @@
         id: 1, type: "MAGAZINE", date: "2026-10-01", endDate: "", time: "", title: "J Movie Magazine Vol.135 (表紙)", desc: "【新作現場リポート】\n橋本将生 『お姉ちゃんの翠くん』", status: ["予約受付中", "表紙"], member: "橋本将生", 
         links: [{name: "Amazon", url: "https://amazon.co.jp"}], 
         reservations: JSON.parse(JSON.stringify(defaultReservations))
+      },
+      { 
+        id: 2, type: "ANNIVERSARY", date: "2026-12-04", endDate: "", time: "", title: "映画『お姉ちゃんの翠くん』公開日 🎬", desc: "主演・雪代翠 役の映画公開日！おめでとうございます！", status: ["映画公開"], member: "橋本将生", 
+        links: [], 
+        reservations: JSON.parse(JSON.stringify(defaultReservations))
       }
     ];
     saveItemsToStorage();
@@ -655,7 +656,6 @@
 
   document.getElementById("month-display").textContent = `${currentYear}年${currentMonth + 1}月`;
 
-  // アプリの初期化と自動更新処理（pageshow対応）
   function initApp() {
     const btn = document.getElementById("reload-btn");
     if (btn) {
@@ -676,7 +676,6 @@
 
   window.addEventListener('load', initApp);
   
-  // スマホのホーム画面から開いたとき（BFキャッシュからの復元時）に対応
   window.addEventListener('pageshow', (event) => {
     if (event.persisted) {
       initApp();
@@ -797,6 +796,7 @@
     currentStatusFilters = ["すべて"];
     document.getElementById("tab-magazine").classList.toggle("active", type === "MAGAZINE");
     document.getElementById("tab-program").classList.toggle("active", type === "PROGRAM");
+    document.getElementById("tab-anniversary").classList.toggle("active", type === "ANNIVERSARY");
     
     updateStatusFilterPills();
     if (!document.getElementById("edit-item-id").value) {
@@ -815,8 +815,8 @@
   function updateFormVisibilityBytype() {
     const typeSelect = document.getElementById("input-type");
     const targetType = typeSelect ? typeSelect.value : currentMainType;
-    document.getElementById("group-time").style.display = targetType === "MAGAZINE" ? "none" : "block";
-    document.getElementById("group-end-date").style.display = targetType === "MAGAZINE" ? "none" : "block";
+    document.getElementById("group-time").style.display = targetType === "MAGAZINE" || targetType === "ANNIVERSARY" ? "none" : "block";
+    document.getElementById("group-end-date").style.display = targetType === "MAGAZINE" || targetType === "ANNIVERSARY" ? "none" : "block";
   }
 
   function updateStatusFilterPills() {
@@ -825,8 +825,10 @@
     let statuses = ["すべて"];
     if (currentMainType === "MAGAZINE") {
       statuses.push("予約受付中", "表紙", "発売中", "重版");
-    } else {
+    } else if (currentMainType === "PROGRAM") {
       statuses.push("放送予定", "レギュラー", "ゲスト出演");
+    } else {
+      statuses.push("誕生日", "記念日", "映画公開");
     }
     statuses.forEach(st => {
       const btn = document.createElement("button");
@@ -844,7 +846,15 @@
     if (!statusContainer) return;
     
     statusContainer.innerHTML = "";
-    let options = targetType === "MAGAZINE" ? ["予約受付中", "表紙", "発売中", "重版"] : ["放送予定", "ゲスト出演", "レギュラー"];
+    let options = [];
+    if (targetType === "MAGAZINE") {
+      options = ["予約受付中", "表紙", "発売中", "重版"];
+    } else if (targetType === "PROGRAM") {
+      options = ["放送予定", "ゲスト出演", "レギュラー"];
+    } else {
+      options = ["誕生日", "記念日", "映画公開"];
+    }
+
     let selectedArr = Array.isArray(selectedStatuses) ? selectedStatuses : [selectedStatuses];
 
     options.forEach(opt => {
@@ -968,6 +978,7 @@
     document.getElementById("input-date").value = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
     document.getElementById("input-title").value = "";
     document.getElementById("input-desc").value = "";
+    document.getElementById("input-type").value = currentMainType;
     updateFormStatusOptions();
     updateFormVisibilityBytype();
   }
