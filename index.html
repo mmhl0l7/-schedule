@@ -392,6 +392,7 @@
     <div class="filter-row" id="member-filters">
       <button class="filter-pill active" onclick="toggleMemberFilter('すべて')">すべて</button>
       <button class="filter-pill" onclick="toggleMemberFilter('橋本将生')">橋本将生</button>
+      <button class="filter-pill" onclick="toggleMemberFilter('timelesz')">timelesz</button>
     </div>
     <div class="filter-row" id="status-filters"></div>
   </div>
@@ -414,6 +415,13 @@
     <div class="form-group">
       <label>内容詳細（省略可）</label>
       <textarea id="input-desc" rows="3" placeholder="詳細など"></textarea>
+    </div>
+    <div class="form-group">
+      <label>メンバー</label>
+      <select id="input-member">
+        <option value="橋本将生">橋本将生</option>
+        <option value="timelesz">timelesz</option>
+      </select>
     </div>
     <div class="form-group">
       <label>カテゴリ</label>
@@ -666,6 +674,7 @@
 
     renderProfileCard();
     updateStatusFilterPills();
+    updateFormTypeOptions();
     updateFormStatusOptions();
     updateFormVisibilityBytype();
     updateTodayTopic();
@@ -817,6 +826,20 @@
     document.getElementById("group-end-date").style.display = targetType === "MAGAZINE" || targetType === "ANNIVERSARY" ? "none" : "block";
   }
 
+  function updateFormTypeOptions() {
+    const typeSelect = document.getElementById("input-type");
+    if (!typeSelect) return;
+    const currentVal = typeSelect.value;
+    typeSelect.innerHTML = `
+      <option value="MAGAZINE">MAGAZINE</option>
+      <option value="PROGRAM">出演番組</option>
+    `;
+    if (isAdminLoggedIn) {
+      typeSelect.innerHTML += `<option value="ANNIVERSARY">🎂 誕生日・記念日・映画公開日</option>`;
+    }
+    typeSelect.value = (currentVal === "ANNIVERSARY" && !isAdminLoggedIn) ? "MAGAZINE" : currentVal;
+  }
+
   function updateStatusFilterPills() {
     const container = document.getElementById("status-filters");
     container.innerHTML = "";
@@ -826,7 +849,10 @@
     } else if (currentMainType === "PROGRAM") {
       statuses.push("放送予定", "レギュラー", "ゲスト出演");
     }
-    statuses.push("誕生日", "記念日", "映画公開");
+    // 管理者ログイン時のみ誕生日・記念日・映画公開フィルターを表示
+    if (isAdminLoggedIn) {
+      statuses.push("誕生日", "記念日", "映画公開");
+    }
 
     statuses.forEach(st => {
       const btn = document.createElement("button");
@@ -846,11 +872,15 @@
     statusContainer.innerHTML = "";
     let options = [];
     if (targetType === "MAGAZINE") {
-      options = ["予約受付中", "表紙", "発売中", "重版", "誕生日", "記念日", "映画公開"];
+      options = ["予約受付中", "表紙", "発売中", "重版"];
     } else if (targetType === "PROGRAM") {
-      options = ["放送予定", "ゲスト出演", "レギュラー", "誕生日", "記念日", "映画公開"];
+      options = ["放送予定", "ゲスト出演", "レギュラー"];
     } else {
-      options = ["誕生日", "記念日", "映画公開"];
+      options = [];
+    }
+    // 管理者ログイン時のみ、フォームのステータス選択肢にも誕生日・記念日・映画公開を含める
+    if (isAdminLoggedIn) {
+      options.push("誕生日", "記念日", "映画公開");
     }
 
     let selectedArr = Array.isArray(selectedStatuses) ? selectedStatuses : [selectedStatuses];
@@ -956,6 +986,12 @@
         btn.textContent = "⚙️ 管理者モード中";
         btn.classList.add("logged-in");
         document.getElementById("profile-edit-btn").classList.add("show");
+        
+        // 管理者になったのでフィルターやフォームの選択肢を更新
+        updateStatusFilterPills();
+        updateFormTypeOptions();
+        updateFormStatusOptions();
+
         alert("管理者としてログインしました！");
         render();
       } else {
@@ -976,7 +1012,9 @@
     document.getElementById("input-date").value = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
     document.getElementById("input-title").value = "";
     document.getElementById("input-desc").value = "";
+    document.getElementById("input-member").value = "橋本将生";
     document.getElementById("input-type").value = currentMainType;
+    updateFormTypeOptions();
     updateFormStatusOptions();
     updateFormVisibilityBytype();
   }
@@ -1091,6 +1129,11 @@
 
         let itemDate = new Date(item.date);
         if (itemDate.getFullYear() !== currentYear || itemDate.getMonth() !== currentMonth) return false;
+
+        if (!currentMemberFilters.includes("すべて")) {
+          if (!currentMemberFilters.includes(item.member || "橋本将生")) return false;
+        }
+
         if (!currentStatusFilters.includes("すべて")) {
           let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
           if (!currentStatusFilters.some(st => itemStatuses.includes(st))) return false;
@@ -1132,6 +1175,7 @@
     const type = document.getElementById("input-type").value;
     const title = document.getElementById("input-title").value;
     const desc = document.getElementById("input-desc").value;
+    const member = document.getElementById("input-member").value;
     const status = Array.from(document.querySelectorAll('input[name="form-status-checkbox"]:checked')).map(cb => cb.value);
 
     if (!date || !title) { alert("日付とタイトルを入力してください"); return; }
@@ -1142,12 +1186,12 @@
     if (editId) {
       const item = itemsData.find(i => i.id == editId);
       if (item) {
-        item.date = date; item.title = title; item.desc = desc; item.type = type; item.status = status; item.links = parsedLinks;
+        item.date = date; item.title = title; item.desc = desc; item.type = type; item.status = status; item.member = member; item.links = parsedLinks;
       }
       alert("更新しました！");
     } else {
       itemsData.push({ 
-        id: Date.now(), type, date, endDate: "", time: "20:00", title, desc, status, member: "橋本将生", links: parsedLinks, 
+        id: Date.now(), type, date, endDate: "", time: "20:00", title, desc, status, member: member, links: parsedLinks, 
         reservations: JSON.parse(JSON.stringify(defaultReservations))
       });
       addNotification(title);
@@ -1162,12 +1206,15 @@
 
   function filterItems() {
     return itemsData.filter(item => {
-      // 選択中のタブ（MAGAZINE または PROGRAM）の予定、あるいは ANNIVERSARY（誕生日・記念日・映画公開）であれば両方に表示
-      let matchesType = (item.type === currentMainType || item.type === "ANNIVERSARY");
+      let matchesType = (item.type === currentMainType || (isAdminLoggedIn && item.type === "ANNIVERSARY"));
       if (!matchesType) return false;
 
       let itemDate = new Date(item.date);
       if (itemDate.getFullYear() !== currentYear || itemDate.getMonth() !== currentMonth) return false;
+
+      if (!currentMemberFilters.includes("すべて")) {
+        if (!currentMemberFilters.includes(item.member || "橋本将生")) return false;
+      }
 
       if (!currentStatusFilters.includes("すべて")) {
         let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
@@ -1195,6 +1242,7 @@
     
     let statusTagsHtml = (Array.isArray(item.status) ? item.status : [item.status]).map(st => `<span class="member-tag">${st}</span>`).join(" ");
     let linksHtml = (item.links || []).map(l => `<a href="${l.url}" target="_blank" class="item-link-chip" onclick="event.stopPropagation()">${l.name}</a>`).join(" ");
+    let itemMember = item.member || "橋本将生";
 
     return `
       <div class="item-card">
@@ -1212,7 +1260,7 @@
         <div class="item-footer-row">
           <div class="badges-left">
             ${statusTagsHtml}
-            <span class="member-tag">橋本将生</span>
+            <span class="member-tag">${itemMember}</span>
           </div>
           <div class="item-action-icons ${isAdminLoggedIn ? 'show' : ''}">
             <button class="icon-btn edit-icon-btn" onclick="editItem(${item.id})">編集✏️</button>
@@ -1232,7 +1280,9 @@
     document.getElementById("input-date").value = item.date;
     document.getElementById("input-title").value = item.title;
     document.getElementById("input-desc").value = item.desc || "";
+    document.getElementById("input-member").value = item.member || "橋本将生";
     document.getElementById("input-type").value = item.type;
+    updateFormTypeOptions();
     updateFormStatusOptions(item.status);
     updateFormVisibilityBytype();
 
