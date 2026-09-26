@@ -21,6 +21,7 @@
       background-color: var(--pastel-base);
       margin: 0;
       padding: 10px;
+      padding-bottom: 80px; /* 固定ボタン用の余白 */
       color: #333;
     }
     .app-container {
@@ -83,7 +84,6 @@
     .app-title-area { display: flex; align-items: center; gap: 6px; }
     .app-title-text { font-size: 14px; font-weight: bold; color: var(--deep-color); }
     
-    /* 左上くるくるマークボタン & 自動回転アニメーション */
     .icon-action-btn { 
       background: #fff; 
       border: 1px solid var(--border-color); 
@@ -197,6 +197,27 @@
     .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 6px; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-size: 12px; }
     .submit-btn { background: var(--main-color); color: #fff; border: none; width: 100%; padding: 8px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 6px; }
     .cancel-edit-btn { background: #ccc; color: #fff; border: none; width: 100%; padding: 6px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 4px; font-size: 11px; }
+
+    /* 画面下部常時固定の新規追加ボタン */
+    .floating-add-btn {
+      display: none;
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: var(--main-color);
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(255, 105, 180, 0.4);
+      cursor: pointer;
+      z-index: 999;
+      align-items: center;
+      gap: 6px;
+    }
+    .floating-add-btn.show { display: flex; }
 
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; background: #fff; padding: 8px; border-radius: 16px; border: 1px solid var(--border-color); }
     .cal-cell { min-height: 65px; border: 1px solid #eee; border-radius: 6px; padding: 3px; font-size: 9px; background: #fafafa; overflow: hidden; cursor: pointer; }
@@ -443,6 +464,11 @@
   </div>
 </div>
 
+<!-- 管理者ログイン中の常時表示フローティング追加ボタン -->
+<button class="floating-add-btn" id="floating-add-btn" onclick="toggleFormFromFloating()">
+  ＋ 新規スケジュール追加
+</button>
+
 <!-- 通知ドロワーパネル -->
 <div class="notification-drawer-overlay" id="notif-drawer" onclick="closeNotificationDrawer(event)">
   <div class="notification-drawer" onclick="event.stopPropagation()">
@@ -511,7 +537,10 @@
   let currentMemberFilters = ["すべて"];
   let currentStatusFilters = ["すべて"];
   let currentViewMode = "list";
-  let isAdminLoggedIn = false;
+  
+  // sessionStorage を使ってブラウザを閉じるまで（またはログアウトまで）ログイン状態を保持
+  let isAdminLoggedIn = sessionStorage.getItem("masaki_admin_logged_in") === "true";
+
   let activeManageItemId = null;
   let activeCalendarDateStr = null;
   let activeCalendarEvents = null;
@@ -655,16 +684,14 @@
 
   document.getElementById("month-display").textContent = `${currentYear}年${currentMonth + 1}月`;
 
-  // ページ読み込み時に自動でくるくる回して更新する処理
   window.addEventListener('load', () => {
     const btn = document.getElementById("reload-btn");
     if (btn) {
       btn.classList.add("spinning");
-      setTimeout(() => {
-        btn.classList.remove("spinning");
-      }, 600);
+      setTimeout(() => { btn.classList.remove("spinning"); }, 600);
     }
 
+    applyAdminLoginStateUI();
     renderProfileCard();
     updateStatusFilterPills();
     updateFormStatusOptions();
@@ -677,18 +704,13 @@
     const btn = document.getElementById("reload-btn");
     if (btn) {
       btn.classList.add("spinning");
-      setTimeout(() => {
-        btn.classList.remove("spinning");
-      }, 600);
+      setTimeout(() => { btn.classList.remove("spinning"); }, 600);
     }
 
     if (window.caches) {
       caches.keys().then(names => { names.forEach(name => { caches.delete(name); }); });
     }
-    // 少しアニメーションを見せてからリロード
-    setTimeout(() => {
-      window.location.reload(true);
-    }, 400);
+    setTimeout(() => { window.location.reload(true); }, 400);
   }
 
   function toggleProfileAccordion() {
@@ -930,25 +952,64 @@
     }
   }
 
+  function applyAdminLoginStateUI() {
+    const btn = document.getElementById("admin-toggle-btn");
+    const floatingBtn = document.getElementById("floating-add-btn");
+    const profileEditBtn = document.getElementById("profile-edit-btn");
+
+    if (isAdminLoggedIn) {
+      if (btn) {
+        btn.textContent = "⚙️ ログアウトする";
+        btn.classList.add("logged-in");
+      }
+      if (floatingBtn) floatingBtn.classList.add("show");
+      if (profileEditBtn) profileEditBtn.classList.add("show");
+    } else {
+      if (btn) {
+        btn.textContent = "⚙️ 管理者ログイン";
+        btn.classList.remove("logged-in");
+      }
+      if (floatingBtn) floatingBtn.classList.remove("show");
+      if (profileEditBtn) profileEditBtn.classList.remove("show");
+      document.getElementById("admin-form").style.display = "none";
+    }
+  }
+
   function checkAdminAndToggleForm() {
     if (!isAdminLoggedIn) {
       const pwd = prompt("管理者パスワードを入力してください：");
       if (pwd === "masaki123") {
         isAdminLoggedIn = true;
-        const btn = document.getElementById("admin-toggle-btn");
-        btn.textContent = "⚙️ 管理者モード中";
-        btn.classList.add("logged-in");
-        document.getElementById("profile-edit-btn").classList.add("show");
+        sessionStorage.setItem("masaki_admin_logged_in", "true");
+        applyAdminLoginStateUI();
         alert("管理者としてログインしました！");
         render();
       } else {
         if (pwd !== null) alert("パスワードが違います");
         return;
       }
+    } else {
+      if (confirm("ログアウトしますか？")) {
+        isAdminLoggedIn = false;
+        sessionStorage.removeItem("masaki_admin_logged_in");
+        applyAdminLoginStateUI();
+        alert("ログアウトしました");
+        render();
+      }
+      return;
     }
     const form = document.getElementById("admin-form");
     form.style.display = form.style.display === "block" ? "none" : "block";
     if (form.style.display === "block" && !document.getElementById("edit-item-id").value) resetFormToCreateMode();
+  }
+
+  function toggleFormFromFloating() {
+    const form = document.getElementById("admin-form");
+    if (form.style.display !== "block") {
+      resetFormToCreateMode();
+      form.style.display = "block";
+    }
+    form.scrollIntoView({ behavior: 'smooth' });
   }
 
   function resetFormToCreateMode() {
@@ -1166,10 +1227,15 @@
   }
 
   function createCardHtml(item) {
-    let checkedCount = (item.reservations || []).filter(r => r.checked).length;
-    let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 予約/購入管理";
-    let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
-    
+    // 出演番組タブ（PROGRAM）のときは「購入・予約管理ボタン」を表示しないようにする
+    let purchaseHtml = "";
+    if (item.type === "MAGAZINE") {
+      let checkedCount = (item.reservations || []).filter(r => r.checked).length;
+      let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 予約/購入管理";
+      let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
+      purchaseHtml = `<button class="${purchaseClass}" onclick="event.stopPropagation(); openManageModal(${item.id})">${purchaseText}</button>`;
+    }
+
     let statusTagsHtml = (Array.isArray(item.status) ? item.status : [item.status]).map(st => `<span class="member-tag">${st}</span>`).join(" ");
     let linksHtml = (item.links || []).map(l => `<a href="${l.url}" target="_blank" class="item-link-chip" onclick="event.stopPropagation()">${l.name}</a>`).join(" ");
 
@@ -1178,7 +1244,7 @@
         <div class="item-summary-bar" onclick="toggleItemDetail(${item.id})">
           <div class="item-header-row">
             <div class="item-date-text">📅 ${item.date}</div>
-            <button class="${purchaseClass}" onclick="event.stopPropagation(); openManageModal(${item.id})">${purchaseText}</button>
+            ${purchaseHtml}
           </div>
           <div class="item-title">${item.title} ▼</div>
         </div>
@@ -1218,6 +1284,7 @@
     document.getElementById("form-submit-btn").textContent = "更新する";
     document.getElementById("form-cancel-btn").style.display = "block";
     document.getElementById("admin-form").style.display = "block";
+    document.getElementById("admin-form").scrollIntoView({ behavior: 'smooth' });
   }
 
   function renderListView(data, container) {
@@ -1321,5 +1388,3 @@
 
 </body>
 </html>
-
-これ！
