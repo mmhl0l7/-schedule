@@ -83,7 +83,7 @@
     .app-title-area { display: flex; align-items: center; gap: 6px; }
     .app-title-text { font-size: 14px; font-weight: bold; color: var(--deep-color); }
     
-    /* 左上くるくるマークボタン & 自動回転アニメーション */
+    /* 左上ふわっとマークボタン & フェードイン・拡大アニメーション */
     .icon-action-btn { 
       background: #fff; 
       border: 1px solid var(--border-color); 
@@ -97,10 +97,24 @@
       justify-content: center; 
       cursor: pointer; 
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      transition: transform 0.5s ease;
+      transition: transform 0.3s ease, opacity 0.3s ease;
     }
-    .icon-action-btn.spinning {
-      transform: rotate(360deg);
+    .icon-action-btn.fade-in {
+      animation: fuwatto 0.6s ease;
+    }
+    @keyframes fuwatto {
+      0% {
+        transform: scale(0.8);
+        opacity: 0.2;
+      }
+      50% {
+        transform: scale(1.1);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
     
     .notification-status-badge { 
@@ -655,13 +669,13 @@
 
   document.getElementById("month-display").textContent = `${currentYear}年${currentMonth + 1}月`;
 
-  // ページ読み込み時に自動でくるくる回して更新する処理
+  // ページ読み込み時に自動で「ふわっと」アニメーションさせて更新する処理
   window.addEventListener('load', () => {
     const btn = document.getElementById("reload-btn");
     if (btn) {
-      btn.classList.add("spinning");
+      btn.classList.add("fade-in");
       setTimeout(() => {
-        btn.classList.remove("spinning");
+        btn.classList.remove("fade-in");
       }, 600);
     }
 
@@ -676,16 +690,16 @@
   function forceReloadApp() {
     const btn = document.getElementById("reload-btn");
     if (btn) {
-      btn.classList.add("spinning");
+      btn.classList.add("fade-in");
       setTimeout(() => {
-        btn.classList.remove("spinning");
+        btn.classList.remove("fade-in");
       }, 600);
     }
 
     if (window.caches) {
       caches.keys().then(names => { names.forEach(name => { caches.delete(name); }); });
     }
-    // 少しアニメーションを見せてからリロード
+    // ふわっとした余韻を見せてからリロード
     setTimeout(() => {
       window.location.reload(true);
     }, 400);
