@@ -28,9 +28,11 @@
         .theme-border {
             border-color: #ffb7c5;
         }
+        /* スムーズスクロール */
         html {
             scroll-behavior: smooth;
         }
+        /* カスタムスクロールバー */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -85,18 +87,11 @@
                         <i class="fa-solid fa-pen text-xs"></i>
                     </button>
                 </div>
-                <div class="flex-grow text-center sm:text-left w-full">
+                <div class="flex-grow text-center sm:text-left">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between">
-                        <div>
-                            <h2 id="profileName" class="text-xl font-bold text-gray-800">橋本 将生 <span class="text-xs font-normal text-gray-500">Masaki Hashimoto</span></h2>
-                            <!-- 誕生日バッジ（常時表示） -->
-                            <div class="mt-1 inline-flex items-center space-x-1.5 bg-pink-50 text-pink-700 text-xs font-bold px-3 py-1 rounded-full border border-pink-100">
-                                <i class="fa-solid fa-cake-candles text-pink-500"></i>
-                                <span>誕生日: <span id="profileBirthdayDisplay">1998年5月15日</span></span>
-                            </div>
-                        </div>
-                        <button onclick="toggleProfileDetails()" class="text-xs theme-text font-bold mt-2 sm:mt-0 hover:underline flex items-center justify-center sm:justify-start space-x-1">
-                            <span id="profileToggleText">詳細・リンクを開く</span>
+                        <h2 id="profileName" class="text-xl font-bold text-gray-800">橋本 将生 <span class="text-xs font-normal text-gray-500">Masaki Hashimoto</span></h2>
+                        <button onclick="toggleProfileDetails()" class="text-xs theme-text font-bold mt-1 sm:mt-0 hover:underline flex items-center justify-center sm:justify-start space-x-1">
+                            <span id="profileToggleText">プロフィール詳細・リンクを開く</span>
                             <i id="profileToggleIcon" class="fa-solid fa-chevron-down text-[10px]"></i>
                         </button>
                     </div>
@@ -107,6 +102,7 @@
                     <!-- 折りたたみ詳細エリア -->
                     <div id="profileDetails" class="hidden mt-4 pt-4 border-t border-gray-100 space-y-3">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-600">
+                            <div><span class="font-bold text-gray-700">生年月日:</span> <span id="profileBirthday">1998年5月15日</span></div>
                             <div><span class="font-bold text-gray-700">出身地:</span> <span id="profileFrom">東京都</span></div>
                             <div><span class="font-bold text-gray-700">趣味:</span> <span id="profileHobby">映画鑑賞、ギター</span></div>
                             <div><span class="font-bold text-gray-700">特技:</span> <span id="profileSkill">料理、サッカー</span></div>
@@ -116,7 +112,7 @@
                         <div class="pt-2">
                             <p class="text-xs font-bold text-gray-700 mb-2"><i class="fa-solid fa-link mr-1"></i> 関連リンク・出演作情報</p>
                             <div id="linkListContainer" class="flex flex-wrap gap-2">
-                                <!-- 動替生成 -->
+                                <!-- 動的生成 -->
                             </div>
                         </div>
                     </div>
@@ -132,7 +128,7 @@
                 </div>
                 <div>
                     <p class="text-xs font-bold text-gray-800">プッシュ通知を有効にしませんか？</p>
-                    <p class="text-[11px] text-gray-600">誕生日、記念日、映画公開日や番組の10分前にお知らせします。</p>
+                    <p class="text-[11px] text-gray-600">出演番組の10分前や当日にブラウザ通知でお知らせします。</p>
                 </div>
             </div>
             <button onclick="requestNotificationPermission()" class="bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow transition">
@@ -144,13 +140,12 @@
         <section class="bg-white rounded-2xl p-5 shadow-sm border border-pink-100">
             <!-- タブ・コントロールバー -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0 pb-4 border-b border-gray-100">
-                <div class="flex items-center space-x-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-                    <button onclick="setTab('all')" id="tab-all" class="px-3 py-1.5 rounded-full text-xs font-bold transition bg-pink-500 text-white shadow-sm whitespace-nowrap">すべて</button>
-                    <button onclick="setTab('tv')" id="tab-tv" class="px-3 py-1.5 rounded-full text-xs font-bold transition bg-gray-100 text-gray-600 hover:bg-gray-200 whitespace-nowrap">TV・配信</button>
-                    <button onclick="setTab('movie')" id="tab-movie" class="px-3 py-1.5 rounded-full text-xs font-bold transition bg-gray-100 text-gray-600 hover:bg-gray-200 whitespace-nowrap">映画公開</button>
-                    <button onclick="setTab('anniversary')" id="tab-anniversary" class="px-3 py-1.5 rounded-full text-xs font-bold transition bg-gray-100 text-gray-600 hover:bg-gray-200 whitespace-nowrap">記念日</button>
-                    <button onclick="setTab('magazine')" id="tab-magazine" class="px-3 py-1.5 rounded-full text-xs font-bold transition bg-gray-100 text-gray-600 hover:bg-gray-200 whitespace-nowrap">雑誌・WEB</button>
-                    <button onclick="setTab('event')" id="tab-event" class="px-3 py-1.5 rounded-full text-xs font-bold transition bg-gray-100 text-gray-600 hover:bg-gray-200 whitespace-nowrap">イベント</button>
+                <div class="flex items-center space-x-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+                    <button onclick="setTab('all')" id="tab-all" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-pink-500 text-white shadow-sm">すべて</button>
+                    <button onclick="setTab('tv')" id="tab-tv" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-gray-100 text-gray-600 hover:bg-gray-200">TV・配信</button>
+                    <button onclick="setTab('magazine')" id="tab-magazine" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-gray-100 text-gray-600 hover:bg-gray-200">雑誌・WEB</button>
+                    <button onclick="setTab('event')" id="tab-event" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-gray-100 text-gray-600 hover:bg-gray-200">イベント</button>
+                    <button onclick="setTab('other')" id="tab-other" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-gray-100 text-gray-600 hover:bg-gray-200">その他</button>
                 </div>
 
                 <div class="flex items-center space-x-2 w-full sm:w-auto justify-between sm:justify-end">
@@ -238,20 +233,20 @@
             
             <div class="space-y-3">
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">ステータス</label>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">予約状況</label>
                     <select id="bookingStatus" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
                         <option value="none">未予約・未購入</option>
-                        <option value="reserved">予約済み・チケット確保</option>
-                        <option value="purchased">購入・視聴・鑑賞完了</option>
+                        <option value="reserved">予約済み</option>
+                        <option value="purchased">購入・視聴完了</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">ショップ・劇場・プラットフォーム</label>
-                    <input type="text" id="bookingShop" placeholder="例: Amazon, TOHOシネマズ, Tver など" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
+                    <label class="block text-xs font-bold text-gray-700 mb-1">ショップ・プラットフォーム</label>
+                    <input type="text" id="bookingShop" placeholder="例: Amazon, タワレコ, Tver, 劇場など" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">枚数・座席・メモ</label>
-                    <input type="text" id="bookingMemo" placeholder="例: ムビチケ特典付き 2枚 など" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
+                    <label class="block text-xs font-bold text-gray-700 mb-1">冊数・枚数・メモ</label>
+                    <input type="text" id="bookingMemo" placeholder="例: 2冊, 特典付き など" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
                 </div>
             </div>
 
@@ -291,8 +286,6 @@
                     <label class="block text-xs font-bold text-gray-700 mb-1">カテゴリ</label>
                     <select id="schCategory" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
                         <option value="tv">TV・配信</option>
-                        <option value="movie">映画公開</option>
-                        <option value="anniversary">記念日</option>
                         <option value="magazine">雑誌・WEB</option>
                         <option value="event">イベント</option>
                         <option value="other">その他</option>
@@ -300,7 +293,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">タイトル</label>
-                    <input type="text" id="schTitle" placeholder="例: 主演映画『〇〇』公開 / デビュー5周年記念" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
+                    <input type="text" id="schTitle" placeholder="例: 「〇〇番組」出演" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
@@ -314,10 +307,10 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">詳細・媒体名</label>
-                    <input type="text" id="schDetail" placeholder="例: 全国ロードショー / ファンクラブ限定など" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
+                    <input type="text" id="schDetail" placeholder="例: 日本テレビ系 21:00〜" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">公式サイト・特設URL（任意）</label>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">公式サイト・予約URL（任意）</label>
                     <input type="url" id="schUrl" placeholder="https://..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
                 </div>
             </div>
@@ -346,8 +339,8 @@
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">誕生日</label>
-                        <input type="text" id="editBirthday" placeholder="例: 1998年5月15日" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">生年月日</label>
+                        <input type="text" id="editBirthday" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-pink-400">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-700 mb-1">出身地</label>
@@ -401,13 +394,13 @@
         };
 
         let schedules = JSON.parse(localStorage.getItem('hashimoto_schedules')) || [
-            { id: 1, category: "movie", title: "主演映画『君のいる光』全国ロードショー公開", date: "2026-10-15", time: "09:00", detail: "TOHOシネマズほか全国公開", url: "https://example.com" },
-            { id: 2, category: "anniversary", title: "芸能界デビュー4周年記念日", date: "2026-10-01", time: "", detail: "いつも応援ありがとうございます！", url: "https://example.com" },
-            { id: 3, category: "tv", title: "金曜ドラマ『〇〇な私たち』第5話出演", date: "2026-09-30", time: "22:00", detail: "TBS系", url: "https://example.com" },
-            { id: 4, category: "event", title: "1st写真集発売記念お渡し会イベント", date: "2026-10-12", time: "13:00", detail: "福家書店新宿サブナード店", url: "https://example.com" }
+            { id: 1, category: "tv", title: "金曜ドラマ『〇〇な私たち』第5話出演", date: "2026-09-30", time: "22:00", detail: "TBS系", url: "https://example.com" },
+            { id: 2, category: "magazine", title: "月刊『TVガイド』11月号インタビュー掲載", date: "2026-10-05", time: "", detail: "東京ニュース通信社", url: "https://example.com" },
+            { id: 3, category: "event", title: "1st写真集発売記念お渡し会イベント", date: "2026-10-12", time: "13:00", detail: "福家書店新宿サブナード店", url: "https://example.com" },
+            { id: 4, category: "tv", title: "バラエティ番組『世界を巡る』ゲスト出演", date: "2026-09-26", time: "20:00", detail: "フジテレビ系", url: "https://example.com" }
         ];
 
-        let bookings = JSON.parse(localStorage.getItem('hashimoto_bookings')) || {};
+        let bookings = JSON.parse(localStorage.getItem('hashimoto_bookings')) || {}; // { scheduleId: {status, shop, memo} }
         let notifications = JSON.parse(localStorage.getItem('hashimoto_notifications')) || [];
 
         let currentTab = 'all';
@@ -424,14 +417,14 @@
             
             // 1分ごとに通知タイミングをチェック
             setInterval(checkScheduleReminders, 60000);
-            checkScheduleReminders();
+            checkScheduleReminders(); // 初回チェック
         });
 
         // --- プロフィール関連 ---
         function renderProfile() {
             document.getElementById('profileImage').src = profileData.image;
             document.getElementById('profileBio').innerText = profileData.bio;
-            document.getElementById('profileBirthdayDisplay').innerText = profileData.birthday;
+            document.getElementById('profileBirthday').innerText = profileData.birthday;
             document.getElementById('profileFrom').innerText = profileData.from;
             document.getElementById('profileHobby').innerText = profileData.hobby;
             document.getElementById('profileSkill').innerText = profileData.skill;
@@ -454,11 +447,11 @@
             const icon = document.getElementById('profileToggleIcon');
             if (details.classList.contains('hidden')) {
                 details.classList.remove('hidden');
-                text.innerText = '詳細・リンクを閉じる';
+                text.innerText = 'プロフィール詳細・リンクを閉じる';
                 icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
             } else {
                 details.classList.add('hidden');
-                text.innerText = '詳細・リンクを開く';
+                text.innerText = 'プロフィール詳細・リンクを開く';
                 icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
             }
         }
@@ -466,14 +459,12 @@
         // --- タブ・ビュー切替 ---
         function setTab(tab) {
             currentTab = tab;
-            ['all', 'tv', 'movie', 'anniversary', 'magazine', 'event', 'other'].forEach(t => {
+            ['all', 'tv', 'magazine', 'event', 'other'].forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
-                if (btn) {
-                    if (t === tab) {
-                        btn.className = 'px-3 py-1.5 rounded-full text-xs font-bold transition bg-pink-500 text-white shadow-sm whitespace-nowrap';
-                    } else {
-                        btn.className = 'px-3 py-1.5 rounded-full text-xs font-bold transition bg-gray-100 text-gray-600 hover:bg-gray-200 whitespace-nowrap';
-                    }
+                if (t === tab) {
+                    btn.className = 'px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-pink-500 text-white shadow-sm';
+                } else {
+                    btn.className = 'px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-gray-100 text-gray-600 hover:bg-gray-200';
                 }
             });
             renderSchedules();
@@ -512,6 +503,7 @@
                 return matchTab && matchKeyword;
             });
 
+            // 日付順（新しい順・古い順など。ここでは日付昇順）
             filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
 
             if (filtered.length === 0) {
@@ -525,9 +517,9 @@
                 
                 let bookingBadge = '';
                 if (booking.status === 'reserved') {
-                    bookingBadge = `<span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-bookmark mr-1"></i>予約/確保済</span>`;
+                    bookingBadge = `<span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-bookmark mr-1"></i>予約済み</span>`;
                 } else if (booking.status === 'purchased') {
-                    bookingBadge = `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-check mr-1"></i>完了・鑑賞済</span>`;
+                    bookingBadge = `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-check mr-1"></i>購入完了</span>`;
                 }
 
                 const card = document.createElement('div');
@@ -536,7 +528,7 @@
                     <div class="space-y-1.5 w-full sm:w-auto flex-grow">
                         <div class="flex items-center space-x-2 flex-wrap gap-y-1">
                             <span class="${catInfo.class} text-[10px] font-bold px-2.5 py-0.5 rounded-full">${catInfo.text}</span>
-                            <span class="text-xs font-bold text-gray-600"><i class="fa-regular fa-calendar mr-1"></i>${sch.date} ${sch.time ? '/ ' + sch.time : ''}</span>
+                            <span class="text-xs font-bold text-gray-600"><i class="fa-regular fa-calendar mr-1"></i>${sch.date}${sch.time ? '/ ' + sch.time : ''}</span>
                             ${bookingBadge}
                         </div>
                         <h4 class="font-bold text-sm text-gray-800">${sch.title}</h4>
@@ -567,8 +559,6 @@
         function getCategoryBadge(cat) {
             switch(cat) {
                 case 'tv': return { text: 'TV・配信', class: 'bg-sky-100 text-sky-700' };
-                case 'movie': return { text: '映画公開', class: 'bg-indigo-100 text-indigo-700' };
-                case 'anniversary': return { text: '記念日', class: 'bg-pink-100 text-pink-700' };
                 case 'magazine': return { text: '雑誌・WEB', class: 'bg-purple-100 text-purple-700' };
                 case 'event': return { text: 'イベント', class: 'bg-rose-100 text-rose-700' };
                 default: return { text: 'その他', class: 'bg-gray-100 text-gray-700' };
@@ -579,6 +569,7 @@
         function renderCalendar() {
             const year = currentCalendarDate.getFullYear();
             const month = currentCalendarDate.getMonth();
+            document.getElementById('calendarMonthTitle.innerText` = `${year}年 ${month + 1}月`;
             document.getElementById('calendarMonthTitle').innerText = `${year}年 ${month + 1}月`;
 
             const firstDayIndex = new Date(year, month, 1).getDay();
@@ -587,11 +578,13 @@
             const grid = document.getElementById('calendarGrid');
             grid.innerHTML = '';
 
+            // 空白セル
             for (let i = 0; i < firstDayIndex; i++) {
                 const empty = document.createElement('div');
                 grid.appendChild(empty);
             }
 
+            // 日付セル
             for (let day = 1; day <= lastDay; day++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const daySchedules = schedules.filter(s => s.date === dateStr);
@@ -659,7 +652,9 @@
                 banner.classList.add('hidden');
                 return;
             }
-            if (Notification.permission === "granted" || Notification.permission === "denied") {
+            if (Notification.permission === "granted") {
+                banner.classList.add('hidden');
+            } else if (Notification.permission === "denied") {
                 banner.classList.add('hidden');
             } else {
                 banner.classList.remove('hidden');
@@ -674,7 +669,7 @@
             Notification.requestPermission().then(permission => {
                 checkNotificationPermissionUI();
                 if (permission === "granted") {
-                    new Notification("通知が有効化されました！", { body: "記念日や出演情報をお届けします。" });
+                    new Notification("通知が有効化されました！", { body: "出演情報やリマインダーをお届けします。" });
                 }
             });
         }
@@ -697,7 +692,7 @@
                 return;
             }
 
-            notifications.forEach((notif) => {
+            notifications.forEach((notif, index) => {
                 const div = document.createElement('div');
                 div.className = 'bg-pink-50/60 p-3 rounded-xl border border-pink-100 text-xs space-y-1 relative';
                 div.innerHTML = `
@@ -728,24 +723,22 @@
             updateNotificationBadge();
         }
 
+        // 定期的にスケジュールを走査してリマインダーを発火する関数
         function checkScheduleReminders() {
             const now = new Date();
             const todayStr = now.toISOString().split('T')[0];
             const currentHour = String(now.getHours()).padStart(2, '0');
             const currentMin = String(now.getMinutes()).padStart(2, '0');
+            const currentTimeStr = `${currentHour}:${currentMin}`;
 
             schedules.forEach(sch => {
-                // 当日お知らせ
+                // 1. 当日になったらお知らせ（例: 朝8時または初検知時）
                 if (sch.date === todayStr && !sch.notifiedToday) {
-                    let prefix = "【本日開催】";
-                    if (sch.category === 'movie') prefix = "【本日映画公開】";
-                    if (sch.category === 'anniversary') prefix = "✨【本日記念日】";
-                    
-                    addAlertNotification(`${prefix}${sch.title}`, `${sch.detail} が本日予定されています！`);
+                    addAlertNotification(`【本日開催】${sch.title}`, `${sch.detail} が本日予定されています！`);
                     sch.notifiedToday = true;
                 }
 
-                // 10分前お知らせ（時間指定がある場合）
+                // 2. 時間が指定されており、ちょうど10分前の場合にお知らせ
                 if (sch.date === todayStr && sch.time) {
                     const [schH, schM] = sch.time.split(':').map(Number);
                     const schTotalMin = schH * 60 + schM;
@@ -753,7 +746,7 @@
                     const diffMin = schTotalMin - nowTotalMin;
 
                     if (diffMin === 10 && !sch.notified10MinBefore) {
-                        addAlertNotification(`まもなく開始！(10分前)`, `${sch.title} (${sch.time}〜) がまもなく始まります！`);
+                        addAlertNotification(`まもなく出演！(10分前)`, `${sch.title} (${sch.time}〜) がまもなく始まります！`);
                         sch.notified10MinBefore = true;
                     }
                 }
@@ -766,12 +759,13 @@
             localStorage.setItem('hashimoto_notifications', JSON.stringify(notifications));
             updateNotificationBadge();
 
+            // ブラウザプッシュ通知
             if ("Notification" in window && Notification.permission === "granted") {
                 new Notification(title, { body: message });
             }
         }
 
-        // --- 予約・購入管理 ---
+        // --- 予約・購入管理モーダル ---
         function openBookingModal(scheduleId) {
             const sch = schedules.find(s => s.id === scheduleId);
             if (!sch) return;
@@ -802,7 +796,7 @@
             renderSchedules();
         }
 
-        // --- 管理者モード ---
+        // --- 管理者モード・データ編集関連 ---
         function openAuthModal() {
             if (isAdmin) {
                 if (confirm('管理者モードをログアウトしますか？')) {
@@ -839,7 +833,7 @@
             }
         }
 
-        // スケジュール追加・編集
+        // スケジュール追加・編集モーダル
         function openScheduleModal() {
             document.getElementById('scheduleModalTitle').innerText = 'スケジュール新規追加';
             document.getElementById('editScheduleId').value = '';
@@ -908,7 +902,7 @@
             }
         }
 
-        // プロフィール編集
+        // プロフィール編集モーダル
         function openProfileEditModal() {
             document.getElementById('editImage').value = profileData.image;
             document.getElementById('editBio').value = profileData.bio;
@@ -958,6 +952,7 @@
             profileData.hobby = document.getElementById('editHobby').value;
             profileData.skill = document.getElementById('editSkill').value;
 
+            // リンク情報の回収
             const titleInputs = document.querySelectorAll('.link-title-input');
             const urlInputs = document.querySelectorAll('.link-url-input');
             const newLinks = [];
