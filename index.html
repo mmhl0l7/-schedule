@@ -655,8 +655,8 @@
 
   document.getElementById("month-display").textContent = `${currentYear}年${currentMonth + 1}月`;
 
-  // ページ読み込み時に自動でくるくる回して更新する処理
-  window.addEventListener('load', () => {
+  // アプリの初期化と自動更新処理（pageshow対応）
+  function initApp() {
     const btn = document.getElementById("reload-btn");
     if (btn) {
       btn.classList.add("spinning");
@@ -671,6 +671,16 @@
     updateFormVisibilityBytype();
     updateTodayTopic();
     updateNotificationDot();
+    render();
+  }
+
+  window.addEventListener('load', initApp);
+  
+  // スマホのホーム画面から開いたとき（BFキャッシュからの復元時）に対応
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+      initApp();
+    }
   });
 
   function forceReloadApp() {
@@ -685,7 +695,6 @@
     if (window.caches) {
       caches.keys().then(names => { names.forEach(name => { caches.delete(name); }); });
     }
-    // 少しアニメーションを見せてからリロード
     setTimeout(() => {
       window.location.reload(true);
     }, 400);
@@ -1316,7 +1325,6 @@
   }
 
   document.getElementById("input-date").value = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
-  render();
 </script>
 
 </body>
