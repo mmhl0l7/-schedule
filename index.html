@@ -21,7 +21,7 @@
       background-color: var(--pastel-base);
       margin: 0;
       padding: 10px;
-      padding-bottom: 80px; /* 固定ボタン用の余白 */
+      padding-bottom: 80px;
       color: #333;
     }
     .app-container {
@@ -99,9 +99,7 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
       transition: transform 0.5s ease;
     }
-    .icon-action-btn.spinning {
-      transform: rotate(360deg);
-    }
+    .icon-action-btn.spinning { transform: rotate(360deg); }
     
     .notification-status-badge { 
       background: #fff; 
@@ -198,7 +196,6 @@
     .submit-btn { background: var(--main-color); color: #fff; border: none; width: 100%; padding: 8px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 6px; }
     .cancel-edit-btn { background: #ccc; color: #fff; border: none; width: 100%; padding: 6px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 4px; font-size: 11px; }
 
-    /* 画面下部常時固定の新規追加ボタン */
     .floating-add-btn {
       display: none;
       position: fixed;
@@ -227,7 +224,6 @@
     .cal-event-title { background: var(--main-color); color: #fff; padding: 1px 3px; border-radius: 3px; margin-bottom: 2px; font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
     .no-data { text-align: center; color: #888; font-size: 12px; padding: 20px; background: #fff; border-radius: 12px; }
 
-    /* 通知パネル（右側ドロワー） */
     .notification-drawer-overlay {
       display: none;
       position: fixed;
@@ -289,7 +285,6 @@
       cursor: pointer;
     }
 
-    /* モーダル群 */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -464,12 +459,10 @@
   </div>
 </div>
 
-<!-- 管理者ログイン中の常時表示フローティング追加ボタン -->
 <button class="floating-add-btn" id="floating-add-btn" onclick="toggleFormFromFloating()">
   ＋ 新規スケジュール追加
 </button>
 
-<!-- 通知ドロワーパネル -->
 <div class="notification-drawer-overlay" id="notif-drawer" onclick="closeNotificationDrawer(event)">
   <div class="notification-drawer" onclick="event.stopPropagation()">
     <div class="notif-header-row">
@@ -483,7 +476,6 @@
   </div>
 </div>
 
-<!-- カレンダー詳細ポップアップモーダル -->
 <div class="modal-overlay" id="cal-modal" onclick="closeCalendarModal(event)">
   <div class="modal-content" onclick="event.stopPropagation()">
     <div class="modal-header-row">
@@ -494,7 +486,6 @@
   </div>
 </div>
 
-<!-- 管理ステータス詳細管理モーダル -->
 <div class="modal-overlay" id="manage-modal" onclick="closeManageModal(event)">
   <div class="modal-content" onclick="event.stopPropagation()">
     <div class="manage-modal-title-area">
@@ -538,7 +529,6 @@
   let currentStatusFilters = ["すべて"];
   let currentViewMode = "list";
   
-  // sessionStorage を使ってブラウザを閉じるまで（またはログアウトまで）ログイン状態を保持
   let isAdminLoggedIn = sessionStorage.getItem("masaki_admin_logged_in") === "true";
 
   let activeManageItemId = null;
@@ -837,7 +827,7 @@
     container.innerHTML = "";
     let statuses = ["すべて"];
     if (currentMainType === "MAGAZINE") {
-      statuses.push("予約受付中", "表紙", "発売中", "重版");
+      statuses.push("予約受付中", "表紙", "発売中", "重版", "誕生日");
     } else {
       statuses.push("放送予定", "レギュラー", "ゲスト出演");
     }
@@ -857,7 +847,7 @@
     if (!statusContainer) return;
     
     statusContainer.innerHTML = "";
-    let options = targetType === "MAGAZINE" ? ["予約受付中", "表紙", "発売中", "重版"] : ["放送予定", "ゲスト出演", "レギュラー"];
+    let options = targetType === "MAGAZINE" ? ["予約受付中", "表紙", "発売中", "重版", "誕生日"] : ["放送予定", "ゲスト出演", "レギュラー"];
     let selectedArr = Array.isArray(selectedStatuses) ? selectedStatuses : [selectedStatuses];
 
     options.forEach(opt => {
@@ -1227,16 +1217,19 @@
   }
 
   function createCardHtml(item) {
-    // 出演番組タブ（PROGRAM）のときは「購入・予約管理ボタン」を表示しないようにする
     let purchaseHtml = "";
-    if (item.type === "MAGAZINE") {
+    // MAGAZINEタブであっても、「誕生日」ステータスが含まれている、またはタイトルに「誕生日」や「HBD」を含む場合は予約購入マークを出さないようにする
+    let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
+    let isBirthday = itemStatuses.includes("誕生日") || item.title.includes("誕生日") || item.title.includes("HBD");
+
+    if (item.type === "MAGAZINE" && !isBirthday) {
       let checkedCount = (item.reservations || []).filter(r => r.checked).length;
       let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 予約/購入管理";
       let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
       purchaseHtml = `<button class="${purchaseClass}" onclick="event.stopPropagation(); openManageModal(${item.id})">${purchaseText}</button>`;
     }
 
-    let statusTagsHtml = (Array.isArray(item.status) ? item.status : [item.status]).map(st => `<span class="member-tag">${st}</span>`).join(" ");
+    let statusTagsHtml = itemStatuses.map(st => `<span class="member-tag">${st}</span>`).join(" ");
     let linksHtml = (item.links || []).map(l => `<a href="${l.url}" target="_blank" class="item-link-chip" onclick="event.stopPropagation()">${l.name}</a>`).join(" ");
 
     return `
