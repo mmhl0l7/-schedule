@@ -128,7 +128,6 @@
     .type-tab { flex: 1; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: bold; color: #880e4f; border-radius: 20px; cursor: pointer; background: transparent; border: none; white-space: nowrap; }
     .type-tab.active { background: #ffffff; color: var(--deep-color); box-shadow: 0 2px 6px rgba(216, 27, 96, 0.2); }
 
-    /* 「ココまさき」タブ用の月別アコーディオンカード（角丸の白いボックス） */
     .month-accordion-card {
       background: #ffffff;
       border: 1px solid var(--border-color);
@@ -432,7 +431,6 @@
     <button class="cancel-edit-btn" onclick="document.getElementById('profile-form').style.display='none'">キャンセル</button>
   </div>
 
-  <!-- メインのタブ切り替え（「ココまさき」に変更） -->
   <div class="type-tabs">
     <button class="type-tab active" id="tab-magazine" onclick="switchMainType('MAGAZINE')">MAGAZINE</button>
     <button class="type-tab" id="tab-program" onclick="switchMainType('PROGRAM')">番組/映画</button>
@@ -641,11 +639,13 @@
     updateNotificationDot();
   }
 
-  function addNotification(title) {
+  // 修正: 通知追加時に紐づくアイテムのIDを保存するように変更
+  function addNotification(itemId, title) {
     const now = new Date();
     const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     notificationsData.unshift({
       id: Date.now(),
+      itemId: itemId, // 紐づくスケジュールID
       time: timeStr,
       msg: `新しい予定が登録されました！ [🩷 ${title}]`,
       unread: true
@@ -699,15 +699,49 @@
           <span class="notif-card-time">${n.time}</span>
         </div>
         <div class="notif-card-msg">${n.msg}</div>
-        <button class="notif-detail-btn" onclick="jumpFromNotification()">詳細を見る</button>
+        <button class="notif-detail-btn" onclick="jumpFromNotification(${n.itemId})">詳細を見る</button>
       `;
       container.appendChild(card);
     });
   }
 
-  function jumpFromNotification() {
+  // 修正: 通知の「詳細を見る」を押したときのジャンプ・表示処理
+  function jumpFromNotification(itemId) {
     closeNotificationDrawerDirect();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // 該当するアイテムを探す
+    const item = itemsData.find(i => i.id === itemId);
+    if (!item) {
+      alert("該当するスケジュールが見つかりませんでした。");
+      return;
+    }
+
+    // 1. 該当アイテムのカテゴリタブに切り替える
+    switchMainType(item.type);
+
+    // 少し遅延させてDOM描画後に該当カードを開く処理を実行
+    setTimeout(() => {
+      // 2. リストビューに切り替え (カレンダービューだとカードが直接見えないため)
+      if (item.type !== "MASAKI") {
+        switchView('list');
+      }
+
+      // 3. 該当カードの詳細（アコーディオン）を開く
+      const detailEl = document.getElementById(`item-detail-${item.id}`);
+      if (detailEl) {
+        detailEl.classList.add("open");
+      }
+
+      // 4. 月別アコーディオン（ココまさきタブなど）の場合、親カードが開くようにする
+      let cardEl = document.getElementById(`item-detail-${item.id}`);
+      if (cardEl) {
+        let parentMonthCard = cardEl.closest('.month-accordion-card');
+        if (parentMonthCard) {
+          parentMonthCard.classList.add('open');
+        }
+        cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
   }
 
   window.addEventListener('load', () => {
@@ -839,7 +873,6 @@
     document.getElementById("tab-event").classList.toggle("active", type === "EVENT");
     document.getElementById("tab-masaki").classList.toggle("active", type === "MASAKI");
     
-    // ココまさきタブのときはカレンダー・リスト切替バーを非表示にする
     const viewBar = document.getElementById("view-mode-bar-area");
     if (type === "MASAKI") {
       viewBar.style.display = "none";
@@ -1212,11 +1245,13 @@
       }
       alert("更新しました！");
     } else {
+      const newId = Date.now();
       itemsData.push({ 
-        id: Date.now(), type, date, endDate: "", time: "20:00", title, desc, status, member: "橋本将生", links: parsedLinks, 
+        id: newId, type, date, endDate: "", time: "20:00", title, desc, status, member: "橋本将生", links: parsedLinks, 
         reservations: JSON.parse(JSON.stringify(defaultReservations))
       });
-      addNotification(title);
+      // 修正: 生成した新規IDを渡して通知を追加
+      addNotification(newId, title);
       alert("追加しました！ベルマークから通知を確認できます！");
     }
 
@@ -1243,10 +1278,8 @@
     let filtered = filterItems();
 
     if (currentMainType === "MASAKI") {
-      // ココまさきタブのときだけ月ごとのアコーディオンリストで表示
       renderMonthAccordionListView(filtered, container);
     } else {
-      // それ以外のタブ
       if (currentViewMode === "calendar") {
         renderCalendarView(filtered, container);
       } else {
@@ -1318,7 +1351,6 @@
     document.getElementById("admin-form").scrollIntoView({ behavior: 'smooth' });
   }
 
-  // 通常タブのリスト表示
   function renderNormalListView(data, container) {
     if (data.length === 0) {
       container.innerHTML = `<div class="no-data">該当する予定はありません</div>`;
@@ -1332,7 +1364,6 @@
     });
   }
 
-  // 「ココまさき」タブ専用の月別アコーディオンリスト表示
   function renderMonthAccordionListView(data, container) {
     if (data.length === 0) { 
       container.innerHTML = `<div class="no-data">該当する予定はありません</div>`; 
