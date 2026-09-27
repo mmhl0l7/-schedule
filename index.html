@@ -704,7 +704,6 @@
     });
   }
 
-  // 改善: itemIdが見つからない古い通知でも、通知メッセージ（タイトル）から該当カードを探せるように修正
   function jumpFromNotification(itemId, encodedMsg) {
     closeNotificationDrawerDirect();
     
@@ -713,11 +712,9 @@
       item = itemsData.find(i => i.id === itemId);
     }
 
-    // itemIdでヒットしない場合、メッセージに含まれるタイトル文字列から部分一致で探す
     if (!item && encodedMsg) {
       try {
         let msg = decodeURIComponent(encodedMsg);
-        // メッセージ形式: 新しい予定が登録されました！ [🩷 タイトル] からタイトル部分を抽出
         let match = msg.match(/\[🩷\s*(.*?)\]/);
         let targetTitle = match ? match[1] : msg;
         
@@ -730,7 +727,6 @@
       return;
     }
 
-    // 1. 該当アイテムのカテゴリタブに切り替える
     switchMainType(item.type);
 
     setTimeout(() => {
@@ -916,7 +912,7 @@
     container.innerHTML = "";
     let statuses = ["すべて"];
     if (currentMainType === "MAGAZINE") {
-      statuses.push("予約受付中", "表紙", "発売中", "重版", "CD発売", "CD予約中", "誕生日", "記念日");
+      statuses.push("予約受付中", "表紙", "発売中", "重版", "CD発売");
     } else if (currentMainType === "PROGRAM") {
       statuses.push("放送予定", "映画公開", "ゲスト出演", "レギュラー");
     } else if (currentMainType === "EVENT") {
@@ -943,7 +939,7 @@
     statusContainer.innerHTML = "";
     let options = [];
     if (targetType === "MAGAZINE") {
-      options = ["予約受付中", "表紙", "発売中", "重版", "CD発売", "CD予約中", "誕生日", "記念日"];
+      options = ["予約受付中", "表紙", "発売中", "重版", "CD発売"];
     } else if (targetType === "PROGRAM") {
       options = ["放送予定", "映画公開", "ゲスト出演", "レギュラー"];
     } else if (targetType === "EVENT") {
@@ -1300,9 +1296,8 @@
   function createCardHtml(item) {
     let purchaseHtml = "";
     let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
-    let isBirthday = itemStatuses.includes("誕生日") || item.title.includes("誕生日") || item.title.includes("HBD");
 
-    if (item.type === "MAGAZINE" && !isBirthday) {
+    if (item.type === "MAGAZINE") {
       let checkedCount = (item.reservations || []).filter(r => r.checked).length;
       let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 管理ステータス";
       let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
