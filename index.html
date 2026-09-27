@@ -834,7 +834,7 @@
     } else if (currentMainType === "PROGRAM") {
       statuses.push("放送予定", "映画公開", "ゲスト出演", "レギュラー");
     } else if (currentMainType === "EVENT") {
-      statuses.push("チケット受付中", "開催予定", "グッズ販売");
+      statuses.push("イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ");
     }
     
     statuses.forEach(st => {
@@ -859,7 +859,7 @@
     } else if (targetType === "PROGRAM") {
       options = ["放送予定", "映画公開", "ゲスト出演", "レギュラー"];
     } else if (targetType === "EVENT") {
-      options = ["チケット受付中", "開催予定", "グッズ販売"];
+      options = ["イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ"];
     }
 
     let selectedArr = Array.isArray(selectedStatuses) ? selectedStatuses : [selectedStatuses];
