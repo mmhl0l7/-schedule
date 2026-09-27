@@ -377,9 +377,11 @@
     .manage-save-btn { background: #4db6ac; color: #fff; border: none; width: 100%; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 14px; }
     .manage-clear-btn { background: #fff; color: #666; border: 1px solid #ccc; width: 100%; padding: 8px; border-radius: 12px; font-weight: bold; font-size: 12px; cursor: pointer; margin-top: 8px; }
 
+    /* 管理者ログインボタンを極限まで目立たないように（コピーライト風） */
     .footer-admin-area { text-align: center; margin: 30px 0 15px 0; }
-    .admin-footer-btn { background: none; border: none; color: #bbb; font-size: 10px; cursor: pointer; text-decoration: underline; padding: 5px; }
-    .admin-footer-btn.logged-in { color: var(--deep-color); font-weight: bold; text-decoration: none; }
+    .admin-footer-btn { background: none; border: none; color: #e8d0d8; font-size: 9px; cursor: pointer; text-decoration: none; padding: 5px; opacity: 0.6; }
+    .admin-footer-btn:hover { opacity: 1; }
+    .admin-footer-btn.logged-in { color: var(--deep-color); font-weight: bold; opacity: 1; text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -488,7 +490,7 @@
   <div id="content-area"></div>
 
   <div class="footer-admin-area">
-    <button class="admin-footer-btn" id="admin-toggle-btn" onclick="checkAdminAndToggleForm()">⚙️ 管理者ログイン</button>
+    <button class="admin-footer-btn" id="admin-toggle-btn" onclick="checkAdminAndToggleForm()">© Masaki Schedule</button>
   </div>
 </div>
 
@@ -1033,14 +1035,14 @@
 
     if (isAdminLoggedIn) {
       if (btn) {
-        btn.textContent = "⚙️ ログアウトする";
+        btn.textContent = "© Masaki Schedule (ログアウト)";
         btn.classList.add("logged-in");
       }
       if (floatingBtn) floatingBtn.classList.add("show");
       if (profileEditBtn) profileEditBtn.classList.add("show");
     } else {
       if (btn) {
-        btn.textContent = "⚙️ 管理者ログイン";
+        btn.textContent = "© Masaki Schedule";
         btn.classList.remove("logged-in");
       }
       if (floatingBtn) floatingBtn.classList.remove("show");
