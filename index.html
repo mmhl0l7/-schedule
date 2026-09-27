@@ -128,10 +128,43 @@
     .type-tab { flex: 1; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: bold; color: #880e4f; border-radius: 20px; cursor: pointer; background: transparent; border: none; white-space: nowrap; }
     .type-tab.active { background: #ffffff; color: var(--deep-color); box-shadow: 0 2px 6px rgba(216, 27, 96, 0.2); }
 
-    .month-nav-container { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
-    .month-nav { flex: 1; display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid var(--border-color); border-radius: 20px; padding: 6px 12px; font-weight: bold; color: var(--deep-color); }
-    .month-nav button { background: var(--tag-bg); border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; color: var(--deep-color); font-weight: bold; }
-    .today-jump-btn { background: #fff; border: 1px solid var(--main-color); color: var(--deep-color); padding: 0 14px; height: 36px; border-radius: 20px; font-size: 11px; font-weight: bold; cursor: pointer; }
+    /* 月別アコーディオンカード（画像のデザインを再現） */
+    .month-accordion-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      overflow: hidden;
+    }
+    .month-accordion-header {
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: bold;
+      color: #333;
+    }
+    .month-accordion-header::after {
+      content: "▾";
+      font-size: 14px;
+      color: #888;
+      transition: transform 0.2s;
+    }
+    .month-accordion-card.open .month-accordion-header::after {
+      transform: rotate(180deg);
+    }
+    .month-accordion-body {
+      display: none;
+      padding: 0 14px 14px 14px;
+      border-top: 1px dashed var(--border-color);
+    }
+    .month-accordion-card.open .month-accordion-body {
+      display: block;
+      padding-top: 12px;
+    }
 
     .filter-section { background: #fff; border: 1px solid var(--border-color); border-radius: 16px; padding: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; }
     .filter-row { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
@@ -146,12 +179,13 @@
     .item-card { 
       background: var(--card-bg); 
       border: 1px solid var(--border-color); 
-      border-radius: 16px; 
-      padding: 14px; 
-      margin-bottom: 12px; 
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      border-radius: 12px; 
+      padding: 12px; 
+      margin-bottom: 10px; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.01);
       position: relative;
     }
+    .item-card:last-child { margin-bottom: 0; }
     .item-summary-bar { cursor: pointer; }
     .item-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .item-date-text { font-size: 11px; font-weight: bold; color: var(--deep-color); background: var(--tag-bg); padding: 2px 8px; border-radius: 10px; display: inline-block; }
@@ -172,7 +206,7 @@
       border-color: #b7e1cd; 
     }
 
-    .item-title { font-size: 14px; font-weight: bold; color: #333; margin-bottom: 6px; }
+    .item-title { font-size: 13px; font-weight: bold; color: #333; margin-bottom: 6px; }
     .item-collapsible-detail { display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-color); }
     .item-collapsible-detail.open { display: block; }
     .item-content-desc { font-size: 11px; color: #555; margin-bottom: 8px; line-height: 1.4; white-space: pre-wrap; }
@@ -399,15 +433,6 @@
     <button class="type-tab" id="tab-event" onclick="switchMainType('EVENT')">イベント</button>
   </div>
 
-  <div class="month-nav-container">
-    <div class="month-nav">
-      <button onclick="changeMonth(-1)">&lt;</button>
-      <span id="month-display">2026年10月</span>
-      <button onclick="changeMonth(1)">&gt;</button>
-    </div>
-    <button class="today-jump-btn" onclick="jumpToCurrentMonth()">🔄 今月</button>
-  </div>
-
   <div class="filter-section">
     <div class="filter-row" id="member-filters">
       <button class="filter-pill active" onclick="toggleMemberFilter('すべて')">すべて</button>
@@ -523,9 +548,6 @@
 
 <script>
   const realNow = new Date();
-  let currentYear = realNow.getFullYear();
-  let currentMonth = realNow.getMonth();
-
   let currentMainType = "MAGAZINE";
   let currentMemberFilters = ["すべて"];
   let currentStatusFilters = ["すべて"];
@@ -545,21 +567,22 @@
       {
         category: "🎬 映画・出演",
         links: [
-          {name: "映画『お姉ちゃんの翠くん』公式", url: "https://movies.shochiku.co.jp/midorikun-movie/"}
+          {name: "映画『お姉ちゃんの翠くん』主演・雪代翠 役 (12/4公開)", url: "#"}
         ]
       },
       {
-        category: "🌟 アンバサダー",
+        category: "🌟 アンバサダー・CM",
         links: [
-          {name: "ジェルネイル『Gelee by Decorative Nail』", url: "https://x.com/geleebynail?s=21"},
-          {name: "森永乳業『クラフト フレッシュモッツァレラ』", url: "https://www.morinagamilk.co.jp/products/brand/mozzarella/harenohi/"}
+          {name: "ジェルネイル『Gelee by Decorative Nail』アンバサダー", url: "#"},
+          {name: "森永乳業『クラフト フレッシュモッツァレラ』アンバサダー", url: "#"}
         ]
       },
       {
         category: "📱 SNS・公式リンク",
         links: [
-          {name: "Instagram", url: "https://www.instagram.com/masaki.hashimoto.1017?stkn=MTZjemxhNmdhZTE3Ng=="},
-          {name: "FAMILY CLUB web (いまさっきのまさき)", url: "https://web.familyclub.jp/s/jwb/diary/F2033?ima=1904"}
+          {name: "Instagram", url: "https://instagram.com"},
+          {name: "FAMILY CLUB web (いまさっきのまさき)", url: "https://www.fc-web.com"},
+          {name: "X (旧Twitter)", url: "https://x.com"}
         ]
       }
     ]
@@ -670,10 +693,8 @@
 
   function jumpFromNotification() {
     closeNotificationDrawerDirect();
-    jumpToCurrentMonth();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-
-  document.getElementById("month-display").textContent = `${currentYear}年${currentMonth + 1}月`;
 
   window.addEventListener('load', () => {
     const btn = document.getElementById("reload-btn");
@@ -877,22 +898,6 @@
     });
   }
 
-  function changeMonth(dir) {
-    currentMonth += dir;
-    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-    else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-    document.getElementById("month-display").textContent = `${currentYear}年${currentMonth + 1}月`;
-    render();
-  }
-
-  function jumpToCurrentMonth() {
-    const now = new Date();
-    currentYear = now.getFullYear();
-    currentMonth = now.getMonth();
-    document.getElementById("month-display").textContent = `${currentYear}年${currentMonth + 1}月`;
-    render();
-  }
-
   function toggleMemberFilter(member) {
     if (member === "すべて") {
       currentMemberFilters = ["すべて"];
@@ -1020,7 +1025,9 @@
     document.getElementById("form-heading-text").textContent = "📖 スケジュール追加";
     document.getElementById("form-submit-btn").textContent = "登録する";
     document.getElementById("form-cancel-btn").style.display = "none";
-    document.getElementById("input-date").value = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+    
+    const now = new Date();
+    document.getElementById("input-date").value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
     document.getElementById("input-title").value = "";
     document.getElementById("input-desc").value = "";
     updateFormStatusOptions();
@@ -1039,6 +1046,11 @@
   function toggleItemDetail(id) {
     const detailEl = document.getElementById(`item-detail-${id}`);
     if (detailEl) detailEl.classList.toggle("open");
+  }
+
+  // 月別アコーディオンの開閉用
+  function toggleMonthAccordion(cardEl) {
+    cardEl.classList.toggle("open");
   }
 
   function openManageModal(id) {
@@ -1128,22 +1140,6 @@
     saveItemsToStorage();
     closeManageModalDirect();
     render();
-
-    const calModal = document.getElementById("cal-modal");
-    if (calModal.classList.contains("open") && activeCalendarDateStr) {
-      const refreshedEvents = itemsData.filter(item => {
-        if (item.type !== currentMainType) return false;
-        let itemDate = new Date(item.date);
-        if (itemDate.getFullYear() !== currentYear || itemDate.getMonth() !== currentMonth) return false;
-        if (!currentStatusFilters.includes("すべて")) {
-          let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
-          if (!currentStatusFilters.some(st => itemStatuses.includes(st))) return false;
-        }
-        return true;
-      }).filter(item => item.date === activeCalendarDateStr);
-
-      openCalendarModal(activeCalendarDateStr, refreshedEvents);
-    }
   }
 
   function clearAllReservations() {
@@ -1207,9 +1203,6 @@
   function filterItems() {
     return itemsData.filter(item => {
       if (item.type !== currentMainType) return false;
-      let itemDate = new Date(item.date);
-      if (itemDate.getFullYear() !== currentYear || itemDate.getMonth() !== currentMonth) return false;
-
       if (!currentStatusFilters.includes("すべて")) {
         let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
         if (!currentStatusFilters.some(st => itemStatuses.includes(st))) return false;
@@ -1222,10 +1215,11 @@
     const container = document.getElementById("content-area");
     container.innerHTML = "";
     let filtered = filterItems();
+
     if (currentViewMode === "calendar") {
       renderCalendarView(filtered, container);
     } else {
-      renderListView(filtered, container);
+      renderMonthAccordionListView(filtered, container);
     }
   }
 
@@ -1292,17 +1286,69 @@
     document.getElementById("admin-form").scrollIntoView({ behavior: 'smooth' });
   }
 
-  function renderListView(data, container) {
-    if (data.length === 0) { container.innerHTML = `<div class="no-data">該当する予定はありません</div>`; return; }
-    data.sort((a, b) => a.date.localeCompare(b.date));
+  // 画像のような「月ごとのアコーディオンリスト」として描画する関数
+  function renderMonthAccordionListView(data, container) {
+    if (data.length === { length: 0 }.length && data.length === 0) { 
+      container.innerHTML = `<div class="no-data">該当する予定はありません</div>`; 
+      return; 
+    }
+
+    // 予定を「YYYY年M月」のキーでグループ化する
+    let groups = {};
     data.forEach(item => {
-      let wrapper = document.createElement("div");
-      wrapper.innerHTML = createCardHtml(item);
-      container.appendChild(wrapper.firstElementChild);
+      let d = new Date(item.date);
+      if (isNaN(d)) return;
+      let y = d.getFullYear();
+      let m = d.getMonth() + 1;
+      let key = `${y}年${m}月`;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(item);
+    });
+
+    // キー（年月）を降順（新しい順：2026年8月、7月…の順）に並べ替え
+    let sortedKeys = Object.keys(groups).sort((a, b) => b.localeCompare(a, 'ja', { numeric: true }));
+
+    const now = new Date();
+    const currentMonthKey = `${now.getFullYear()}年${now.getMonth() + 1}月`;
+
+    sortedKeys.forEach(key => {
+      let monthItems = groups[key];
+      // 月内も日付順に並び替え
+      monthItems.sort((a, b) => a.date.localeCompare(b.date));
+
+      let card = document.createElement("div");
+      card.className = "month-accordion-card";
+      
+      // 今月のカードであればデフォルトで開いておく（他の月は閉じ状態）
+      if (key === currentMonthKey) {
+        card.classList.add("open");
+      }
+
+      let header = document.createElement("div");
+      header.className = "month-accordion-header";
+      header.textContent = key;
+      header.onclick = () => toggleMonthAccordion(card);
+      card.appendChild(header);
+
+      let body = document.createElement("div");
+      body.className = "month-accordion-body";
+
+      monthItems.forEach(item => {
+        let wrapper = document.createElement("div");
+        wrapper.innerHTML = createCardHtml(item);
+        body.appendChild(wrapper.firstElementChild);
+      });
+
+      card.appendChild(body);
+      container.appendChild(card);
     });
   }
 
   function renderCalendarView(data, container) {
+    const now = new Date();
+    let currentYear = now.getFullYear();
+    let currentMonth = now.getMonth();
+
     const calWrapper = document.createElement("div");
     calWrapper.className = "calendar-grid";
     ["日", "月", "火", "水", "木", "金", "土"].forEach(w => {
@@ -1387,7 +1433,8 @@
     document.getElementById("cal-modal").classList.remove("open");
   }
 
-  document.getElementById("input-date").value = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+  const nowInit = new Date();
+  document.getElementById("input-date").value = `${nowInit.getFullYear()}-${String(nowInit.getMonth() + 1).padStart(2, '0')}-01`;
   render();
 </script>
 
