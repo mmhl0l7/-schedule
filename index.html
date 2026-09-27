@@ -492,7 +492,7 @@
   <div class="modal-content" onclick="event.stopPropagation()">
     <div class="manage-modal-title-area">
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 14px; font-weight: bold; color: var(--deep-color);">予約先と数量を管理</span>
+        <span style="font-size: 14px; font-weight: bold; color: var(--deep-color);">管理ステータス</span>
         <button class="modal-close-btn" onclick="closeManageModalDirect()">×</button>
       </div>
       <div class="manage-modal-main-title" id="manage-modal-item-title">タイトル</div>
@@ -1237,7 +1237,7 @@
 
     if (item.type === "MAGAZINE" && !isBirthday) {
       let checkedCount = (item.reservations || []).filter(r => r.checked).length;
-      let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 予約/購入管理";
+      let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 管理ステータス";
       let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
       purchaseHtml = `<button class="${purchaseClass}" onclick="event.stopPropagation(); openManageModal(${item.id})">${purchaseText}</button>`;
     }
