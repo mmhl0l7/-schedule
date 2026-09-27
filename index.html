@@ -128,7 +128,7 @@
     .type-tab { flex: 1; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: bold; color: #880e4f; border-radius: 20px; cursor: pointer; background: transparent; border: none; white-space: nowrap; }
     .type-tab.active { background: #ffffff; color: var(--deep-color); box-shadow: 0 2px 6px rgba(216, 27, 96, 0.2); }
 
-    /* 「将生枠」タブ用の月別アコーディオンカード（角丸の白いボックス） */
+    /* 「ココまさき」タブ用の月別アコーディオンカード（角丸の白いボックス） */
     .month-accordion-card {
       background: #ffffff;
       border: 1px solid var(--border-color);
@@ -432,12 +432,12 @@
     <button class="cancel-edit-btn" onclick="document.getElementById('profile-form').style.display='none'">キャンセル</button>
   </div>
 
-  <!-- メインのタブ切り替え（ここに「将生枠」を追加） -->
+  <!-- メインのタブ切り替え（「ココまさき」に変更） -->
   <div class="type-tabs">
     <button class="type-tab active" id="tab-magazine" onclick="switchMainType('MAGAZINE')">MAGAZINE</button>
     <button class="type-tab" id="tab-program" onclick="switchMainType('PROGRAM')">番組/映画</button>
     <button class="type-tab" id="tab-event" onclick="switchMainType('EVENT')">イベント</button>
-    <button class="type-tab" id="tab-masaki" onclick="switchMainType('MASAKI')">将生枠</button>
+    <button class="type-tab" id="tab-masaki" onclick="switchMainType('MASAKI')">ココまさき</button>
   </div>
 
   <div class="filter-section">
@@ -473,7 +473,7 @@
         <option value="MAGAZINE">MAGAZINE</option>
         <option value="PROGRAM">番組/映画</option>
         <option value="EVENT">イベント</option>
-        <option value="MASAKI">将生枠</option>
+        <option value="MASAKI">ココまさき</option>
       </select>
     </div>
     <div class="form-group">
@@ -624,7 +624,7 @@
         reservations: JSON.parse(JSON.stringify(defaultReservations))
       },
       { 
-        id: 2, type: "MASAKI", date: "2026-08-15", endDate: "", time: "", title: "将生枠のサンプル記事・予定", desc: "ここに将生枠の予定が入ります。", status: ["話題・言及"], member: "橋本将生", 
+        id: 2, type: "MASAKI", date: "2026-08-15", endDate: "", time: "", title: "ココまさきのサンプル記事・予定", desc: "ここにココまさきの予定が入ります。", status: ["話題・言及"], member: "橋本将生", 
         links: [], 
         reservations: JSON.parse(JSON.stringify(defaultReservations))
       }
@@ -839,7 +839,7 @@
     document.getElementById("tab-event").classList.toggle("active", type === "EVENT");
     document.getElementById("tab-masaki").classList.toggle("active", type === "MASAKI");
     
-    // 将生枠タブのときはカレンダー・リスト切替バーを非表示にする（画像デザインに合わせるため）
+    // ココまさきタブのときはカレンダー・リスト切替バーを非表示にする
     const viewBar = document.getElementById("view-mode-bar-area");
     if (type === "MASAKI") {
       viewBar.style.display = "none";
@@ -1243,7 +1243,7 @@
     let filtered = filterItems();
 
     if (currentMainType === "MASAKI") {
-      // 将生枠タブのときだけ月ごとのアコーディオンリストで表示
+      // ココまさきタブのときだけ月ごとのアコーディオンリストで表示
       renderMonthAccordionListView(filtered, container);
     } else {
       // それ以外のタブ
@@ -1332,7 +1332,7 @@
     });
   }
 
-  // 「将生枠」タブ専用の月別アコーディオンリスト表示
+  // 「ココまさき」タブ専用の月別アコーディオンリスト表示
   function renderMonthAccordionListView(data, container) {
     if (data.length === 0) { 
       container.innerHTML = `<div class="no-data">該当する予定はありません</div>`; 
