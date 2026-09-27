@@ -433,11 +433,13 @@
     <button class="cancel-edit-btn" onclick="document.getElementById('profile-form').style.display='none'">キャンセル</button>
   </div>
 
-  <div class="type-tabs">
+  <!-- タブ領域（管理者ログイン時のみ「記念日/誕生日」タブが出現） -->
+  <div class="type-tabs" id="type-tabs-container">
     <button class="type-tab active" id="tab-magazine" onclick="switchMainType('MAGAZINE')">MAGAZINE</button>
     <button class="type-tab" id="tab-program" onclick="switchMainType('PROGRAM')">番組/映画</button>
     <button class="type-tab" id="tab-event" onclick="switchMainType('EVENT')">イベント</button>
     <button class="type-tab" id="tab-masaki" onclick="switchMainType('MASAKI')">ココまさき</button>
+    <!-- 管理者専用タブはJSで動的に追加されます -->
   </div>
 
   <div class="filter-section">
@@ -474,6 +476,7 @@
         <option value="PROGRAM">番組/映画</option>
         <option value="EVENT">イベント</option>
         <option value="MASAKI">ココまさき</option>
+        <!-- 管理者の場合のみ「記念日/誕生日」も選択肢に出す -->
       </select>
     </div>
     <div class="form-group">
@@ -630,6 +633,11 @@
       },
       { 
         id: 2, type: "MASAKI", date: "2026-08-15", endDate: "", time: "", title: "ココまさきのサンプル記事・予定", desc: "ここにココまさきの予定が入ります。", status: ["話題・言及"], member: "橋本将生", 
+        links: [], 
+        reservations: JSON.parse(JSON.stringify(defaultReservations))
+      },
+      { 
+        id: 3, type: "ANNIVERSARY", date: "2026-01-01", endDate: "", time: "", title: "記念日・誕生日サンプル（管理者専用）", desc: "この項目は管理者ログイン中のみ表示されます。", status: ["記念日"], member: "橋本将生", 
         links: [], 
         reservations: JSON.parse(JSON.stringify(defaultReservations))
       }
@@ -878,16 +886,50 @@
     alert("プロフィールを更新しました！");
   }
 
+  // タブの描画・切り替え（管理者ログイン時は「記念日/誕生日」タブも表示）
+  function renderTypeTabs() {
+    const tabsContainer = document.getElementById("type-tabs-container");
+    tabsContainer.innerHTML = `
+      <button class="type-tab ${currentMainType === 'MAGAZINE' ? 'active' : ''}" id="tab-magazine" onclick="switchMainType('MAGAZINE')">MAGAZINE</button>
+      <button class="type-tab ${currentMainType === 'PROGRAM' ? 'active' : ''}" id="tab-program" onclick="switchMainType('PROGRAM')">番組/映画</button>
+      <button class="type-tab ${currentMainType === 'EVENT' ? 'active' : ''}" id="tab-event" onclick="switchMainType('EVENT')">イベント</button>
+      <button class="type-tab ${currentMainType === 'MASAKI' ? 'active' : ''}" id="tab-masaki" onclick="switchMainType('MASAKI')">ココまさき</button>
+    `;
+
+    if (isAdminLoggedIn) {
+      let annivTab = document.createElement("button");
+      annivTab.className = `type-tab ${currentMainType === 'ANNIVERSARY' ? 'active' : ''}`;
+      annivTab.id = "tab-anniversary";
+      annivTab.textContent = "記念日/誕生日";
+      annivTab.onclick = () => switchMainType('ANNIVERSARY');
+      tabsContainer.appendChild(annivTab);
+    }
+  }
+
+  function updateFormSelectOptions() {
+    const select = document.getElementById("input-type");
+    if (!select) return;
+    
+    let optionsHtml = `
+      <option value="MAGAZINE">MAGAZINE</option>
+      <option value="PROGRAM">番組/映画</option>
+      <option value="EVENT">イベント</option>
+      <option value="MASAKI">ココまさき</option>
+    `;
+    if (isAdminLoggedIn) {
+      optionsHtml += `<option value="ANNIVERSARY">記念日/誕生日</option>`;
+    }
+    select.innerHTML = optionsHtml;
+    select.value = currentMainType;
+  }
+
   function switchMainType(type) {
     currentMainType = type;
     currentStatusFilters = ["すべて"];
-    document.getElementById("tab-magazine").classList.toggle("active", type === "MAGAZINE");
-    document.getElementById("tab-program").classList.toggle("active", type === "PROGRAM");
-    document.getElementById("tab-event").classList.toggle("active", type === "EVENT");
-    document.getElementById("tab-masaki").classList.toggle("active", type === "MASAKI");
+    renderTypeTabs();
     
     const viewBar = document.getElementById("view-mode-bar-area");
-    if (type === "MASAKI") {
+    if (type === "MASAKI" || type === "ANNIVERSARY") {
       viewBar.style.display = "none";
     } else {
       viewBar.style.display = "flex";
@@ -910,8 +952,8 @@
   function updateFormVisibilityBytype() {
     const typeSelect = document.getElementById("input-type");
     const targetType = typeSelect ? typeSelect.value : currentMainType;
-    document.getElementById("group-time").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI") ? "none" : "block";
-    document.getElementById("group-end-date").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI") ? "none" : "block";
+    document.getElementById("group-time").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI" || targetType === "ANNIVERSARY") ? "none" : "block";
+    document.getElementById("group-end-date").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI" || targetType === "ANNIVERSARY") ? "none" : "block";
   }
 
   function updateStatusFilterPills() {
@@ -926,6 +968,8 @@
       statuses.push("イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ");
     } else if (currentMainType === "MASAKI") {
       statuses.push("話題・言及", "YouTube", "SNS", "雑誌・WEB", "その他");
+    } else if (currentMainType === "ANNIVERSARY") {
+      statuses.push("記念日", "誕生日", "その他");
     }
     
     statuses.forEach(st => {
@@ -953,6 +997,8 @@
       options = ["イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ"];
     } else if (targetType === "MASAKI") {
       options = ["話題・言及", "YouTube", "SNS", "雑誌・WEB", "その他"];
+    } else if (targetType === "ANNIVERSARY") {
+      options = ["記念日", "誕生日", "その他"];
     }
 
     let selectedArr = Array.isArray(selectedStatuses) ? selectedStatuses : [selectedStatuses];
@@ -1053,12 +1099,17 @@
       if (floatingBtn) floatingBtn.classList.remove("show");
       if (profileEditBtn) profileEditBtn.classList.remove("show");
       document.getElementById("admin-form").style.display = "none";
+      // ログアウト時に管理専用タブが開いていた場合はMAGAZINEに戻す
+      if (currentMainType === "ANNIVERSARY") {
+        currentMainType = "MAGAZINE";
+      }
     }
+    renderTypeTabs();
+    updateFormSelectOptions();
   }
 
   // 隠しコマンド（3回連続タップ）の処理
   function handleSecretAdminTap() {
-    // すでにログイン中の場合は、1回タップでログアウト確認等のためにそのままトグルを許可する
     if (isAdminLoggedIn) {
       checkAndToggleForm();
       return;
@@ -1067,12 +1118,10 @@
     secretTapCount++;
     clearTimeout(secretTapTimer);
 
-    // 0.5秒以内に次のタップがなければカウントをリセット
     secretTapTimer = setTimeout(() => {
       secretTapCount = 0;
     }, 500);
 
-    // 3回連続タップされた場合のみ管理者機能へ
     if (secretTapCount >= 3) {
       secretTapCount = 0;
       clearTimeout(secretTapTimer);
@@ -1313,7 +1362,7 @@
     container.innerHTML = "";
     let filtered = filterItems();
 
-    if (currentMainType === "MASAKI") {
+    if (currentMainType === "MASAKI" || currentMainType === "ANNIVERSARY") {
       renderMonthAccordionListView(filtered, container);
     } else {
       if (currentViewMode === "calendar") {
