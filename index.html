@@ -629,7 +629,6 @@
 
   async function loadDataFromCloud() {
     try {
-      // キャッシュを完全にバイパスして最新を強制取得するためにタイムスタンプを付与
       const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest?_t=${Date.now()}`, {
         headers: { 'X-Master-Key': API_KEY },
         cache: 'no-store'
@@ -762,9 +761,18 @@
       return;
     }
 
+    // 予定の年月を自動でカレンダーに反映させる
+    if (item.date) {
+      let parts = item.date.split("-");
+      if (parts.length === 3) {
+        currentCalYear = parseInt(parts[0], 10);
+        currentCalMonth = parseInt(parts[1], 10) - 1;
+      }
+    }
+
     switchMainType(item.type);
     setTimeout(() => {
-      if (item.type !== "MASAKI") switchView('list');
+      if (item.type !== "MASAKI") switchView('calendar'); // カレンダー表示に切り替え
       const cardEl = document.getElementById(`item-detail-${item.id}`);
       if (cardEl) {
         cardEl.classList.add("open");
@@ -1334,6 +1342,7 @@
       if (repeat === "none") {
         expanded.push(item);
       } else if (repeat === "yearly") {
+        // 毎年同じ月日
         let m = baseDate.getMonth();
         let d = baseDate.getDate();
         let virtualDateStr = `${targetYear}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
@@ -1342,6 +1351,7 @@
         clone.date = virtualDateStr;
         expanded.push(clone);
       } else if (repeat === "monthly") {
+        // 毎月同じ日
         let d = baseDate.getDate();
         let lastDayOfTargetMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
         let actualDay = Math.min(d, lastDayOfTargetMonth);
@@ -1351,10 +1361,11 @@
         clone.date = virtualDateStr;
         expanded.push(clone);
       } else if (repeat === "weekly") {
+        // 毎週の曜日をその月に展開
         let baseDayOfWeek = baseDate.getDay();
         let curr = new Date(targetYear, targetMonth, 1);
         while (curr.getMonth() === targetMonth) {
-          if (curr.getDay() === baseDayOfWeek && curr >= new Date(item.date)) {
+          if (curr.getDay() === baseDayOfWeek) {
             let y = curr.getFullYear();
             let m = curr.getMonth();
             let d = curr.getDate();
