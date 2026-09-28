@@ -3,7 +3,7 @@ html_content = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ファン向けスケジュール管理</title>
+    <title>橋本将生 スケジュール管理</title>
     <style>
         :root {
             --primary-color: #6366f1;
@@ -73,13 +73,6 @@ html_content = """<!DOCTYPE html>
         button:hover {
             background-color: var(--primary-hover);
         }
-        .btn-secondary {
-            background-color: #64748b;
-            margin-top: 8px;
-        }
-        .btn-secondary:hover {
-            background-color: #475569;
-        }
         .schedule-item {
             background: #f1f5f9;
             padding: 12px;
@@ -130,7 +123,7 @@ html_content = """<!DOCTYPE html>
 </head>
 <body>
 
-    <h1>📅 ファン向けスケジュール管理</h1>
+    <h1>📅 橋本将生 スケジュール管理</h1>
 
     <!-- スケジュール追加フォーム -->
     <div class="card">
@@ -172,7 +165,7 @@ html_content = """<!DOCTYPE html>
     </div>
 
     <script>
-        const STORAGE_KEY = "fan_schedule_app_data";
+        const STORAGE_KEY = "hashimoto_masaki_schedule_app_data";
 
         // データの読み込み
         function loadSchedules() {
@@ -257,7 +250,7 @@ html_content = """<!DOCTYPE html>
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = "schedule_backup_" + new Date().toISOString().slice(0, 10) + ".json";
+            a.download = "hashimoto_masaki_schedule_backup_" + new Date().toISOString().slice(0, 10) + ".json";
             a.click();
             URL.revokeObjectURL(url);
         }
@@ -292,5 +285,5 @@ html_content = """<!DOCTYPE html>
 </html>
 """
 
-with open("fan_schedule_app.html", "w", encoding="utf-8") as f:
+with open("hashimoto_masaki_schedule.html", "w", encoding="utf-8") as f:
     f.write(html_content)
