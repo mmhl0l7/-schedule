@@ -629,12 +629,15 @@
 
   async function loadDataFromCloud() {
     try {
-      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-        headers: { 'X-Master-Key': API_KEY }
+      // キャッシュを完全にバイパスして最新を強制取得するためにタイムスタンプを付与
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest?_t=${Date.now()}`, {
+        headers: { 'X-Master-Key': API_KEY },
+        cache: 'no-store'
       });
       const json = await res.json();
       if (json.record) {
         itemsData = json.record;
+        localStorage.setItem("masaki_schedule_items", JSON.stringify(itemsData));
       }
     } catch (e) {
       console.error("クラウドからの読み込みに失敗しました。ローカルデータを使います", e);
@@ -773,12 +776,6 @@
   }
 
   window.addEventListener('load', () => {
-    const btn = document.getElementById("reload-btn");
-    if (btn) {
-      btn.classList.add("spinning");
-      setTimeout(() => { btn.classList.remove("spinning"); }, 600);
-    }
-
     applyAdminLoginStateUI();
     renderProfileCard();
     updateStatusFilterPills();
@@ -797,7 +794,7 @@
     if (window.caches) {
       caches.keys().then(names => { names.forEach(name => { caches.delete(name); }); });
     }
-    setTimeout(() => { loadDataFromCloud(); }, 400);
+    loadDataFromCloud();
   }
 
   function toggleProfileAccordion() {
@@ -1419,7 +1416,6 @@
     let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
     let isAnniversary = itemStatuses.includes("記念日") || itemStatuses.includes("誕生日");
 
-    // MAGAZINEかつ「記念日」「誕生日」以外の場合のみ管理ステータスボタンを表示する
     if (item.type === "MAGAZINE" && !isAnniversary) {
       let checkedCount = (item.reservations || []).filter(r => r.checked).length;
       let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 管理ステータス";
