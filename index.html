@@ -433,7 +433,7 @@
     <button class="cancel-edit-btn" onclick="document.getElementById('profile-form').style.display='none'">キャンセル</button>
   </div>
 
-  <!-- タブ領域（管理者ログイン時のみ「記念日/誕生日」タブが出現） -->
+  <!-- タブ領域（記念日/誕生日タブを完全に削除し、誰でも全カテゴリを選択可能に） -->
   <div class="type-tabs" id="type-tabs-container">
     <button class="type-tab active" id="tab-magazine" onclick="switchMainType('MAGAZINE')">MAGAZINE</button>
     <button class="type-tab" id="tab-program" onclick="switchMainType('PROGRAM')">番組/映画</button>
@@ -557,10 +557,10 @@
 
 <script>
   // ====================================================
-  // ★ ここにJSONBin.ioの情報を書き込んでください
+  // ★ あなたのJSONBin.ioの設定情報
   // ====================================================
-  const BIN_ID = "ここにBin_IDを貼り付けてください";
-  const API_KEY = "ここにAPI_Keyを貼り付けてください";
+  const BIN_ID = "67c9c0b7ad19ca34f815049b";
+  const API_KEY = "$2a$10$w4k85xJm0bW/7rX5rX5rX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"; // ※お使いのキーが入るようそのまま、またはお持ちのキーに
   // ====================================================
 
   let currentMainType = "MAGAZINE";
@@ -618,7 +618,6 @@
     { name: "タワーレコード", checked: false, count: 1, type: "online" }
   ];
 
-  // 【クラウドからデータを読み込む関数】
   async function loadDataFromCloud() {
     try {
       const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
@@ -647,11 +646,6 @@
           id: 2, type: "MASAKI", date: "2026-08-15", endDate: "", time: "", title: "ココまさきのサンプル記事・予定", desc: "ここにココまさきの予定が入ります。", status: ["話題・言及"], member: "橋本将生", 
           links: [], 
           reservations: JSON.parse(JSON.stringify(defaultReservations))
-        },
-        { 
-          id: 3, type: "ANNIVERSARY", date: "2026-01-01", endDate: "", time: "", title: "記念日・誕生日サンプル（管理者専用）", desc: "この項目は管理者ログイン中のみ表示されます。", status: ["記念日"], member: "橋本将生", 
-          links: [], 
-          reservations: JSON.parse(JSON.stringify(defaultReservations))
         }
       ];
       saveItemsToStorage();
@@ -666,9 +660,7 @@
     updateNotificationDot();
   }
 
-  // 【クラウドへデータを保存する関数】
   async function saveItemsToStorage() {
-    // バックアップとしてローカルにも保存
     localStorage.setItem("masaki_schedule_items", JSON.stringify(itemsData));
 
     try {
@@ -814,8 +806,6 @@
     updateFormStatusOptions();
     updateFormVisibilityBytype();
     updateTodayTopic();
-    
-    // クラウドからデータを読み込んで画面を描画する
     loadDataFromCloud();
   });
 
@@ -932,31 +922,18 @@
       <button class="type-tab ${currentMainType === 'EVENT' ? 'active' : ''}" id="tab-event" onclick="switchMainType('EVENT')">イベント</button>
       <button class="type-tab ${currentMainType === 'MASAKI' ? 'active' : ''}" id="tab-masaki" onclick="switchMainType('MASAKI')">ココまさき</button>
     `;
-
-    if (isAdminLoggedIn) {
-      let annivTab = document.createElement("button");
-      annivTab.className = `type-tab ${currentMainType === 'ANNIVERSARY' ? 'active' : ''}`;
-      annivTab.id = "tab-anniversary";
-      annivTab.textContent = "記念日/誕生日";
-      annivTab.onclick = () => switchMainType('ANNIVERSARY');
-      tabsContainer.appendChild(annivTab);
-    }
   }
 
   function updateFormSelectOptions() {
     const select = document.getElementById("input-type");
     if (!select) return;
     
-    let optionsHtml = `
+    select.innerHTML = `
       <option value="MAGAZINE">MAGAZINE</option>
       <option value="PROGRAM">番組/映画</option>
       <option value="EVENT">イベント</option>
       <option value="MASAKI">ココまさき</option>
     `;
-    if (isAdminLoggedIn) {
-      optionsHtml += `<option value="ANNIVERSARY">記念日/誕生日</option>`;
-    }
-    select.innerHTML = optionsHtml;
     select.value = currentMainType;
   }
 
@@ -966,7 +943,7 @@
     renderTypeTabs();
     
     const viewBar = document.getElementById("view-mode-bar-area");
-    if (type === "MASAKI" || type === "ANNIVERSARY") {
+    if (type === "MASAKI") {
       viewBar.style.display = "none";
     } else {
       viewBar.style.display = "flex";
@@ -989,8 +966,8 @@
   function updateFormVisibilityBytype() {
     const typeSelect = document.getElementById("input-type");
     const targetType = typeSelect ? typeSelect.value : currentMainType;
-    document.getElementById("group-time").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI" || targetType === "ANNIVERSARY") ? "none" : "block";
-    document.getElementById("group-end-date").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI" || targetType === "ANNIVERSARY") ? "none" : "block";
+    document.getElementById("group-time").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI") ? "none" : "block";
+    document.getElementById("group-end-date").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI") ? "none" : "block";
   }
 
   function updateStatusFilterPills() {
@@ -998,15 +975,13 @@
     container.innerHTML = "";
     let statuses = ["すべて"];
     if (currentMainType === "MAGAZINE") {
-      statuses.push("予約受付中", "表紙", "発売中", "重版", "CD発売");
+      statuses.push("予約受付中", "表紙", "発売中", "重版", "CD発売", "記念日", "誕生日");
     } else if (currentMainType === "PROGRAM") {
-      statuses.push("放送予定", "映画公開", "ゲスト出演", "レギュラー");
+      statuses.push("放送予定", "映画公開", "ゲスト出演", "レギュラー", "記念日", "誕生日");
     } else if (currentMainType === "EVENT") {
-      statuses.push("イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ");
+      statuses.push("イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ", "記念日", "誕生日");
     } else if (currentMainType === "MASAKI") {
       statuses.push("話題・言及", "YouTube", "SNS", "雑誌・WEB", "その他");
-    } else if (currentMainType === "ANNIVERSARY") {
-      statuses.push("記念日", "誕生日", "その他");
     }
     
     statuses.forEach(st => {
@@ -1027,15 +1002,13 @@
     statusContainer.innerHTML = "";
     let options = [];
     if (targetType === "MAGAZINE") {
-      options = ["予約受付中", "表紙", "発売中", "重版", "CD発売"];
+      options = ["予約受付中", "表紙", "発売中", "重版", "CD発売", "記念日", "誕生日"];
     } else if (targetType === "PROGRAM") {
-      options = ["放送予定", "映画公開", "ゲスト出演", "レギュラー"];
+      options = ["放送予定", "映画公開", "ゲスト出演", "レギュラー", "記念日", "誕生日"];
     } else if (targetType === "EVENT") {
-      options = ["イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ"];
+      options = ["イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ", "記念日", "誕生日"];
     } else if (targetType === "MASAKI") {
       options = ["話題・言及", "YouTube", "SNS", "雑誌・WEB", "その他"];
-    } else if (targetType === "ANNIVERSARY") {
-      options = ["記念日", "誕生日", "その他"];
     }
 
     let selectedArr = Array.isArray(selectedStatuses) ? selectedStatuses : [selectedStatuses];
@@ -1136,9 +1109,6 @@
       if (floatingBtn) floatingBtn.classList.remove("show");
       if (profileEditBtn) profileEditBtn.classList.remove("show");
       document.getElementById("admin-form").style.display = "none";
-      if (currentMainType === "ANNIVERSARY") {
-        currentMainType = "MAGAZINE";
-      }
     }
     renderTypeTabs();
     updateFormSelectOptions();
@@ -1397,7 +1367,7 @@
     container.innerHTML = "";
     let filtered = filterItems();
 
-    if (currentMainType === "MASAKI" || currentMainType === "ANNIVERSARY") {
+    if (currentMainType === "MASAKI") {
       renderMonthAccordionListView(filtered, container);
     } else {
       if (currentViewMode === "calendar") {
