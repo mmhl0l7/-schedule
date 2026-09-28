@@ -439,7 +439,6 @@
     <button class="type-tab" id="tab-program" onclick="switchMainType('PROGRAM')">番組/映画</button>
     <button class="type-tab" id="tab-event" onclick="switchMainType('EVENT')">イベント</button>
     <button class="type-tab" id="tab-masaki" onclick="switchMainType('MASAKI')">ココまさき</button>
-    <!-- 管理者専用タブはJSで動的に追加されます -->
   </div>
 
   <div class="filter-section">
@@ -476,7 +475,6 @@
         <option value="PROGRAM">番組/映画</option>
         <option value="EVENT">イベント</option>
         <option value="MASAKI">ココまさき</option>
-        <!-- 管理者の場合のみ「記念日/誕生日」も選択肢に出す -->
       </select>
     </div>
     <div class="form-group">
@@ -493,7 +491,6 @@
   <div id="content-area"></div>
 
   <div class="footer-admin-area">
-    <!-- 3回連続タップ（隠しコマンド）でログイン判定を行う -->
     <button class="admin-footer-btn" id="admin-toggle-btn" onclick="handleSecretAdminTap()">© Masaki Schedule</button>
   </div>
 </div>
@@ -559,6 +556,13 @@
 </div>
 
 <script>
+  // ====================================================
+  // ★ ここにJSONBin.ioの情報を書き込んでください
+  // ====================================================
+  const BIN_ID = "ここにBin_IDを貼り付けてください";
+  const API_KEY = "ここにAPI_Keyを貼り付けてください";
+  // ====================================================
+
   let currentMainType = "MAGAZINE";
   let currentMemberFilters = ["すべて"];
   let currentStatusFilters = ["すべて"];
@@ -568,7 +572,6 @@
   
   let isAdminLoggedIn = sessionStorage.getItem("masaki_admin_logged_in") === "true";
 
-  // 隠しコマンド（3回連続タップ用）の変数
   let secretTapCount = 0;
   let secretTapTimer = null;
 
@@ -606,16 +609,7 @@
   };
 
   let itemsData = [];
-  const savedItems = localStorage.getItem("masaki_schedule_items");
-  if (savedItems) {
-    try { itemsData = JSON.parse(savedItems); } catch (e) { itemsData = []; }
-  }
-
   let notificationsData = [];
-  const savedNotifs = localStorage.getItem("masaki_schedule_notifications");
-  if (savedNotifs) {
-    try { notificationsData = JSON.parse(savedNotifs); } catch (e) { notificationsData = []; }
-  }
 
   const defaultReservations = [
     { name: "Amazon", checked: false, count: 1, type: "online" },
@@ -624,29 +618,71 @@
     { name: "タワーレコード", checked: false, count: 1, type: "online" }
   ];
 
-  if (itemsData.length === 0) {
-    itemsData = [
-      { 
-        id: 1, type: "MAGAZINE", date: "2026-10-01", endDate: "", time: "", title: "J Movie Magazine Vol.135 (表紙)", desc: "【新作現場リポート】\n橋本将生 『お姉ちゃんの翠くん』", status: ["予約受付中", "表紙"], member: "橋本将生", 
-        links: [{name: "Amazon", url: "https://amazon.co.jp"}], 
-        reservations: JSON.parse(JSON.stringify(defaultReservations))
-      },
-      { 
-        id: 2, type: "MASAKI", date: "2026-08-15", endDate: "", time: "", title: "ココまさきのサンプル記事・予定", desc: "ここにココまさきの予定が入ります。", status: ["話題・言及"], member: "橋本将生", 
-        links: [], 
-        reservations: JSON.parse(JSON.stringify(defaultReservations))
-      },
-      { 
-        id: 3, type: "ANNIVERSARY", date: "2026-01-01", endDate: "", time: "", title: "記念日・誕生日サンプル（管理者専用）", desc: "この項目は管理者ログイン中のみ表示されます。", status: ["記念日"], member: "橋本将生", 
-        links: [], 
-        reservations: JSON.parse(JSON.stringify(defaultReservations))
+  // 【クラウドからデータを読み込む関数】
+  async function loadDataFromCloud() {
+    try {
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+        headers: { 'X-Master-Key': API_KEY }
+      });
+      const json = await res.json();
+      if (json.record) {
+        itemsData = json.record;
       }
-    ];
-    saveItemsToStorage();
+    } catch (e) {
+      console.error("クラウドからの読み込みに失敗しました。ローカルデータを使います", e);
+      const savedItems = localStorage.getItem("masaki_schedule_items");
+      if (savedItems) {
+        try { itemsData = JSON.parse(savedItems); } catch (e) { itemsData = []; }
+      }
+    }
+
+    if (itemsData.length === 0) {
+      itemsData = [
+        { 
+          id: 1, type: "MAGAZINE", date: "2026-10-01", endDate: "", time: "", title: "J Movie Magazine Vol.135 (表紙)", desc: "【新作現場リポート】\n橋本将生 『お姉ちゃんの翠くん』", status: ["予約受付中", "表紙"], member: "橋本将生", 
+          links: [{name: "Amazon", url: "https://amazon.co.jp"}], 
+          reservations: JSON.parse(JSON.stringify(defaultReservations))
+        },
+        { 
+          id: 2, type: "MASAKI", date: "2026-08-15", endDate: "", time: "", title: "ココまさきのサンプル記事・予定", desc: "ここにココまさきの予定が入ります。", status: ["話題・言及"], member: "橋本将生", 
+          links: [], 
+          reservations: JSON.parse(JSON.stringify(defaultReservations))
+        },
+        { 
+          id: 3, type: "ANNIVERSARY", date: "2026-01-01", endDate: "", time: "", title: "記念日・誕生日サンプル（管理者専用）", desc: "この項目は管理者ログイン中のみ表示されます。", status: ["記念日"], member: "橋本将生", 
+          links: [], 
+          reservations: JSON.parse(JSON.stringify(defaultReservations))
+        }
+      ];
+      saveItemsToStorage();
+    }
+
+    const savedNotifs = localStorage.getItem("masaki_schedule_notifications");
+    if (savedNotifs) {
+      try { notificationsData = JSON.parse(savedNotifs); } catch (e) { notificationsData = []; }
+    }
+
+    render();
+    updateNotificationDot();
   }
 
-  function saveItemsToStorage() {
+  // 【クラウドへデータを保存する関数】
+  async function saveItemsToStorage() {
+    // バックアップとしてローカルにも保存
     localStorage.setItem("masaki_schedule_items", JSON.stringify(itemsData));
+
+    try {
+      await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': API_KEY
+        },
+        body: JSON.stringify(itemsData)
+      });
+    } catch (e) {
+      console.error("クラウドへの保存に失敗しました", e);
+    }
   }
 
   function saveNotificationsToStorage() {
@@ -778,7 +814,9 @@
     updateFormStatusOptions();
     updateFormVisibilityBytype();
     updateTodayTopic();
-    updateNotificationDot();
+    
+    // クラウドからデータを読み込んで画面を描画する
+    loadDataFromCloud();
   });
 
   function forceReloadApp() {
@@ -791,7 +829,7 @@
     if (window.caches) {
       caches.keys().then(names => { names.forEach(name => { caches.delete(name); }); });
     }
-    setTimeout(() => { window.location.reload(true); }, 400);
+    setTimeout(() => { loadDataFromCloud(); }, 400);
   }
 
   function toggleProfileAccordion() {
@@ -886,7 +924,6 @@
     alert("プロフィールを更新しました！");
   }
 
-  // タブの描画・切り替え（管理者ログイン時は「記念日/誕生日」タブも表示）
   function renderTypeTabs() {
     const tabsContainer = document.getElementById("type-tabs-container");
     tabsContainer.innerHTML = `
@@ -1099,7 +1136,6 @@
       if (floatingBtn) floatingBtn.classList.remove("show");
       if (profileEditBtn) profileEditBtn.classList.remove("show");
       document.getElementById("admin-form").style.display = "none";
-      // ログアウト時に管理専用タブが開いていた場合はMAGAZINEに戻す
       if (currentMainType === "ANNIVERSARY") {
         currentMainType = "MAGAZINE";
       }
@@ -1108,7 +1144,6 @@
     updateFormSelectOptions();
   }
 
-  // 隠しコマンド（3回連続タップ）の処理
   function handleSecretAdminTap() {
     if (isAdminLoggedIn) {
       checkAndToggleForm();
@@ -1619,7 +1654,6 @@
 
   const nowInit = new Date();
   document.getElementById("input-date").value = `${nowInit.getFullYear()}-${String(nowInit.getMonth() + 1).padStart(2, '0')}-01`;
-  render();
 </script>
 
 </body>
