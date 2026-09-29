@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>橋本将生 (Masaki Hashimoto) プロフィール＆関連リンクまとめ</title>
+    <title>橋本将生 Schedule</title>
     <style>
         :root {
             --primary-color: #ff69b4;
@@ -20,7 +20,7 @@
             color: var(--text-color);
             margin: 0;
             padding: 10px;
-            padding-bottom: 80px;
+            padding-bottom: 90px;
         }
         .container {
             max-width: 600px;
@@ -53,6 +53,7 @@
             font-weight: bold;
             margin-bottom: 12px;
             box-shadow: 0 2px 8px rgba(255,105,180,0.2);
+            font-size: 14px;
         }
         .profile-card {
             background: var(--white);
@@ -202,24 +203,67 @@
             border: none;
             z-index: 100;
         }
-        .sync-notice {
-            font-size: 11px;
-            color: #666;
-            background: #fff;
-            padding: 6px 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
+        /* カレンダー固有のスタイル */
+        .calendar-container {
+            background: var(--white);
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(255,105,180,0.15);
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+        .calendar-day-header {
             text-align: center;
-            border: 1px dashed var(--primary-light);
+            font-size: 12px;
+            color: var(--gray);
+            padding: 4px 0;
+        }
+        .calendar-cell {
+            min-height: 60px;
+            border: 1px solid #f0f0f0;
+            border-radius: 8px;
+            padding: 4px;
+            font-size: 11px;
+            background: var(--white);
+            vertical-align: top;
+        }
+        .calendar-cell.other-month {
+            opacity: 0.3;
+        }
+        .calendar-date-num {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .calendar-event {
+            background: var(--primary-light);
+            color: #d14786;
+            font-size: 9px;
+            padding: 1px 3px;
+            border-radius: 4px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <button onclick="loadData()" style="background:none; border:none; font-size:18px; cursor:pointer;">🔄</button>
+            <button onclick="loadData()" style="background:none; border:none; font-size:16px; cursor:pointer;">🔄</button>
             <h1>💖 橋本将生 Schedule</h1>
-            <button onclick="toggleNotification()" style="background:none; border:none; font-size:14px; cursor:pointer;">🔔 通知</button>
+            <button onclick="alert('通知機能はONです')" style="background:none; border:none; font-size:13px; cursor:pointer; color:var(--primary-color); font-weight:bold;">🔔 通知</button>
         </header>
 
         <div class="countdown-banner" id="countdownBanner">
@@ -229,10 +273,6 @@
         <div class="profile-card">
             <h3>橋本将生 (Masaki Hashimoto)</h3>
             <p style="font-size: 13px; color: var(--gray);">プロフィール＆関連リンクまとめ</p>
-        </div>
-
-        <div class="sync-notice">
-            🌐 共有リンク同期対応版（ここで追加・編集すると全員の画面に反映されます）
         </div>
 
         <div class="tab-menu">
@@ -261,8 +301,8 @@
             <button class="tab-btn" id="calBtn" onclick="switchView('calendar')">カレンダー</button>
         </div>
 
-        <div class="schedule-list" id="scheduleList">
-            <!-- データ表示エリア -->
+        <div id="mainContent">
+            <!-- リストまたはカレンダーがここに表示されます -->
         </div>
 
         <div class="form-box" id="formBox">
@@ -299,10 +339,8 @@
     </div>
 
     <script>
-        // 完全同期用のクラウドストレージ（公開ストレージAPI）
-        const STORAGE_KEY = "masaki_schedule_global_data_v2";
+        const STORAGE_KEY = "masaki_schedule_global_data_v3";
         
-        // 初期データ（ここで10/17の誕生日やサンプルを設定）
         let schedules = [
             { date: "2026-10-17", title: "誕生日・記念日サンプル", desc: "お祝いの予定です", category: "MAGAZINE", status: ["誕生日", "記念日"] },
             { date: "2026-12-04", title: "映画『お姉ちゃんの翠くん』公開", desc: "公開初日！", category: "番組/映画", status: ["予約受付中"] }
@@ -311,60 +349,131 @@
         let currentTab = "ALL";
         let currentStatus = "all";
         let currentView = "list";
+        let calYear = 2026;
+        let calMonth = 9; // 0始まり (9=10月)
 
-        // 起動時にデータをクラウドから読み込む
-        async function loadData() {
+        function loadData() {
             try {
                 const saved = localStorage.getItem(STORAGE_KEY);
                 if (saved) {
                     schedules = JSON.parse(saved);
                 }
             } catch(e) {}
-            renderSchedules();
+            render();
             updateCountdown();
         }
 
-        function renderSchedules() {
-            const list = document.getElementById("scheduleList");
-            list.innerHTML = "";
+        function render() {
+            if (currentView === 'list') {
+                renderList();
+            } else {
+                renderCalendar();
+            }
+            updateCountdown();
+        }
 
+        function renderList() {
+            let html = '<div class="schedule-list">';
             let filtered = schedules.filter(item => {
                 let matchTab = (currentTab === "ALL" || item.category === currentTab);
                 let matchStatus = (currentStatus === "all" || (item.status && item.status.includes(currentStatus)));
                 return matchTab && matchStatus;
             });
 
-            // 日付順に並び替え
             filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
 
             if (filtered.length === 0) {
-                list.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">スケジュールがありません</div>`;
-                return;
+                html += `<div style="text-align:center; padding:20px; color:#888;">スケジュールがありません</div>`;
+            } else {
+                filtered.forEach((item) => {
+                    let actualIndex = schedules.indexOf(item);
+                    let tagsHtml = "";
+                    if (item.status && Array.isArray(item.status)) {
+                        tagsHtml = item.status.map(s => `<span class="tag">${s}</span>`).join("");
+                    }
+
+                    html += `
+                        <div class="schedule-item">
+                            <div class="date">📅 ${item.date}</div>
+                            <div class="title">${item.title}</div>
+                            <div style="font-size: 13px; color: #555; margin-bottom: 6px;">${item.desc || ""}</div>
+                            <div class="tags">
+                                <span class="tag">${item.category || "MAGAZINE"}</span>
+                                ${tagsHtml}
+                            </div>
+                            <div class="actions">
+                                <button onclick="editItem(${actualIndex})">編集</button>
+                                <button class="btn-danger" onclick="deleteItem(${actualIndex})">削除</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            html += '</div>';
+            document.getElementById("mainContent").innerHTML = html;
+        }
+
+        function renderCalendar() {
+            let firstDay = new Date(calYear, calMonth, 1).getDay();
+            let daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+            let html = `
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <button onclick="changeMonth(-1)">＜ 前の月</button>
+                        <span>${calYear}年${calMonth + 1}月</span>
+                        <button onclick="changeMonth(1)">次の月 ＞</button>
+                    </div>
+                    <div class="calendar-grid">
+                        <div class="calendar-day-header" style="color:red;">日</div>
+                        <div class="calendar-day-header">月</div>
+                        <div class="calendar-day-header">火</div>
+                        <div class="calendar-day-header">水</div>
+                        <div class="calendar-day-header">木</div>
+                        <div class="calendar-day-header">金</div>
+                        <div class="calendar-day-header" style="color:blue;">土</div>
+            `;
+
+            for (let i = 0; i < firstDay; i++) {
+                html += `<div class="calendar-cell other-month"></div>`;
             }
 
-            filtered.forEach((item, originalIndex) => {
-                let actualIndex = schedules.indexOf(item);
-                let tagsHtml = "";
-                if (item.status && Array.isArray(item.status)) {
-                    tagsHtml = item.status.map(s => `<span class="tag">${s}</span>`).join("");
-                }
+            for (let d = 1; d <= daysInMonth; d++) {
+                let mStr = String(calMonth + 1).padStart(2, '0');
+                let dStr = String(d).padStart(2, '0');
+                let dateStr = `${calYear}-${mStr}-${dStr}`;
 
-                list.innerHTML += `
-                    <div class="schedule-item">
-                        <div class="date">📅 ${item.date}</div>
-                        <div class="title">${item.title}</div>
-                        <div style="font-size: 13px; color: #555; margin-bottom: 6px;">${item.desc || ""}</div>
-                        <div class="tags">
-                            <span class="tag">${item.category || "MAGAZINE"}</span>
-                            ${tagsHtml}
-                        </div>
-                        <div class="actions">
-                            <button onclick="editItem(${actualIndex})">編集</button>
-                            <button class="btn-danger" onclick="deleteItem(${actualIndex})">削除</button>
-                        </div>
-                    </div>
-                `;
-            });
+                let dayEvents = schedules.filter(item => {
+                    let matchTab = (currentTab === "ALL" || item.category === currentTab);
+                    let matchStatus = (currentStatus === "all" || (item.status && item.status.includes(currentStatus)));
+                    return item.date === dateStr && matchTab && matchStatus;
+                });
+
+                html += `<div class="calendar-cell">
+                    <div class="calendar-date-num">${d}</div>`;
+                
+                dayEvents.forEach(ev => {
+                    let actualIndex = schedules.indexOf(ev);
+                    html += `<div class="calendar-event" onclick="editItem(${actualIndex})" title="${ev.title}">${ev.title}</div>`;
+                });
+
+                html += `</div>`;
+            }
+
+            html += `</div></div>`;
+            document.getElementById("mainContent").innerHTML = html;
+        }
+
+        function changeMonth(direction) {
+            calMonth += direction;
+            if (calMonth > 11) {
+                calMonth = 0;
+                calYear++;
+            } else if (calMonth < 0) {
+                calMonth = 11;
+                calYear--;
+            }
+            renderCalendar();
         }
 
         function switchTab(tab) {
@@ -376,7 +485,7 @@
                     btn.classList.remove("active");
                 }
             });
-            renderSchedules();
+            render();
         }
 
         function filterStatus(status) {
@@ -388,7 +497,7 @@
                     btn.classList.remove("active");
                 }
             });
-            renderSchedules();
+            render();
         }
 
         function switchView(view) {
@@ -400,7 +509,7 @@
                 document.getElementById('calBtn').classList.add('active');
                 document.getElementById('listBtn').classList.remove('active');
             }
-            renderSchedules();
+            render();
         }
 
         function openAddForm() {
@@ -463,21 +572,18 @@
                 schedules[index] = newItem;
             }
 
-            // クラウドストレージ（ローカルストレージと同期）に保存
             localStorage.setItem(STORAGE_KEY, JSON.stringify(schedules));
 
             closeForm();
-            renderSchedules();
-            updateCountdown();
-            alert("保存しました！他の人の画面にも自動で同期されます。");
+            render();
+            alert("保存しました！");
         }
 
         function deleteItem(index) {
             if (confirm("本当に削除しますか？")) {
                 schedules.splice(index, 1);
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(schedules));
-                renderSchedules();
-                updateCountdown();
+                render();
             }
         }
 
@@ -488,17 +594,12 @@
                 futureItems.sort((a, b) => new Date(a.date) - new Date(b.date));
                 const target = futureItems[0];
                 const diff = Math.ceil((new Date(target.date) - new Date()) / (1000 * 60 * 60 * 24));
-                banner.innerHTML = `✨ ${target.title} まで ああと ${diff} 日！ (${target.date.replace(/-/g, '/')})`;
+                banner.innerHTML = `✨ ${target.title} まで あと ${diff} 日！ (${target.date.replace(/-/g, '/')})`;
             } else {
                 banner.innerHTML = `✨ 予定はすべて終了しました`;
             }
         }
 
-        function toggleNotification() {
-            alert("通知機能はONになっています！");
-        }
-
-        // 初回ロード実行
         loadData();
     </script>
 </body>
