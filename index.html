@@ -383,6 +383,31 @@
     .admin-footer-btn:hover { opacity: 1; }
     .admin-footer-btn.logged-in { color: var(--deep-color); font-weight: bold; opacity: 1; text-decoration: underline; }
   </style>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCamtK5vM2iu5L2Iv4uUnqSOHmlYghC0k",
+    authDomain: "masaki-schedule.firebaseapp.com",
+    projectId: "masaki-schedule",
+    storageBucket: "masaki-schedule.firebasestorage.app",
+    messagingSenderId: "791504358903",
+    appId: "1:791504358903:web:29750bc06544b17296f2f2"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  console.log("Firebase connected!");
+</script>
 </head>
 <body>
 
