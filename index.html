@@ -583,8 +583,18 @@
   let currentCalYear = 2026;
   let currentCalMonth = 8; // 9月 (0始まり)
   
-  let isAdminLoggedIn = sessionStorage.getItem("masaki_admin_logged_in") === "true";
+  let isAdminLoggedIn = false;
+auth.onAuthStateChanged((user) => {
+if (user && user.uid === ADMIN_UID) {
+  isAdminLoggedIn = true;
+  initializeCloudData();
+  } else {
+    isAdminLoggedIn = false;
+  }
 
+  applyAdminLoginStateUI();
+  render();
+});
   // 隠しコマンド（3回連続タップ用）の変数
   let secretTapCount = 0;
   let secretTapTimer = null;
@@ -657,14 +667,104 @@
     saveItemsToStorage();
   }
 
-  function saveItemsToStorage() {
-    localStorage.setItem("masaki_schedule_items", JSON.stringify(itemsData));
+async function saveItemsToStorage() {
+  // 今まで通り端末にも保存
+  localStorage.setItem("masaki_schedule_items", JSON.stringify(itemsData));
+
+  // 管理者ログイン中ならFirestoreにも保存
+  if (auth.currentUser && auth.currentUser.uid === ADMIN_UID) {
+    try {
+      await db.collection("appData").doc("main").set({
+        items: itemsData,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+
+      console.log("予定をFirestoreに保存しました");
+    } catch (error) {
+      console.error("Firestore保存エラー:", error);
+      alert("予定のクラウド保存に失敗しました");
+    }
+  }
+}
+
+async function saveNotificationsToStorage() {
+ function loadCloudData() {
+  db.collection("appData").doc("main").onSnapshot((doc) => {
+    if (!doc.exists) {
+      console.log("Firestoreにまだデータがありません");
+      return;
+    }
+
+    const data = doc.data();
+
+    if (Array.isArray(data.items)) {
+      itemsData = data.items;
+      localStorage.setItem(
+        "masaki_schedule_items",
+        JSON.stringify(itemsData)
+      );
+    }
+
+    if (Array.isArray(data.notifications)) {
+      notificationsData = data.notifications;
+      localStorage.setItem(
+        "masaki_schedule_notifications",
+        JSON.stringify(notificationsData)
+      );
+    }
+
+    updateNotificationDot();
+    render();
+  }, (error) => {
+    console.error("Firestore読み込みエラー:", error);
+  });
+}
+
+loadCloudData(); 
+  async function initializeCloudData() {
+  if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return;
+
+  const docRef = db.collection("appData").doc("main");
+
+  try {
+    const snapshot = await docRef.get();
+
+    if (!snapshot.exists) {
+      await docRef.set({
+        items: itemsData,
+        notifications: notificationsData,
+        updatedAt: new Date().toISOString()
+      });
+
+      console.log("初期データをFirestoreに登録しました");
+    }
+  } catch (error) {
+    console.error("初期データ登録エラー:", error);
+  }
+}
+  // 今まで通り端末にも保存
+  localStorage.setItem(
+    "masaki_schedule_notifications",
+    JSON.stringify(notificationsData)
+  );
+
+  // 管理者ログイン中ならFirestoreにも保存
+  if (auth.currentUser && auth.currentUser.uid === ADMIN_UID) {
+    try {
+      await db.collection("appData").doc("main").set({
+        notifications: notificationsData,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+
+      console.log("通知をFirestoreに保存しました");
+    } catch (error) {
+      console.error("Firestore保存エラー:", error);
+      alert("通知のクラウド保存に失敗しました");
+    }
   }
 
-  function saveNotificationsToStorage() {
-    localStorage.setItem("masaki_schedule_notifications", JSON.stringify(notificationsData));
-    updateNotificationDot();
-  }
+  updateNotificationDot();
+}
 
   function addNotification(itemId, title) {
     const now = new Date();
@@ -1136,12 +1236,6 @@ async function checkAndToggleForm() {
     render();
   }
 }
-      return;
-    }
-    const form = document.getElementById("admin-form");
-    form.style.display = form.style.display === "block" ? "none" : "block";
-    if (form.style.display === "block" && !document.getElementById("edit-item-id").value) resetFormToCreateMode();
-  }
 
   function toggleFormFromFloating() {
     const form = document.getElementById("admin-form");
