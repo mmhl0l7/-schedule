@@ -383,16 +383,10 @@
     .admin-footer-btn:hover { opacity: 1; }
     .admin-footer-btn.logged-in { color: var(--deep-color); font-weight: bold; opacity: 1; text-decoration: underline; }
   </style>
-  <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-  import {
-    getAuth,
-    signInWithEmailAndPassword,
-    onAuthStateChanged,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyCCamtK5vM2iu5L2Iv4uUnqSOHmlYghC0k",
     authDomain: "masaki-schedule.firebaseapp.com",
@@ -402,11 +396,12 @@
     appId: "1:791504358903:web:29750bc06544b17296f2f2"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
+  firebase.initializeApp(firebaseConfig);
 
-  console.log("Firebase connected!");
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+
+  const ADMIN_UID = "5uL7W9C9nSbrxUaXDFZBBnxQkWG3";
 </script>
 </head>
 <body>
@@ -1104,28 +1099,43 @@
       checkAndToggleForm();
     }
   }
+async function checkAndToggleForm() {
+  if (!isAdminLoggedIn) {
+    const email = prompt("管理者メールアドレスを入力してください：");
+    if (!email) return;
 
-  function checkAndToggleForm() {
-    if (!isAdminLoggedIn) {
-      const pwd = prompt("管理者パスワードを入力してください：");
-      if (pwd === "masaki123") {
-        isAdminLoggedIn = true;
-        sessionStorage.setItem("masaki_admin_logged_in", "true");
-        applyAdminLoginStateUI();
-        alert("管理者としてログインしました！");
-        render();
-      } else {
-        if (pwd !== null) alert("パスワードが違います");
+    const password = prompt("管理者パスワードを入力してください：");
+    if (!password) return;
+
+    try {
+      const userCredential = await auth.signInWithEmailAndPassword(
+        email,
+        password
+      );
+
+      if (userCredential.user.uid !== ADMIN_UID) {
+        await auth.signOut();
+        alert("管理者アカウントではありません");
         return;
       }
-    } else {
-      if (confirm("ログアウトしますか？")) {
-        isAdminLoggedIn = false;
-        sessionStorage.removeItem("masaki_admin_logged_in");
-        applyAdminLoginStateUI();
-        alert("ログアウトしました");
-        render();
-      }
+
+      isAdminLoggedIn = true;
+      applyAdminLoginStateUI();
+      alert("管理者としてログインしました！");
+      render();
+
+    } catch (error) {
+      console.error(error);
+      alert("ログインできませんでした。\nメールアドレスまたはパスワードを確認してください。");
+    }
+
+  } else {
+    await auth.signOut();
+    isAdminLoggedIn = false;
+    applyAdminLoginStateUI();
+    render();
+  }
+}
       return;
     }
     const form = document.getElementById("admin-form");
