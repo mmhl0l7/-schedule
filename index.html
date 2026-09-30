@@ -451,7 +451,7 @@
   </div>
 
   <div class="form-container" id="profile-form">
-    <div style="font-size: 13px; font-weight: bold; color: var(--deep-color); margin-bottom: 8px;">✏️ プロフィール・リンク編集</div>
+    <div style="font-size: 13px; font-weight: bold; color: var(--deep-color); margin-bottom: 8px;">✏️️ プロフィール・リンク編集</div>
     <div class="form-group"><label>名前</label><input type="text" id="input-pf-name" value="橋本将生 (Masaki Hashimoto)"></div>
     <div class="form-group"><label>サブタイトル</label><input type="text" id="input-pf-sub" value="プロフィール＆関連リンクまとめ"></div>
     <div class="form-group"><label>アイコン</label><input type="text" id="input-pf-icon" value="🩷"></div>
@@ -493,6 +493,15 @@
     <div class="form-group" id="group-end-date" style="display:none;"><label>終了日</label><input type="date" id="input-end-date"></div>
     <div class="form-group" id="group-time"><label>時間</label><input type="time" id="input-time" value="20:00"></div>
     <div class="form-group"><label>タイトル</label><input type="text" id="input-title" placeholder="タイトルを入力"></div>
+    <div class="form-group">
+      <label>繰り返し設定</label>
+      <select id="input-repeat">
+        <option value="none">繰り返さない（通常）</option>
+        <option value="yearly">毎年（誕生日・記念日など）</option>
+        <option value="monthly">毎月</option>
+        <option value="weekly">毎週</option>
+      </select>
+    </div>
     <div class="form-group">
       <label>内容詳細（省略可）</label>
       <textarea id="input-desc" rows="3" placeholder="【現場リポート】など"></textarea>
@@ -670,7 +679,6 @@
     try { itemsData = JSON.parse(savedItems); } catch (e) { itemsData = []; }
   }
 
-  // --- ローカルの予約データを読み込む・マージする関数 ---
   function getLocalReservations(itemId) {
     try {
       const allLocalRes = JSON.parse(localStorage.getItem("masaki_schedule_user_reservations") || "{}");
@@ -689,13 +697,11 @@
   }
 
   function getItemReservations(item) {
-    // ユーザー独自の予約データがあればそれを優先、なければアイテム自体の初期値またはデフォルト
     let localRes = getLocalReservations(item.id);
     if (localRes) return localRes;
     if (item.reservations) return item.reservations;
     return JSON.parse(JSON.stringify(defaultReservations));
   }
-  // --------------------------------------------------------
 
   let notificationsData = [];
   const savedNotifs = localStorage.getItem("masaki_schedule_notifications");
@@ -706,12 +712,12 @@
   if (itemsData.length === 0) {
     itemsData = [
       { 
-        id: 1, type: "MAGAZINE", date: "2026-10-01", endDate: "", time: "", title: "J Movie Magazine Vol.135 (表紙)", desc: "【新作現場リポート】\n橋本将生 『お姉ちゃんの翠くん』", status: ["予約受付中", "表紙"], member: "橋本将生", 
+        id: 1, type: "MAGAZINE", date: "2026-10-01", endDate: "", time: "", title: "J Movie Magazine Vol.135 (表紙)", desc: "【新作現場リポート】\n橋本将生 『お姉ちゃんの翠くん』", status: ["予約受付中", "表紙"], member: "橋本将生", repeat: "none",
         links: [{name: "Amazon", url: "https://amazon.co.jp"}], 
         reservations: JSON.parse(JSON.stringify(defaultReservations))
       },
       { 
-        id: 2, type: "MASAKI", date: "2026-08-15", endDate: "", time: "", title: "ココまさきのサンプル記事・予定", desc: "ここにココまさきの予定が入ります。", status: ["話題・言及"], member: "橋本将生", 
+        id: 2, type: "MASAKI", date: "2026-08-15", endDate: "", time: "", title: "ココまさきのサンプル記事・予定", desc: "ここにココまさきの予定が入ります。", status: ["話題・言及"], member: "橋本将生", repeat: "none",
         links: [], 
         reservations: JSON.parse(JSON.stringify(defaultReservations))
       }
@@ -720,10 +726,9 @@
   }
 
   async function saveItemsToStorage() {
-    // クラウド側には個人の予約データを含めないようにクリーンな状態で保存する
     let cleanItems = itemsData.map(item => {
       let copy = {...item};
-      delete copy.reservations; // 予約情報はFirestoreに共有しない！
+      delete copy.reservations;
       return copy;
     });
 
@@ -747,7 +752,6 @@
 
       const data = doc.data();
       if (Array.isArray(data.items)) {
-        // クラウドから受け取ったアイテムに、各端末ごとの個人予約データを紐付ける
         itemsData = data.items.map(cloudItem => {
           let existingLocal = itemsData.find(i => i.id === cloudItem.id);
           let userRes = getLocalReservations(cloudItem.id) || (existingLocal ? existingLocal.reservations : null) || JSON.parse(JSON.stringify(defaultReservations));
@@ -1367,6 +1371,7 @@
     const now = new Date();
     document.getElementById("input-date").value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
     document.getElementById("input-title").value = "";
+    document.getElementById("input-repeat").value = "none";
     document.getElementById("input-desc").value = "";
     updateFormStatusOptions();
     updateFormVisibilityBytype();
@@ -1507,6 +1512,7 @@
     const date = document.getElementById("input-date").value;
     const type = document.getElementById("input-type").value;
     const title = document.getElementById("input-title").value;
+    const repeat = document.getElementById("input-repeat").value;
     const desc = document.getElementById("input-desc").value;
     const status = Array.from(document.querySelectorAll('input[name="form-status-checkbox"]:checked')).map(cb => cb.value);
 
@@ -1518,13 +1524,13 @@
     if (editId) {
       const item = itemsData.find(i => i.id == editId);
       if (item) {
-        item.date = date; item.title = title; item.desc = desc; item.type = type; item.status = status; item.links = parsedLinks;
+        item.date = date; item.title = title; item.repeat = repeat; item.desc = desc; item.type = type; item.status = status; item.links = parsedLinks;
       }
       alert("更新しました！");
     } else {
       const newId = Date.now();
       itemsData.push({ 
-        id: newId, type, date, endDate: "", time: "20:00", title, desc, status, member: "橋本将生", links: parsedLinks, 
+        id: newId, type, date, endDate: "", time: "20:00", title, repeat, desc, status, member: "橋本将生", links: parsedLinks, 
         reservations: JSON.parse(JSON.stringify(defaultReservations))
       });
       addNotification(newId, title);
@@ -1535,6 +1541,66 @@
     document.getElementById("admin-form").style.display = "none";
     resetFormToCreateMode();
     render();
+  }
+
+  // 繰り返し設定を展開して現在の表示期間に合わせる関数
+  function expandRecurringItems(baseItems, targetYear, targetMonth) {
+    let expanded = [];
+
+    baseItems.forEach(item => {
+      let repeat = item.repeat || "none";
+      if (repeat === "none") {
+        expanded.push(item);
+        return;
+      }
+
+      let origDate = new Date(item.date);
+      if (isNaN(origDate)) {
+        expanded.push(item);
+        return;
+      }
+
+      if (repeat === "yearly") {
+        let m = origDate.getMonth();
+        let d = origDate.getDate();
+        let newDateStr = `${targetYear}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        expanded.push({ ...item, date: newDateStr });
+      } else if (repeat === "monthly") {
+        let d = origDate.getDate();
+        // 該当月にその日が存在するかチェック（例：31日がない月への配慮）
+        let lastDay = new Date(targetYear, targetMonth + 1, 0).getDate();
+        let actualDay = Math.min(d, lastDay);
+        let newDateStr = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(actualDay).padStart(2, '0')}`;
+        expanded.push({ ...item, date: newDateStr });
+      } else if (repeat === "weekly") {
+        // 毎週の場合：基準日から7日おきに展開
+        let curr = new Date(origDate);
+        let startLimit = new Date(targetYear, targetMonth, 1);
+        let endLimit = new Date(targetYear, targetMonth + 1, 0);
+
+        // 過去分から指定月まで進める、または指定月の前後数週間をカバー
+        curr.setFullYear(targetYear);
+        curr.setMonth(targetMonth);
+        curr.setDate(1);
+        
+        // 曜日を合わせる
+        let dayDiff = origDate.getDay() - curr.getDay();
+        curr.setDate(curr.getDate() + dayDiff);
+
+        for (let i = 0; i < 6; i++) {
+          if (curr >= new Date(targetYear, targetMonth, 1) && curr <= new Date(targetYear, targetMonth + 1, 0)) {
+            let y = curr.getFullYear();
+            let m = curr.getMonth() + 1;
+            let d = curr.getDate();
+            let newDateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            expanded.push({ ...item, date: newDateStr, id: `${item.id}_w_${y}${m}${d}` });
+          }
+          curr.setDate(curr.getDate() + 7);
+        }
+      }
+    });
+
+    return expanded;
   }
 
   function filterItems() {
@@ -1553,13 +1619,25 @@
     container.innerHTML = "";
     let filtered = filterItems();
 
+    // カレンダーまたはリストの表示月に合わせて繰り返し予定を展開
+    let targetYear = currentCalYear;
+    let targetMonth = currentCalMonth;
+    if (currentViewMode === 'list' && currentMainType !== 'MASAKI' && filtered.length > 0) {
+      // リスト表示の場合は現在の日付を基準にする
+      let now = new Date();
+      targetYear = now.getFullYear();
+      targetMonth = now.getMonth();
+    }
+
+    let finalData = expandRecurringItems(filtered, targetYear, targetMonth);
+
     if (currentMainType === "MASAKI") {
-      renderMonthAccordionListView(filtered, container);
+      renderMonthAccordionListView(finalData, container);
     } else {
       if (currentViewMode === "calendar") {
-        renderCalendarView(filtered, container);
+        renderCalendarView(finalData, container);
       } else {
-        renderNormalListView(filtered, container);
+        renderNormalListView(finalData, container);
       }
     }
   }
@@ -1618,6 +1696,7 @@
     document.getElementById("edit-item-id").value = item.id;
     document.getElementById("input-date").value = item.date;
     document.getElementById("input-title").value = item.title;
+    document.getElementById("input-repeat").value = item.repeat || "none";
     document.getElementById("input-desc").value = item.desc || "";
     document.getElementById("input-type").value = item.type;
     updateFormStatusOptions(item.status);
