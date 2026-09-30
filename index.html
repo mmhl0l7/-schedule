@@ -361,6 +361,17 @@
     .modal-date-title { font-size: 14px; font-weight: bold; color: var(--deep-color); }
     .modal-close-btn { background: none; border: none; font-size: 18px; font-weight: bold; color: #888; cursor: pointer; padding: 0 4px; }
 
+    .login-modal-box {
+      background: #fff;
+      width: 90%;
+      max-width: 320px;
+      border-radius: 16px;
+      padding: 16px;
+      box-sizing: border-box;
+      margin: auto;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+
     .manage-modal-title-area { margin-bottom: 14px; }
     .manage-modal-main-title { font-size: 13px; font-weight: bold; color: #222; margin-top: 2px; }
     .manage-section-title { font-size: 12px; font-weight: bold; color: var(--deep-color); margin: 12px 0 6px 0; }
@@ -517,6 +528,20 @@
   ＋ 新規スケジュール追加
 </button>
 
+<!-- ログインモーダル (セキュア化) -->
+<div class="modal-overlay" id="login-modal" onclick="closeLoginModal(event)">
+  <div class="login-modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header-row" style="margin-bottom: 10px;">
+      <span style="font-size: 14px; font-weight: bold; color: var(--deep-color);">管理者ログイン</span>
+      <button class="modal-close-btn" onclick="closeLoginModalDirect()">×</button>
+    </div>
+    <div class="form-group"><label>メールアドレス</label><input type="email" id="login-email-input" placeholder="email@example.com"></div>
+    <div class="form-group"><label>パスワード</label><input type="password" id="login-pass-input" placeholder="パスワード"></div>
+    <button class="submit-btn" onclick="submitLoginModal()">ログイン</button>
+  </div>
+</div>
+
+<!-- 通知ドロワー -->
 <div class="notification-drawer-overlay" id="notif-drawer" onclick="closeNotificationDrawer(event)">
   <div class="notification-drawer" onclick="event.stopPropagation()">
     <div class="notif-header-row">
@@ -530,6 +555,7 @@
   </div>
 </div>
 
+<!-- カレンダー詳細モーダル -->
 <div class="modal-overlay" id="cal-modal" onclick="closeCalendarModal(event)">
   <div class="modal-content" onclick="event.stopPropagation()">
     <div class="modal-header-row">
@@ -540,6 +566,7 @@
   </div>
 </div>
 
+<!-- 管理ステータスモーダル -->
 <div class="modal-overlay" id="manage-modal" onclick="closeManageModal(event)">
   <div class="modal-content" onclick="event.stopPropagation()">
     <div class="manage-modal-title-area">
@@ -578,8 +605,8 @@
   let currentMemberFilters = ["すべて"];
   let currentStatusFilters = ["すべて"];
   let currentViewMode = "list";
-  let currentCalYear = 2026;
-  let currentCalMonth = 8;
+  let currentCalYear = new Date().getFullYear();
+  let currentCalMonth = new Date().getMonth();
   
   let isAdminLoggedIn = false;
   auth.onAuthStateChanged((user) => {
@@ -757,18 +784,119 @@
     else dot.classList.remove("show");
   }
 
+  // --- 背景スクロール制御付きモーダル・ドロワー関数 ---
   function openNotificationDrawer() {
+    document.body.style.overflow = "hidden";
     renderNotificationList();
     document.getElementById("notif-drawer").classList.add("open");
   }
 
   function closeNotificationDrawerDirect() {
+    document.body.style.overflow = "";
     document.getElementById("notif-drawer").classList.remove("open");
   }
 
   function closeNotificationDrawer(e) {
-    document.getElementById("notif-drawer").classList.remove("open");
+    closeNotificationDrawerDirect();
   }
+
+  function openCalendarModal(dateStr, events) {
+    document.body.style.overflow = "hidden";
+    activeCalendarDateStr = dateStr;
+    activeCalendarEvents = events;
+
+    const [y, m, d] = dateStr.split("-");
+    const dateObj = new Date(y, m - 1, d);
+    const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+    const wday = weekdays[dateObj.getDay()];
+
+    document.getElementById("modal-date-title").textContent = `${y}年${parseInt(m)}月${parseInt(d)}日(${wday})`;
+
+    const itemsContainer = document.getElementById("modal-items-container");
+    itemsContainer.innerHTML = "";
+    events.forEach(item => {
+      let wrapper = document.createElement("div");
+      wrapper.innerHTML = createCardHtml(item);
+      itemsContainer.appendChild(wrapper.firstElementChild);
+    });
+
+    document.getElementById("cal-modal").classList.add("open");
+  }
+
+  function closeCalendarModalDirect() {
+    document.body.style.overflow = "";
+    activeCalendarDateStr = null;
+    activeCalendarEvents = null;
+    document.getElementById("cal-modal").classList.remove("open");
+  }
+
+  function closeCalendarModal(e) {
+    closeCalendarModalDirect();
+  }
+
+  function openManageModal(id) {
+    document.body.style.overflow = "hidden";
+    activeManageItemId = id;
+    const item = itemsData.find(i => i.id === id);
+    if (!item) return;
+
+    document.getElementById("manage-modal-item-title").textContent = item.title;
+    renderManageLists(item);
+    document.getElementById("manage-modal").classList.add("open");
+  }
+
+  function closeManageModalDirect() {
+    document.body.style.overflow = "";
+    document.getElementById("manage-modal").classList.remove("open");
+  }
+
+  function closeManageModal(e) {
+    closeManageModalDirect();
+  }
+
+  function openLoginModal() {
+    document.body.style.overflow = "hidden";
+    document.getElementById("login-email-input").value = "";
+    document.getElementById("login-pass-input").value = "";
+    document.getElementById("login-modal").classList.add("open");
+  }
+
+  function closeLoginModalDirect() {
+    document.body.style.overflow = "";
+    document.getElementById("login-modal").classList.remove("open");
+  }
+
+  function closeLoginModal(e) {
+    closeLoginModalDirect();
+  }
+
+  async function submitLoginModal() {
+    const email = document.getElementById("login-email-input").value.trim();
+    const password = document.getElementById("login-pass-input").value;
+    if (!email || !password) {
+      alert("メールアドレスとパスワードを入力してください");
+      return;
+    }
+
+    try {
+      const userCredential = await auth.signInWithEmailAndPassword(email, password);
+      if (userCredential.user.uid !== ADMIN_UID) {
+        await auth.signOut();
+        alert("管理者アカウントではありません");
+        return;
+      }
+
+      isAdminLoggedIn = true;
+      applyAdminLoginStateUI();
+      closeLoginModalDirect();
+      alert("管理者としてログインしました！");
+      render();
+    } catch (error) {
+      console.error(error);
+      alert("ログインできませんでした。\nメールアドレスまたはパスワードを確認してください。");
+    }
+  }
+  // ----------------------------------------------------
 
   function markAllNotificationsRead() {
     notificationsData.forEach(n => n.unread = false);
@@ -1167,28 +1295,7 @@
 
   async function checkAndToggleForm() {
     if (!isAdminLoggedIn) {
-      const email = prompt("管理者メールアドレスを入力してください：");
-      if (!email) return;
-
-      const password = prompt("管理者パスワードを入力してください：");
-      if (!password) return;
-
-      try {
-        const userCredential = await auth.signInWithEmailAndPassword(email, password);
-        if (userCredential.user.uid !== ADMIN_UID) {
-          await auth.signOut();
-          alert("管理者アカウントではありません");
-          return;
-        }
-
-        isAdminLoggedIn = true;
-        applyAdminLoginStateUI();
-        alert("管理者としてログインしました！");
-        render();
-      } catch (error) {
-        console.error(error);
-        alert("ログインできませんでした。\nメールアドレスまたはパスワードを確認してください。");
-      }
+      openLoginModal();
     } else {
       await auth.signOut();
       isAdminLoggedIn = false;
@@ -1236,24 +1343,6 @@
 
   function toggleMonthAccordion(cardEl) {
     cardEl.classList.toggle("open");
-  }
-
-  function openManageModal(id) {
-    activeManageItemId = id;
-    const item = itemsData.find(i => i.id === id);
-    if (!item) return;
-
-    document.getElementById("manage-modal-item-title").textContent = item.title;
-    renderManageLists(item);
-    document.getElementById("manage-modal").classList.add("open");
-  }
-
-  function closeManageModalDirect() {
-    document.getElementById("manage-modal").classList.remove("open");
-  }
-
-  function closeManageModal(e) {
-    document.getElementById("manage-modal").classList.remove("open");
   }
 
   function renderManageLists(item) {
@@ -1418,7 +1507,6 @@
     let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
 
     if (item.type === "MAGAZINE") {
-      // タイトルに「誕生日」または「記念日」が含まれていない場合のみ管理ステータスを表示
       const isBirthdayOrAnniversary = item.title.includes("誕生日") || item.title.includes("記念日");
       
       if (!isBirthdayOrAnniversary) {
@@ -1485,6 +1573,7 @@
       container.innerHTML = `<div class="no-data">該当する予定はありません</div>`;
       return;
     }
+    // 日付順（古い順）に整理
     data.sort((a, b) => a.date.localeCompare(b.date));
     data.forEach(item => {
       let wrapper = document.createElement("div");
@@ -1626,40 +1715,6 @@
     currentCalYear = now.getFullYear();
     currentCalMonth = now.getMonth();
     render();
-  }
-
-  function openCalendarModal(dateStr, events) {
-    activeCalendarDateStr = dateStr;
-    activeCalendarEvents = events;
-
-    const [y, m, d] = dateStr.split("-");
-    const dateObj = new Date(y, m - 1, d);
-    const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
-    const wday = weekdays[dateObj.getDay()];
-
-    document.getElementById("modal-date-title").textContent = `${y}年${parseInt(m)}月${parseInt(d)}日(${wday})`;
-
-    const itemsContainer = document.getElementById("modal-items-container");
-    itemsContainer.innerHTML = "";
-    events.forEach(item => {
-      let wrapper = document.createElement("div");
-      wrapper.innerHTML = createCardHtml(item);
-      itemsContainer.appendChild(wrapper.firstElementChild);
-    });
-
-    document.getElementById("cal-modal").classList.add("open");
-  }
-
-  function closeCalendarModalDirect() {
-    activeCalendarDateStr = null;
-    activeCalendarEvents = null;
-    document.getElementById("cal-modal").classList.remove("open");
-  }
-
-  function closeCalendarModal(e) {
-    activeCalendarDateStr = null;
-    activeCalendarEvents = null;
-    document.getElementById("cal-modal").classList.remove("open");
   }
 
   const nowInit = new Date();
