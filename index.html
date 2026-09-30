@@ -377,7 +377,6 @@
     .manage-save-btn { background: #4db6ac; color: #fff; border: none; width: 100%; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 14px; }
     .manage-clear-btn { background: #fff; color: #666; border: 1px solid #ccc; width: 100%; padding: 8px; border-radius: 12px; font-weight: bold; font-size: 12px; cursor: pointer; margin-top: 8px; }
 
-    /* コピーライト風の隠しログインエリア */
     .footer-admin-area { text-align: center; margin: 30px 0 15px 0; }
     .admin-footer-btn { background: none; border: none; color: #e8d0d8; font-size: 9px; cursor: pointer; text-decoration: none; padding: 5px; opacity: 0.6; }
     .admin-footer-btn:hover { opacity: 1; }
@@ -510,7 +509,6 @@
   <div id="content-area"></div>
 
   <div class="footer-admin-area">
-    <!-- 3回連続タップ（隠しコマンド）でログイン判定を行う -->
     <button class="admin-footer-btn" id="admin-toggle-btn" onclick="handleSecretAdminTap()">© Masaki Schedule</button>
   </div>
 </div>
@@ -581,21 +579,21 @@
   let currentStatusFilters = ["すべて"];
   let currentViewMode = "list";
   let currentCalYear = 2026;
-  let currentCalMonth = 8; // 9月 (0始まり)
+  let currentCalMonth = 8;
   
   let isAdminLoggedIn = false;
-auth.onAuthStateChanged((user) => {
-if (user && user.uid === ADMIN_UID) {
-  isAdminLoggedIn = true;
-  initializeCloudData();
-  } else {
-    isAdminLoggedIn = false;
-  }
+  auth.onAuthStateChanged((user) => {
+    if (user && user.uid === ADMIN_UID) {
+      isAdminLoggedIn = true;
+      initializeCloudData();
+    } else {
+      isAdminLoggedIn = false;
+    }
 
-  applyAdminLoginStateUI();
-  render();
-});
-  // 隠しコマンド（3回連続タップ用）の変数
+    applyAdminLoginStateUI();
+    render();
+  });
+
   let secretTapCount = 0;
   let secretTapTimer = null;
 
@@ -667,121 +665,76 @@ if (user && user.uid === ADMIN_UID) {
     saveItemsToStorage();
   }
 
-async function saveItemsToStorage() {
-  // 今まで通り端末にも保存
-  localStorage.setItem("masaki_schedule_items", JSON.stringify(itemsData));
+  async function saveItemsToStorage() {
+    localStorage.setItem("masaki_schedule_items", JSON.stringify(itemsData));
 
-  // 管理者ログイン中ならFirestoreにも保存
-  if (auth.currentUser && auth.currentUser.uid === ADMIN_UID) {
-    try {
-      await db.collection("appData").doc("main").set({
-        items: itemsData,
-        updatedAt: new Date().toISOString()
-      }, { merge: true });
-
-      console.log("予定をFirestoreに保存しました");
-    } catch (error) {
-      console.error("Firestore保存エラー:", error);
-      alert("予定のクラウド保存に失敗しました");
+    if (auth.currentUser && auth.currentUser.uid === ADMIN_UID) {
+      try {
+        await db.collection("appData").doc("main").set({
+          items: itemsData,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+      } catch (error) {
+        console.error("Firestore保存エラー:", error);
+      }
     }
   }
-}
 
-function loadCloudData() {
-  console.log("Firestore読み込み開始");
-  
-  db.collection("appData").doc("main").onSnapshot((doc) => {
-    console.log("Firestore読み込み成功");
+  function loadCloudData() {
+    db.collection("appData").doc("main").onSnapshot((doc) => {
+      if (!doc.exists) return;
 
-    if (!doc.exists) {
-      console.log("Firestoreにまだデータがありません");
-      return;
-    }
+      const data = doc.data();
+      if (Array.isArray(data.items)) {
+        itemsData = data.items;
+        localStorage.setItem("masaki_schedule_items", JSON.stringify(itemsData));
+      }
 
-    const data = doc.data();
-    console.log("Firestoreデータ:", data);
+      if (Array.isArray(data.notifications)) {
+        notificationsData = data.notifications;
+        localStorage.setItem("masaki_schedule_notifications", JSON.stringify(notificationsData));
+      }
 
-    if (Array.isArray(data.items)) {
-      itemsData = data.items;
-
-      localStorage.setItem(
-        "masaki_schedule_items",
-        JSON.stringify(itemsData)
-      );
-
-      console.log("予定データを読み込みました:", itemsData.length);
-    }
-
-    if (Array.isArray(data.notifications)) {
-      notificationsData = data.notifications;
-
-      localStorage.setItem(
-        "masaki_schedule_notifications",
-        JSON.stringify(notificationsData)
-      );
-
-      console.log("通知データを読み込みました:", notificationsData.length);
-    }
-
-    updateNotificationDot();
-    render();
-
-  }, (error) => {
-    console.error("Firestore読み込みエラー:", error);
-
-    alert(
-      "予定データを読み込めませんでした。\n\n" +
-      "エラーコード: " + error.code + "\n" +
-      "内容: " + error.message
-    );
-  });
-}
+      updateNotificationDot();
+      render();
+    }, (error) => {
+      console.error("Firestore読み込みエラー:", error);
+    });
+  }
   loadCloudData();
+
   async function initializeCloudData() {
-  if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return;
-
-  const docRef = db.collection("appData").doc("main");
-
-  try {
-    const snapshot = await docRef.get();
-
-    if (!snapshot.exists) {
-      await docRef.set({
-        items: itemsData,
-        notifications: notificationsData,
-        updatedAt: new Date().toISOString()
-      });
-
-      console.log("初期データをFirestoreに登録しました");
-    }
-  } catch (error) {
-    console.error("初期データ登録エラー:", error);
-  }
-}
-async function saveNotificationsToStorage() {
-  // 今まで通り端末にも保存
-  localStorage.setItem(
-    "masaki_schedule_notifications",
-    JSON.stringify(notificationsData)
-  );
-
-  // 管理者ログイン中ならFirestoreにも保存
-  if (auth.currentUser && auth.currentUser.uid === ADMIN_UID) {
+    if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return;
+    const docRef = db.collection("appData").doc("main");
     try {
-      await db.collection("appData").doc("main").set({
-        notifications: notificationsData,
-        updatedAt: new Date().toISOString()
-      }, { merge: true });
-
-      console.log("通知をFirestoreに保存しました");
+      const snapshot = await docRef.get();
+      if (!snapshot.exists) {
+        await docRef.set({
+          items: itemsData,
+          notifications: notificationsData,
+          updatedAt: new Date().toISOString()
+        });
+      }
     } catch (error) {
-      console.error("Firestore保存エラー:", error);
-      alert("通知のクラウド保存に失敗しました");
+      console.error("初期データ登録エラー:", error);
     }
   }
 
-  updateNotificationDot();
-}
+  async function saveNotificationsToStorage() {
+    localStorage.setItem("masaki_schedule_notifications", JSON.stringify(notificationsData));
+
+    if (auth.currentUser && auth.currentUser.uid === ADMIN_UID) {
+      try {
+        await db.collection("appData").doc("main").set({
+          notifications: notificationsData,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+      } catch (error) {
+        console.error("Firestore保存エラー:", error);
+      }
+    }
+    updateNotificationDot();
+  }
 
   function addNotification(itemId, title) {
     const now = new Date();
@@ -861,7 +814,6 @@ async function saveNotificationsToStorage() {
         let msg = decodeURIComponent(encodedMsg);
         let match = msg.match(/\[🩷\s*(.*?)\]/);
         let targetTitle = match ? match[1] : msg;
-        
         item = itemsData.find(i => targetTitle.includes(i.title) || i.title.includes(targetTitle));
       } catch(e) {}
     }
@@ -1193,9 +1145,7 @@ async function saveNotificationsToStorage() {
     }
   }
 
-  // 隠しコマンド（3回連続タップ）の処理
   function handleSecretAdminTap() {
-    // すでにログイン中の場合は、1回タップでログアウト確認等のためにそのままトグルを許可する
     if (isAdminLoggedIn) {
       checkAndToggleForm();
       return;
@@ -1204,55 +1154,48 @@ async function saveNotificationsToStorage() {
     secretTapCount++;
     clearTimeout(secretTapTimer);
 
-    // 0.5秒以内に次のタップがなければカウントをリセット
     secretTapTimer = setTimeout(() => {
       secretTapCount = 0;
     }, 500);
 
-    // 3回連続タップされた場合のみ管理者機能へ
     if (secretTapCount >= 3) {
       secretTapCount = 0;
       clearTimeout(secretTapTimer);
       checkAndToggleForm();
     }
   }
-async function checkAndToggleForm() {
-  if (!isAdminLoggedIn) {
-    const email = prompt("管理者メールアドレスを入力してください：");
-    if (!email) return;
 
-    const password = prompt("管理者パスワードを入力してください：");
-    if (!password) return;
+  async function checkAndToggleForm() {
+    if (!isAdminLoggedIn) {
+      const email = prompt("管理者メールアドレスを入力してください：");
+      if (!email) return;
 
-    try {
-      const userCredential = await auth.signInWithEmailAndPassword(
-        email,
-        password
-      );
+      const password = prompt("管理者パスワードを入力してください：");
+      if (!password) return;
 
-      if (userCredential.user.uid !== ADMIN_UID) {
-        await auth.signOut();
-        alert("管理者アカウントではありません");
-        return;
+      try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        if (userCredential.user.uid !== ADMIN_UID) {
+          await auth.signOut();
+          alert("管理者アカウントではありません");
+          return;
+        }
+
+        isAdminLoggedIn = true;
+        applyAdminLoginStateUI();
+        alert("管理者としてログインしました！");
+        render();
+      } catch (error) {
+        console.error(error);
+        alert("ログインできませんでした。\nメールアドレスまたはパスワードを確認してください。");
       }
-
-      isAdminLoggedIn = true;
+    } else {
+      await auth.signOut();
+      isAdminLoggedIn = false;
       applyAdminLoginStateUI();
-      alert("管理者としてログインしました！");
       render();
-
-    } catch (error) {
-      console.error(error);
-      alert("ログインできませんでした。\nメールアドレスまたはパスワードを確認してください。");
     }
-
-  } else {
-    await auth.signOut();
-    isAdminLoggedIn = false;
-    applyAdminLoginStateUI();
-    render();
   }
-}
 
   function toggleFormFromFloating() {
     const form = document.getElementById("admin-form");
@@ -1475,10 +1418,15 @@ async function checkAndToggleForm() {
     let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
 
     if (item.type === "MAGAZINE") {
-      let checkedCount = (item.reservations || []).filter(r => r.checked).length;
-      let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 管理ステータス";
-      let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
-      purchaseHtml = `<button class="${purchaseClass}" onclick="event.stopPropagation(); openManageModal(${item.id})">${purchaseText}</button>`;
+      // タイトルに「誕生日」または「記念日」が含まれていない場合のみ管理ステータスを表示
+      const isBirthdayOrAnniversary = item.title.includes("誕生日") || item.title.includes("記念日");
+      
+      if (!isBirthdayOrAnniversary) {
+        let checkedCount = (item.reservations || []).filter(r => r.checked).length;
+        let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 管理ステータス";
+        let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
+        purchaseHtml = `<button class="${purchaseClass}" onclick="event.stopPropagation(); openManageModal(${item.id})">${purchaseText}</button>`;
+      }
     }
 
     let statusTagsHtml = itemStatuses.map(st => `<span class="member-tag">${st}</span>`).join(" ");
