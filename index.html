@@ -689,7 +689,8 @@ async function saveItemsToStorage() {
 
 function loadCloudData() {
   console.log("Firestore読み込み開始");
-
+  alert("Firestore読み込み開始");
+  
   db.collection("appData").doc("main").onSnapshot((doc) => {
     console.log("Firestore読み込み成功");
 
