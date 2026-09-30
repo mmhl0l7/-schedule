@@ -689,10 +689,8 @@ async function saveItemsToStorage() {
 
 function loadCloudData() {
   console.log("Firestore読み込み開始");
-  alert("Firestore読み込み開始");
   
   db.collection("appData").doc("main").onSnapshot((doc) => {
-    alert("Firestore読み込み成功");
     console.log("Firestore読み込み成功");
 
     if (!doc.exists) {
@@ -712,7 +710,6 @@ function loadCloudData() {
       );
 
       console.log("予定データを読み込みました:", itemsData.length);
-      alert("予定データ：" + itemsData.length + "件");
     }
 
     if (Array.isArray(data.notifications)) {
