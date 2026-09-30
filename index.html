@@ -687,40 +687,55 @@ async function saveItemsToStorage() {
   }
 }
 
-async function saveNotificationsToStorage() {
- function loadCloudData() {
+function loadCloudData() {
+  console.log("Firestore読み込み開始");
+
   db.collection("appData").doc("main").onSnapshot((doc) => {
+    console.log("Firestore読み込み成功");
+
     if (!doc.exists) {
       console.log("Firestoreにまだデータがありません");
       return;
     }
 
     const data = doc.data();
+    console.log("Firestoreデータ:", data);
 
     if (Array.isArray(data.items)) {
       itemsData = data.items;
+
       localStorage.setItem(
         "masaki_schedule_items",
         JSON.stringify(itemsData)
       );
+
+      console.log("予定データを読み込みました:", itemsData.length);
     }
 
     if (Array.isArray(data.notifications)) {
       notificationsData = data.notifications;
+
       localStorage.setItem(
         "masaki_schedule_notifications",
         JSON.stringify(notificationsData)
       );
+
+      console.log("通知データを読み込みました:", notificationsData.length);
     }
 
     updateNotificationDot();
     render();
+
   }, (error) => {
     console.error("Firestore読み込みエラー:", error);
+
+    alert(
+      "予定データを読み込めませんでした。\n\n" +
+      "エラーコード: " + error.code + "\n" +
+      "内容: " + error.message
+    );
   });
 }
-
-loadCloudData(); 
   async function initializeCloudData() {
   if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return;
 
@@ -742,6 +757,7 @@ loadCloudData();
     console.error("初期データ登録エラー:", error);
   }
 }
+async function saveNotificationsToStorage() {
   // 今まで通り端末にも保存
   localStorage.setItem(
     "masaki_schedule_notifications",
