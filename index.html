@@ -528,7 +528,7 @@
   ＋ 新規スケジュール追加
 </button>
 
-<!-- ログインモーダル (セキュア化) -->
+<!-- ログインモーダル -->
 <div class="modal-overlay" id="login-modal" onclick="closeLoginModal(event)">
   <div class="login-modal-box" onclick="event.stopPropagation()">
     <div class="modal-header-row" style="margin-bottom: 10px;">
@@ -657,24 +657,51 @@
     ]
   };
 
-  let itemsData = [];
-  const savedItems = localStorage.getItem("masaki_schedule_items");
-  if (savedItems) {
-    try { itemsData = JSON.parse(savedItems); } catch (e) { itemsData = []; }
-  }
-
-  let notificationsData = [];
-  const savedNotifs = localStorage.getItem("masaki_schedule_notifications");
-  if (savedNotifs) {
-    try { notificationsData = JSON.parse(savedNotifs); } catch (e) { notificationsData = []; }
-  }
-
   const defaultReservations = [
     { name: "Amazon", checked: false, count: 1, type: "online" },
     { name: "楽天ブックス", checked: false, count: 1, type: "online" },
     { name: "セブンネット", checked: false, count: 1, type: "online" },
     { name: "タワーレコード", checked: false, count: 1, type: "online" }
   ];
+
+  let itemsData = [];
+  const savedItems = localStorage.getItem("masaki_schedule_items");
+  if (savedItems) {
+    try { itemsData = JSON.parse(savedItems); } catch (e) { itemsData = []; }
+  }
+
+  // --- ローカルの予約データを読み込む・マージする関数 ---
+  function getLocalReservations(itemId) {
+    try {
+      const allLocalRes = JSON.parse(localStorage.getItem("masaki_schedule_user_reservations") || "{}");
+      return allLocalRes[itemId] || null;
+    } catch(e) {
+      return null;
+    }
+  }
+
+  function saveLocalReservations(itemId, reservations) {
+    try {
+      const allLocalRes = JSON.parse(localStorage.getItem("masaki_schedule_user_reservations") || "{}");
+      allLocalRes[itemId] = reservations;
+      localStorage.setItem("masaki_schedule_user_reservations", JSON.stringify(allLocalRes));
+    } catch(e) {}
+  }
+
+  function getItemReservations(item) {
+    // ユーザー独自の予約データがあればそれを優先、なければアイテム自体の初期値またはデフォルト
+    let localRes = getLocalReservations(item.id);
+    if (localRes) return localRes;
+    if (item.reservations) return item.reservations;
+    return JSON.parse(JSON.stringify(defaultReservations));
+  }
+  // --------------------------------------------------------
+
+  let notificationsData = [];
+  const savedNotifs = localStorage.getItem("masaki_schedule_notifications");
+  if (savedNotifs) {
+    try { notificationsData = JSON.parse(savedNotifs); } catch (e) { notificationsData = []; }
+  }
 
   if (itemsData.length === 0) {
     itemsData = [
@@ -693,12 +720,19 @@
   }
 
   async function saveItemsToStorage() {
+    // クラウド側には個人の予約データを含めないようにクリーンな状態で保存する
+    let cleanItems = itemsData.map(item => {
+      let copy = {...item};
+      delete copy.reservations; // 予約情報はFirestoreに共有しない！
+      return copy;
+    });
+
     localStorage.setItem("masaki_schedule_items", JSON.stringify(itemsData));
 
     if (auth.currentUser && auth.currentUser.uid === ADMIN_UID) {
       try {
         await db.collection("appData").doc("main").set({
-          items: itemsData,
+          items: cleanItems,
           updatedAt: new Date().toISOString()
         }, { merge: true });
       } catch (error) {
@@ -713,7 +747,15 @@
 
       const data = doc.data();
       if (Array.isArray(data.items)) {
-        itemsData = data.items;
+        // クラウドから受け取ったアイテムに、各端末ごとの個人予約データを紐付ける
+        itemsData = data.items.map(cloudItem => {
+          let existingLocal = itemsData.find(i => i.id === cloudItem.id);
+          let userRes = getLocalReservations(cloudItem.id) || (existingLocal ? existingLocal.reservations : null) || JSON.parse(JSON.stringify(defaultReservations));
+          return {
+            ...cloudItem,
+            reservations: userRes
+          };
+        });
         localStorage.setItem("masaki_schedule_items", JSON.stringify(itemsData));
       }
 
@@ -736,8 +778,13 @@
     try {
       const snapshot = await docRef.get();
       if (!snapshot.exists) {
+        let cleanItems = itemsData.map(item => {
+          let copy = {...item};
+          delete copy.reservations;
+          return copy;
+        });
         await docRef.set({
-          items: itemsData,
+          items: cleanItems,
           notifications: notificationsData,
           updatedAt: new Date().toISOString()
         });
@@ -784,7 +831,6 @@
     else dot.classList.remove("show");
   }
 
-  // --- 背景スクロール制御付きモーダル・ドロワー関数 ---
   function openNotificationDrawer() {
     document.body.style.overflow = "hidden";
     renderNotificationList();
@@ -896,7 +942,6 @@
       alert("ログインできませんでした。\nメールアドレスまたはパスワードを確認してください。");
     }
   }
-  // ----------------------------------------------------
 
   function markAllNotificationsRead() {
     notificationsData.forEach(n => n.unread = false);
@@ -1351,11 +1396,11 @@
     onlineContainer.innerHTML = "";
     storeContainer.innerHTML = "";
 
-    if (!item.reservations) item.reservations = JSON.parse(JSON.stringify(defaultReservations));
+    let currentRes = getItemReservations(item);
 
     let hasStore = false;
 
-    item.reservations.forEach((res, index) => {
+    currentRes.forEach((res, index) => {
       let row = document.createElement("div");
       row.className = "manage-row-card";
       row.innerHTML = `
@@ -1385,14 +1430,22 @@
 
   function updateResCheck(index, checked) {
     const item = itemsData.find(i => i.id === activeManageItemId);
-    if (item && item.reservations[index]) item.reservations[index].checked = checked;
+    if (!item) return;
+    let currentRes = getItemReservations(item);
+    if (currentRes[index]) currentRes[index].checked = checked;
+    item.reservations = currentRes;
+    saveLocalReservations(item.id, currentRes);
   }
 
   function changeResCount(index, delta) {
     const item = itemsData.find(i => i.id === activeManageItemId);
-    if (item && item.reservations[index]) {
-      item.reservations[index].count = Math.max(1, item.reservations[index].count + delta);
-      document.getElementById(`res-count-${index}`).textContent = item.reservations[index].count;
+    if (!item) return;
+    let currentRes = getItemReservations(item);
+    if (currentRes[index]) {
+      currentRes[index].count = Math.max(1, currentRes[index].count + delta);
+      document.getElementById(`res-count-${index}`).textContent = currentRes[index].count;
+      item.reservations = currentRes;
+      saveLocalReservations(item.id, currentRes);
     }
   }
 
@@ -1404,14 +1457,20 @@
 
     const item = itemsData.find(i => i.id === activeManageItemId);
     if (item) {
-      item.reservations.push({ name: val, checked: true, count: 1, type: type });
+      let currentRes = getItemReservations(item);
+      currentRes.push({ name: val, checked: true, count: 1, type: type });
+      item.reservations = currentRes;
+      saveLocalReservations(item.id, currentRes);
       inputEl.value = "";
       renderManageLists(item);
     }
   }
 
   function saveManageModalData() {
-    saveItemsToStorage();
+    const item = itemsData.find(i => i.id === activeManageItemId);
+    if (item) {
+      saveLocalReservations(item.id, getItemReservations(item));
+    }
     closeManageModalDirect();
     render();
   }
@@ -1419,7 +1478,10 @@
   function clearAllReservations() {
     const item = itemsData.find(i => i.id === activeManageItemId);
     if (item) {
-      item.reservations.forEach(r => r.checked = false);
+      let currentRes = getItemReservations(item);
+      currentRes.forEach(r => r.checked = false);
+      item.reservations = currentRes;
+      saveLocalReservations(item.id, currentRes);
       renderManageLists(item);
     }
   }
@@ -1510,7 +1572,8 @@
       const isBirthdayOrAnniversary = item.title.includes("誕生日") || item.title.includes("記念日");
       
       if (!isBirthdayOrAnniversary) {
-        let checkedCount = (item.reservations || []).filter(r => r.checked).length;
+        let currentRes = getItemReservations(item);
+        let checkedCount = currentRes.filter(r => r.checked).length;
         let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 管理ステータス";
         let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
         purchaseHtml = `<button class="${purchaseClass}" onclick="event.stopPropagation(); openManageModal(${item.id})">${purchaseText}</button>`;
@@ -1573,7 +1636,6 @@
       container.innerHTML = `<div class="no-data">該当する予定はありません</div>`;
       return;
     }
-    // 日付順（古い順）に整理
     data.sort((a, b) => a.date.localeCompare(b.date));
     data.forEach(item => {
       let wrapper = document.createElement("div");
