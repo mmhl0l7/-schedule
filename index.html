@@ -692,6 +692,7 @@ function loadCloudData() {
   alert("Firestore読み込み開始");
   
   db.collection("appData").doc("main").onSnapshot((doc) => {
+    alert("Firestore読み込み成功");
     console.log("Firestore読み込み成功");
 
     if (!doc.exists) {
